@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fayetteville Girls Silver — Basketball IQ Academy</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --purple: #5b2a86;
+    --purple-dark: #3f1d61;
+    --silver: #9aa0a6;
+    --silver-light: #e8e9ec;
+    --gold: #c9961f;
+    --bad: #b5392f;
+    --ink: #1f2430;
+    --ink-dim: #5b606b;
+    --bg: #f6f5f8;
+    --surface: #ffffff;
+    --good: #1b7a43;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+  header { background: var(--purple); color: #fff; padding: 16px 16px 12px; text-align: center; position: sticky; top: 0; z-index: 5; }
+  header .team { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--silver-light); margin: 0 0 2px; }
+  header h1 { font-size: 21px; margin: 0; font-weight: 800; }
+  .tabbar { display: flex; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid #e2e0e6; }
+  .tabbar button { flex: 1; padding: 9px 6px; border-radius: 999px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 700; font-size: 12.5px; cursor: pointer; }
+  .tabbar button.active { background: var(--purple); color: #fff; }
+  main { flex: 1; padding: 14px 16px 28px; display: flex; flex-direction: column; gap: 12px; }
+  .section { display: none; flex-direction: column; gap: 12px; }
+  .section.active { display: flex; }
+  .card { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 16px; }
+  .card h2 { font-size: 16px; margin: 0 0 8px; }
+  .card p { font-size: 13.5px; color: var(--ink-dim); margin: 0; line-height: 1.5; }
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .game-grid { grid-template-columns: 1fr; } }
+  .game-card { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .game-card h3 { margin: 0; font-size: 15px; }
+  .game-card p { margin: 0; font-size: 12.5px; color: var(--ink-dim); line-height: 1.4; flex: 1; }
+  .game-card button { padding: 10px; border-radius: 10px; border: none; background: var(--purple); color: #fff; font-weight: 800; font-size: 13.5px; cursor: pointer; }
+  .game-card button:active { background: var(--purple-dark); }
+  .field { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1.5px solid #d8d6de; font-size: 14.5px; margin-bottom: 8px; }
+  .big-btn { width: 100%; padding: 13px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .big-btn:active { background: var(--purple-dark); }
+  .ghost-btn { padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 800; font-size: 13.5px; cursor: pointer; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #eceef0; color: #6b7076; }
+  .pill.in { background: #e7f4ec; color: var(--good); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .player-select { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+  .player-select select { padding: 8px 10px; border-radius: 8px; border: 1.5px solid #d8d6de; font-size: 13.5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e2e0e6; }
+  th { color: var(--ink-dim); font-weight: 700; font-size: 11.5px; text-transform: uppercase; }
+  .feedback-note { background: #f1ebf6; border-left: 4px solid var(--purple); border-radius: 10px; padding: 12px 13px; font-size: 13.5px; line-height: 1.5; margin: 6px 0; }
+  textarea.field { min-height: 90px; resize: vertical; font-family: inherit; }
+  .modal-overlay { position: fixed; inset: 0; background: #000a; z-index: 20; display: none; align-items: stretch; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-inner { background: var(--bg); width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--purple); color: #fff; }
+  .modal-head button { background: #ffffff33; border: none; color: #fff; font-weight: 800; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .modal-inner iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13.5px; z-index: 30; }
+  .muted { color: var(--ink-dim); font-size: 12.5px; }
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
+    <h1>Basketball IQ Academy</h1>
+  </header>
+
+  <div class="tabbar">
+    <button id="tabGamesBtn" class="active" data-tab="games">Games</button>
+    <button id="tabProgressBtn" data-tab="progress">My Progress</button>
+    <button id="tabCoachBtn" data-tab="coach">Coach Area</button>
+  </div>
+
+  <main id="main">
+
+    <section class="section active" id="section-games">
+      <div class="card">
+        <h2>Nine decision-training games</h2>
+        <p>No login needed to play. Sign in under My Progress if you want scores saved and to see coach feedback.</p>
+      </div>
+      <div class="game-grid" id="gameGrid"></div>
+    </section>
+
+    <section class="section" id="section-progress">
+      <div id="progressSignedOut" class="card">
+        <h2>Sign in to see your daughter's progress</h2>
+        <p>We'll email you a one-time sign-in link, no password to remember.</p>
+        <input class="field" type="email" id="progressEmail" placeholder="parent@email.com" style="margin-top:10px;">
+        <button class="big-btn" id="progressSendLink">Email me a sign-in link</button>
+        <p class="muted" id="progressAuthStatus" style="margin-top:8px;"></p>
+      </div>
+      <div id="progressSignedIn" style="display:none;">
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0;">Signed in</h2>
+            <button class="ghost-btn" id="progressSignOut">Sign out</button>
+          </div>
+          <p id="progressEmailLabel" class="muted"></p>
+        </div>
+        <div class="card" id="progressPlayerCard" style="display:none;">
+          <div class="player-select">
+            <label for="progressPlayerPick" style="margin:0;font-weight:700;font-size:13.5px;">Viewing:</label>
+            <select id="progressPlayerPick"></select>
+          </div>
+          <div id="progressStats"></div>
+        </div>
+        <div class="card" id="progressNoPlayers" style="display:none;">
+          <p>No player is linked to this email yet. Ask your coach to link your account to your daughter's player code.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="section-coach">
+      <div id="coachSignedOut" class="card">
+        <h2>Coach sign-in</h2>
+        <p>Same sign-in as parents, this area only unlocks for the coach account.</p>
+        <input class="field" type="email" id="coachEmail" placeholder="coach@email.com" style="margin-top:10px;">
+        <button class="big-btn" id="coachSendLink">Email me a sign-in link</button>
+        <p class="muted" id="coachAuthStatus" style="margin-top:8px;"></p>
+      </div>
+      <div id="coachNotAdmin" style="display:none;" class="card">
+        <h2>This account isn't set up as coach</h2>
+        <p>Signed in, but this email isn't marked as admin yet.</p>
+      </div>
+      <div id="coachSignedIn" style="display:none;">
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0;">Coach Dashboard</h2>
+            <button class="ghost-btn" id="coachSignOut">Sign out</button>
+          </div>
+          <div class="player-select" style="margin-top:10px;">
+            <label for="coachPlayerPick" style="margin:0;font-weight:700;font-size:13.5px;">Player:</label>
+            <select id="coachPlayerPick"></select>
+          </div>
+          <div id="coachStats"></div>
+        </div>
+        <div class="card">
+          <h2>Feedback for this player</h2>
+          <p class="muted">Only visible to her parent once you publish it. Leave blank and nothing shows.</p>
+          <textarea class="field" id="coachFeedbackInput" placeholder="Example: Great paint touches tonight, keep working on meeting the pass in triple threat."></textarea>
+          <div class="row">
+            <button class="big-btn" id="coachPublish" style="flex:1;">Publish feedback</button>
+            <button class="ghost-btn" id="coachUnpublish">Unpublish</button>
+          </div>
+          <p class="muted" id="coachFeedbackStatus" style="margin-top:8px;"></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>Game results save automatically when you're signed in and a player is selected. Playing without signing in still works, it just doesn't save.</footer>
+</div>
+
+<div class="modal-overlay" id="gameModal">
+  <div class="modal-inner">
+    <div class="modal-head">
+      <strong id="gameModalTitle">Game</strong>
+      <button id="gameModalClose">Close</button>
+    </div>
+    <iframe id="gameFrame" src="about:blank" title="Game"></iframe>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   CONFIG — publishable key is safe to embed client-side, this is the
+   anon/public key, not the service-role secret.
+--------------------------------------------------------------------- */
+const SUPABASE_URL = "https://qpykhrjggibsjklhazww.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_APUkqjy8i27ieoDOAmviPg_4UQ_dFit";
+
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+});
+
+const GAMES = [
+  { id: "advantage_hunter", title: "Advantage Hunter", desc: "Attack until stopped, then find the open pass.", file: "advantage_hunter.html" },
+  { id: "rotation_rescue", title: "Rotation Rescue", desc: "Defensive calls: go under, go over, help, switch.", file: "rotation_rescue.html" },
+  { id: "beat_the_closeout", title: "Beat the Closeout", desc: "Meet the pass and attack a closing defender.", file: "beat_the_closeout.html" },
+  { id: "last_90_seconds", title: "Last 90 Seconds", desc: "Late-clock decisions under pressure.", file: "last_90_seconds.html" },
+  { id: "spacing_detective", title: "Spacing Detective", desc: "Off-ball spacing and swinging the ball.", file: "spacing_detective.html" },
+  { id: "post_player_power", title: "Post Player Power", desc: "Seal, target, pivot, and finish in the post.", file: "post_player_power.html" },
+  { id: "shot_medal_challenge", title: "Shot Medal Challenge", desc: "Rate shots gold, silver, or bad.", file: "shot_medal_challenge.html" },
+  { id: "shooting_form", title: "Shooting Form", desc: "One-hand, backboard, and cookie-jar technique.", file: "shooting_form.html" },
+];
+
+const GAME_TITLES = Object.fromEntries(GAMES.map(g => [g.id, g.title]));
+
+let currentSession = null;
+let isAdmin = false;
+let myPlayers = [];       // [{id, player_code}] for a signed-in parent
+let activePlayerId = null; // whichever player is "playing right now" on this device
+let allPlayers = [];      // for coach picker
+
+const $ = (id) => document.getElementById(id);
+
+/* ---------------------------------------------------------------------
+   TABS
+--------------------------------------------------------------------- */
+document.querySelectorAll(".tabbar button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tabbar button").forEach(b => b.classList.toggle("active", b === btn));
+    document.querySelectorAll(".section").forEach(s => s.classList.toggle("active", s.id === "section-" + btn.dataset.tab));
+    window.scrollTo(0, 0);
+  });
+});
+
+/* ---------------------------------------------------------------------
+   GAMES GRID + MODAL
+--------------------------------------------------------------------- */
+function renderGameGrid() {
+  const grid = $("gameGrid");
+  grid.innerHTML = "";
+  GAMES.forEach(g => {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.innerHTML = `<h3>${g.title}</h3><p>${g.desc}</p>`;
+    const btn = document.createElement("button");
+    btn.textContent = "Play";
+    btn.onclick = () => openGame(g);
+    card.appendChild(btn);
+    grid.appendChild(card);
+  });
+}
+
+function openGame(g) {
+  $("gameModalTitle").textContent = g.title;
+  $("gameFrame").src = g.file;
+  $("gameModal").classList.add("open");
+}
+
+function closeGame() {
+  $("gameModal").classList.remove("open");
+  $("gameFrame").src = "about:blank";
+}
+
+$("gameModalClose").onclick = closeGame;
+
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+window.addEventListener("message", async (ev) => {
+  const d = ev.data;
+  if (!d || d.source !== "silver-games") return;
+  if (d.type === "summary") {
+    if (!currentSession || !activePlayerId) {
+      toast("Played offline, sign in and pick a player to save scores.");
+      return;
+    }
+    const scenarioCount = Object.keys(d.tally || {}).length ? Object.values(d.tally).reduce((a, b) => a + b, 0) : null;
+    const { error } = await supa.from("game_results").insert({
+      player_id: activePlayerId,
+      game_id: d.gameId,
+      mode: d.mode,
+      tally: d.tally,
+      scenario_count: scenarioCount,
+    });
+    if (error) {
+      console.error(error);
+      toast("Couldn't save that score.");
+    } else {
+      toast("Score saved for " + (myPlayers.find(p => p.id === activePlayerId)?.player_code || "player"));
+      if ($("section-progress").classList.contains("active")) renderProgressStats();
+    }
+  }
+});
+
+/* ---------------------------------------------------------------------
+   AUTH — shared between My Progress and Coach Area, both are the same
+   sign-in, the UI just unlocks different things depending on role.
+--------------------------------------------------------------------- */
+async function sendMagicLink(email, statusEl) {
+  statusEl.textContent = "Sending...";
+  const { error } = await supa.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  statusEl.textContent = error ? ("Error: " + error.message) : "Check your email for the sign-in link.";
+}
+
+$("progressSendLink").onclick = () => {
+  const email = $("progressEmail").value.trim();
+  if (!email) return;
+  sendMagicLink(email, $("progressAuthStatus"));
+};
+$("coachSendLink").onclick = () => {
+  const email = $("coachEmail").value.trim();
+  if (!email) return;
+  sendMagicLink(email, $("coachAuthStatus"));
+};
+$("progressSignOut").onclick = () => supa.auth.signOut();
+$("coachSignOut").onclick = () => supa.auth.signOut();
+
+supa.auth.onAuthStateChange((_event, session) => {
+  currentSession = session;
+  refreshAuthUI();
+});
+
+async function refreshAuthUI() {
+  if (!currentSession) {
+    isAdmin = false; myPlayers = []; activePlayerId = null; allPlayers = [];
+    $("progressSignedOut").style.display = "";
+    $("progressSignedIn").style.display = "none";
+    $("coachSignedOut").style.display = "";
+    $("coachSignedIn").style.display = "none";
+    $("coachNotAdmin").style.display = "none";
+    return;
+  }
+
+  $("progressSignedOut").style.display = "none";
+  $("progressSignedIn").style.display = "";
+  $("progressEmailLabel").textContent = currentSession.user.email;
+
+  const { data: adminCheck } = await supa.rpc("is_admin");
+  isAdmin = !!adminCheck;
+
+  if (isAdmin) {
+    $("coachSignedOut").style.display = "none";
+    $("coachNotAdmin").style.display = "none";
+    $("coachSignedIn").style.display = "";
+    await loadAllPlayersForCoach();
+  } else {
+    $("coachSignedOut").style.display = "none";
+    $("coachNotAdmin").style.display = "";
+    $("coachSignedIn").style.display = "none";
+  }
+
+  await loadMyPlayers();
+}
+
+/* ---------------------------------------------------------------------
+   PARENT VIEW — My Progress
+--------------------------------------------------------------------- */
+async function loadMyPlayers() {
+  const { data: links, error } = await supa
+    .from("player_guardians")
+    .select("player_id, players(id, player_code)")
+    .eq("parent_user_id", currentSession.user.id);
+
+  if (error) { console.error(error); return; }
+
+  myPlayers = (links || [])
+    .map(l => l.players)
+    .filter(Boolean);
+
+  if (!myPlayers.length) {
+    $("progressPlayerCard").style.display = "none";
+    $("progressNoPlayers").style.display = "";
+    return;
+  }
+  $("progressNoPlayers").style.display = "none";
+  $("progressPlayerCard").style.display = "";
+
+  const saved = localStorage.getItem("silver-active-player");
+  activePlayerId = myPlayers.some(p => p.id === saved) ? saved : myPlayers[0].id;
+
+  const pick = $("progressPlayerPick");
+  pick.innerHTML = "";
+  myPlayers.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id; opt.textContent = p.player_code;
+    pick.appendChild(opt);
+  });
+  pick.value = activePlayerId;
+  pick.onchange = () => {
+    activePlayerId = pick.value;
+    try { localStorage.setItem("silver-active-player", activePlayerId); } catch (e) {}
+    renderProgressStats();
+  };
+  try { localStorage.setItem("silver-active-player", activePlayerId); } catch (e) {}
+
+  renderProgressStats();
+}
+
+async function renderProgressStats() {
+  const target = $("progressStats");
+  target.innerHTML = "<p class='muted'>Loading...</p>";
+
+  const { data: results } = await supa
+    .from("game_results")
+    .select("game_id, tally, completed_at")
+    .eq("player_id", activePlayerId)
+    .order("completed_at", { ascending: false });
+
+  const { data: feedback } = await supa
+    .from("coach_feedback")
+    .select("body, updated_at")
+    .eq("player_id", activePlayerId)
+    .eq("published", true)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  const byGame = {};
+  (results || []).forEach(r => {
+    byGame[r.game_id] = byGame[r.game_id] || { plays: 0 };
+    byGame[r.game_id].plays += 1;
+  });
+
+  let html = "";
+  if (feedback && feedback.length) {
+    html += `<div class="feedback-note"><strong>Coach's note:</strong><br>${feedback[0].body}</div>`;
+  }
+  html += "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
+  const gameIds = Object.keys(GAME_TITLES);
+  gameIds.forEach(id => {
+    const plays = byGame[id] ? byGame[id].plays : 0;
+    html += `<tr><td>${GAME_TITLES[id]}</td><td>${plays}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  if (!results || !results.length) {
+    html += "<p class='muted' style='margin-top:8px;'>No saved games yet, play one from the Games tab while signed in.</p>";
+  }
+  target.innerHTML = html;
+}
+
+/* ---------------------------------------------------------------------
+   COACH VIEW — Coach Area (only reachable if is_admin() is true)
+--------------------------------------------------------------------- */
+async function loadAllPlayersForCoach() {
+  const { data, error } = await supa.from("players").select("id, player_code").order("player_code");
+  if (error) { console.error(error); return; }
+  allPlayers = data || [];
+
+  const pick = $("coachPlayerPick");
+  pick.innerHTML = "";
+  allPlayers.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id; opt.textContent = p.player_code;
+    pick.appendChild(opt);
+  });
+  pick.onchange = () => renderCoachStats();
+  if (allPlayers.length) renderCoachStats();
+}
+
+async function renderCoachStats() {
+  const playerId = $("coachPlayerPick").value;
+  const target = $("coachStats");
+  if (!playerId) { target.innerHTML = "<p class='muted'>No players yet, add one in Supabase.</p>"; return; }
+  target.innerHTML = "<p class='muted'>Loading...</p>";
+
+  const { data: results } = await supa
+    .from("game_results")
+    .select("game_id, tally, completed_at")
+    .eq("player_id", playerId)
+    .order("completed_at", { ascending: false });
+
+  const byGame = {};
+  (results || []).forEach(r => {
+    byGame[r.game_id] = byGame[r.game_id] || { plays: 0 };
+    byGame[r.game_id].plays += 1;
+  });
+
+  let html = "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
+  Object.keys(GAME_TITLES).forEach(id => {
+    const plays = byGame[id] ? byGame[id].plays : 0;
+    html += `<tr><td>${GAME_TITLES[id]}</td><td>${plays}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  target.innerHTML = html;
+
+  const { data: fb } = await supa
+    .from("coach_feedback")
+    .select("id, body, published")
+    .eq("player_id", playerId)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  $("coachFeedbackInput").value = (fb && fb.length) ? fb[0].body : "";
+  $("coachFeedbackInput").dataset.existingId = (fb && fb.length) ? fb[0].id : "";
+  $("coachFeedbackStatus").textContent = (fb && fb.length && fb[0].published) ? "Currently published, the parent can see this." : "Not published, the parent sees nothing.";
+}
+
+$("coachPublish").onclick = async () => {
+  const playerId = $("coachPlayerPick").value;
+  const body = $("coachFeedbackInput").value.trim();
+  if (!playerId || !body) { $("coachFeedbackStatus").textContent = "Write something first."; return; }
+  const existingId = $("coachFeedbackInput").dataset.existingId;
+  let error;
+  if (existingId) {
+    ({ error } = await supa.from("coach_feedback").update({ body, published: true, updated_at: new Date().toISOString() }).eq("id", existingId));
+  } else {
+    ({ error } = await supa.from("coach_feedback").insert({ player_id: playerId, body, published: true }));
+  }
+  $("coachFeedbackStatus").textContent = error ? ("Error: " + error.message) : "Published, the parent can see this now.";
+  if (!error) renderCoachStats();
+};
+
+$("coachUnpublish").onclick = async () => {
+  const existingId = $("coachFeedbackInput").dataset.existingId;
+  if (!existingId) { $("coachFeedbackStatus").textContent = "Nothing published yet."; return; }
+  const { error } = await supa.from("coach_feedback").update({ published: false }).eq("id", existingId);
+  $("coachFeedbackStatus").textContent = error ? ("Error: " + error.message) : "Unpublished, the parent no longer sees this.";
+  if (!error) renderCoachStats();
+};
+
+/* ---------------------------------------------------------------------
+   BOOT
+--------------------------------------------------------------------- */
+renderGameGrid();
+supa.auth.getSession().then(({ data }) => { currentSession = data.session; refreshAuthUI(); });
+</script>
+</body>
+</html>

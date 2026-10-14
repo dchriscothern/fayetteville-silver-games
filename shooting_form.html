@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shooting Form — Fayetteville Girls Silver</title>
+<style>
+  :root {
+    --purple: #5b2a86;
+    --purple-dark: #3f1d61;
+    --silver: #9aa0a6;
+    --silver-light: #e8e9ec;
+    --gold: #c9961f;
+    --bad: #b5392f;
+    --ink: #1f2430;
+    --ink-dim: #5b606b;
+    --bg: #f6f5f8;
+    --surface: #ffffff;
+    --good: #1b7a43;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+  header { background: var(--purple); color: #fff; padding: 14px 16px 12px; text-align: center; position: sticky; top: 0; z-index: 5; }
+  header .team { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--silver-light); margin: 0 0 2px; }
+  header h1 { font-size: 20px; margin: 0; font-weight: 800; }
+  .modebar { display: flex; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid #e2e0e6; }
+  .modebar button { flex: 1; padding: 9px 6px; border-radius: 999px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 700; font-size: 12.5px; cursor: pointer; }
+  .modebar button.active { background: var(--purple); color: #fff; }
+  main { flex: 1; padding: 14px 16px 28px; display: flex; flex-direction: column; gap: 12px; }
+  .progress { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--ink-dim); font-weight: 700; }
+  .progress .timer { color: var(--purple); font-variant-numeric: tabular-nums; }
+  .scenario-text { font-size: 14px; color: var(--ink-dim); margin: 0; line-height: 1.45; }
+  .court-card { background: var(--surface); border-radius: 14px; border: 1px solid #e2e0e6; padding: 10px; }
+  .court-card svg { width: 100%; height: auto; display: block; }
+  .prompt { font-size: 15px; font-weight: 700; margin: 2px 0 0; }
+  .choices { display: flex; flex-direction: column; gap: 9px; }
+  .choices button { text-align: left; padding: 13px 14px; border-radius: 12px; border: 1.5px solid #d8d6de; background: var(--surface); color: var(--ink); font-size: 14.5px; font-weight: 700; cursor: pointer; }
+  .choices button:active { background: var(--silver-light); }
+  .choices button .sub { display: block; font-weight: 500; font-size: 12.5px; color: var(--ink-dim); margin-top: 2px; }
+  .feedback { border-radius: 12px; padding: 13px 14px; font-size: 14px; line-height: 1.5; border-left: 5px solid var(--purple); background: #f1ebf6; }
+  .feedback.good { border-left-color: var(--good); background: #e7f4ec; }
+  .feedback.bad { border-left-color: var(--bad); background: #fbeae8; }
+  .feedback .tag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; color: var(--purple); }
+  .feedback.good .tag { color: var(--good); }
+  .feedback.bad .tag { color: var(--bad); }
+  .next-btn { padding: 13px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .next-btn:active { background: var(--purple-dark); }
+  .instructions { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 16px; font-size: 14px; line-height: 1.55; }
+  .instructions h2 { font-size: 16px; margin: 0 0 8px; }
+  .instructions ul { margin: 6px 0 0; padding-left: 20px; }
+  .instructions li { margin: 5px 0; }
+  .big-btn { padding: 15px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 4px; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 12px; padding: 12px; text-align: center; }
+  .stat-card .num { font-size: 26px; font-weight: 800; color: var(--purple); }
+  .stat-card .label { font-size: 11.5px; color: var(--ink-dim); font-weight: 700; margin-top: 2px; }
+  .restart-row { display: flex; gap: 10px; margin-top: 6px; }
+  .restart-row button { flex: 1; }
+  .ghost-btn { padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 800; font-size: 14.5px; cursor: pointer; }
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
+    <h1 id="headerTitle">Shooting Form</h1>
+  </header>
+
+  <div class="modebar" id="modebar">
+    <button id="btnPractice" class="active">Practice Mode</button>
+    <button id="btnTimed">Timed Challenge</button>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   COURT DRAWING — same conventions as the other games, no defenders
+   here. This game is about technique, not reading an opponent.
+--------------------------------------------------------------------- */
+const LANE = { x: 95, y: 10, w: 110, h: 165 };
+
+function playerToken(x, y, color, label, open) {
+  let s = "";
+  if (open) {
+    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+  }
+  // jersey-shaped body (shoulders wider than hips) + round head, same size for every player
+  s += `<polygon points="${x - 13},${y - 7} ${x + 13},${y - 7} ${x + 9},${y + 17} ${x - 9},${y + 17}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<circle cx="${x}" cy="${y - 14}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  s += `<text x="${x}" y="${y + 9}" font-size="13" fill="#fff" text-anchor="middle" font-weight="800" font-family="inherit">${label}</text>`;
+  return s;
+}
+
+function courtSVG(players) {
+  let s = `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="2" y="2" width="296" height="396" rx="10" fill="#fbfafd" stroke="#d8d6de" stroke-width="2"/>`;
+  s += `<rect x="20" y="8" width="260" height="388" fill="#ffffff" stroke="#d8d6de" stroke-width="1.5"/>`;
+  s += `<rect x="${LANE.x}" y="${LANE.y}" width="${LANE.w}" height="${LANE.h}" fill="#f4f2f7" stroke="#c9c6d1" stroke-width="1.5"/>`;
+  s += `<line x1="118" y1="16" x2="182" y2="16" stroke="#3f1d61" stroke-width="4"/>`;
+  s += `<circle cx="150" cy="30" r="9" fill="none" stroke="#c9961f" stroke-width="3"/>`;
+  s += `<text x="150" y="392" font-size="10" fill="#9aa0a6" text-anchor="middle" font-family="inherit">half court</text>`;
+  players.forEach(p => {
+    s += playerToken(p.x, p.y, "#5b2a86", p.label, p.open);
+  });
+  s += `</svg>`;
+  return s;
+}
+
+/* ---------------------------------------------------------------------
+   SCENARIOS — easiest to hardest.
+   No defenders in this game: it's about the shooting-form progression
+   taught at practice, one-hand close shots, two-hand side-of-backboard
+   work, and the cookie-jar backspin finish.
+--------------------------------------------------------------------- */
+const SCENARIOS = [
+
+{
+  id: "f1",
+  title: "One-Hand Form Shooting",
+  setup: "You're 1, close to the front of the rim doing one-hand form shooting.",
+  start: "rate",
+  steps: {
+    rate: {
+      court: () => courtSVG([
+        { x: 150, y: 100, role: "ball", label: "1" },
+      ]),
+      prompt: "What's the goal of this drill?",
+      choices: [
+        { label: "Build balance, elbow alignment, and soft backspin", result: {
+          tag: "Correct", cls: "good",
+          text: "Close-range one-hand shots let you focus on your shooting hand, elbow alignment, balance, and a soft backspin finish. The guide hand comes later.",
+          score: "goodRead"
+        }},
+        { label: "Shoot as hard as you can from close range", result: {
+          tag: "Needs work", cls: "bad",
+          text: "This drill isn't about power, it's about control. Focus on balance and a smooth, soft release.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "f2",
+  title: "Side of the Backboard, Two Hands",
+  setup: "You're 1, moving to the side of the basket for close-range two-hand shooting.",
+  start: "rate",
+  steps: {
+    rate: {
+      court: () => courtSVG([
+        { x: 110, y: 110, role: "ball", label: "1" },
+      ]),
+      prompt: "What should you focus on here?",
+      choices: [
+        { label: "Guide hand steadies it, shooting hand creates the shot, good bank angle", result: {
+          tag: "Correct", cls: "good",
+          text: "Your guide hand supports the ball, your shooting hand does the work and finishes the shot. Use a good angle off the backboard.",
+          score: "goodRead"
+        }},
+        { label: "Push the ball equally with both hands", result: {
+          tag: "Needs work", cls: "bad",
+          text: "If both hands push, you lose touch and control. One hand shoots, the other just steadies the ball.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "f3",
+  title: "Cookie Jar Finish",
+  setup: "You're 1, taking a close-range form shot. The ball is leaving your fingertips.",
+  start: "rate",
+  steps: {
+    rate: {
+      court: () => courtSVG([
+        { x: 150, y: 90, role: "ball", label: "1" },
+      ]),
+      prompt: "What should your shooting hand look like on the finish?",
+      choices: [
+        { label: "Relaxed wrist, fingers down into the cookie jar, soft backspin", result: {
+          tag: "Correct", cls: "good",
+          text: "Reach up and finish with a relaxed wrist, fingers down like reaching into the cookie jar. Clean release and backspin matter more than how hard you shoot.",
+          score: "goodRead"
+        }},
+        { label: "A stiff wrist pointed straight up", result: {
+          tag: "Needs work", cls: "bad",
+          text: "A stiff wrist kills your backspin and touch. Relax it and finish down into the cookie jar.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "f4",
+  title: "Which Comes First",
+  setup: "You just arrived at practice and it's time for your shooting progression.",
+  start: "rate",
+  steps: {
+    rate: {
+      court: () => courtSVG([
+        { x: 150, y: 110, role: "ball", label: "1" },
+      ]),
+      prompt: "What's the right order to work through the progression?",
+      choices: [
+        { label: "One-hand close shots first, then side-of-backboard two-hand work", result: {
+          tag: "Correct", cls: "good",
+          text: "Start close with one-hand form shots to build the basics, then move to the side of the basket for two-hand work. Build the habit before you add distance.",
+          score: "goodRead"
+        }},
+        { label: "Start from well beyond your range to warm up", result: {
+          tag: "Needs work", cls: "bad",
+          text: "Starting too far out skips the form work that makes everything else hold up. Begin close, then build out.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "f5",
+  title: "Spot the Mistake",
+  setup: "You're 1, close to the rim. Your shot is rushed and your wrist is stiff on the follow-through.",
+  start: "rate",
+  steps: {
+    rate: {
+      court: () => courtSVG([
+        { x: 150, y: 100, role: "ball", label: "1" },
+      ]),
+      prompt: "What's the fix?",
+      choices: [
+        { label: "Slow down, relax the wrist, finish into the cookie jar", result: {
+          tag: "Correct", cls: "good",
+          text: "Rushing and a stiff wrist both take away your backspin and touch. Slow down and finish with a relaxed wrist.",
+          score: "goodRead"
+        }},
+        { label: "Shoot it even harder to make up for it", result: {
+          tag: "Needs work", cls: "bad",
+          text: "More power doesn't fix rushed form, it usually makes it worse. Slow down and clean up the release instead.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "f6",
+  title: "Full Progression",
+  setup: "You're 1, working through the whole shooting progression in order.",
+  start: "step1",
+  steps: {
+    step1: {
+      court: () => courtSVG([
+        { x: 150, y: 95, role: "ball", label: "1" },
+      ]),
+      prompt: "You're close to the rim. What do you work on first?",
+      choices: [
+        { label: "One-hand form: balance, elbow, soft backspin", goto: "step2" },
+        { label: "Skip ahead to the side of the backboard", goto: "skip" },
+      ],
+    },
+    skip: {
+      court: () => courtSVG([
+        { x: 110, y: 115, role: "ball", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Needs work", cls: "bad",
+        text: "The one-hand work close to the rim builds the habits everything else depends on. Don't skip it.",
+        score: "forcedBad"
+      },
+    },
+    step2: {
+      court: () => courtSVG([
+        { x: 110, y: 115, role: "ball", label: "1" },
+      ]),
+      prompt: "Good, now you move to the side of the backboard. What's your focus with two hands?",
+      choices: [
+        { label: "Guide hand steadies it, shooting hand finishes with a good bank angle", goto: "step3" },
+        { label: "Push the ball equally with both hands", result: {
+          tag: "Needs work", cls: "bad",
+          text: "Two hands pushing equally loses the touch you just built. One hand shoots, the other only steadies.",
+          score: "forcedBad"
+        }},
+      ],
+    },
+    step3: {
+      court: () => courtSVG([
+        { x: 150, y: 90, role: "ball", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Correct", cls: "good",
+        text: "That's the full progression: one-hand close work for balance and backspin, then two-hand side-of-backboard work with a relaxed, cookie-jar finish. Build it in order every time.",
+        score: "goodRead"
+      },
+    },
+  },
+},
+
+];
+
+/* ---------------------------------------------------------------------
+   GAME STATE + ENGINE — single dimension here (technique), no separate
+   shot-tier tally, since there's no defender or shot-location read.
+--------------------------------------------------------------------- */
+let mode = "practice";
+let order = [];
+let idx = 0;
+let currentStep = null;
+let timerInterval = null;
+let timeLeft = 15;
+
+const tally = {
+  goodRead: 0, earlyPass: 0, forcedBad: 0,
+};
+
+const main = document.getElementById("main");
+const headerTitle = document.getElementById("headerTitle");
+const btnPractice = document.getElementById("btnPractice");
+const btnTimed = document.getElementById("btnTimed");
+
+btnPractice.onclick = () => { mode = "practice"; setActiveMode(); startGame(); };
+btnTimed.onclick = () => { mode = "timed"; setActiveMode(); startGame(); };
+
+function setActiveMode() {
+  btnPractice.classList.toggle("active", mode === "practice");
+  btnTimed.classList.toggle("active", mode === "timed");
+}
+
+function scenarioOrder() {
+  return SCENARIOS.map((_, i) => i);
+}
+
+function resetTally() {
+  tally.goodRead = 0; tally.earlyPass = 0; tally.forcedBad = 0;
+}
+
+function startGame() {
+  resetTally();
+  order = scenarioOrder();
+  idx = 0;
+  renderIntro();
+}
+
+function renderIntro() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Shooting Form";
+  main.innerHTML = `
+    <div class="instructions">
+      <h2>How to play</h2>
+      <p>Six shooting-form situations, no defenders here. This game is about the technique we build at practice, not reading an opponent.</p>
+      <ul>
+        <li>Start close with one-hand form shots: balance, elbow alignment, soft backspin.</li>
+        <li>Move to the side of the backboard for two-hand work: guide hand steadies, shooting hand finishes.</li>
+        <li>Finish every shot with a relaxed wrist, fingers down into the cookie jar.</li>
+      </ul>
+      ${mode === "timed" ? "<p><b>Timed Challenge:</b> you get 15 seconds per decision. Read fast!</p>" : "<p><b>Practice Mode:</b> take your time, read every explanation.</p>"}
+    </div>
+    <button class="big-btn" id="startBtn">Start — Scenario 1 of ${SCENARIOS.length}</button>
+  `;
+  document.getElementById("startBtn").onclick = () => showScenario();
+}
+
+function showScenario() {
+  clearTimer();
+  if (idx >= order.length) { renderSummary(); return; }
+  const sc = SCENARIOS[order[idx]];
+  currentStep = { scenario: sc, stepKey: sc.start };
+  renderStep();
+}
+
+function renderStep() {
+  window.scrollTo(0, 0);
+  const sc = currentStep.scenario;
+  const step = sc.steps[currentStep.stepKey];
+  headerTitle.textContent = `Scenario ${idx + 1} / ${SCENARIOS.length}`;
+
+  let html = `
+    <div class="progress">
+      <span>${sc.title}</span>
+      ${mode === "timed" ? `<span class="timer" id="timerDisplay">0:15</span>` : ""}
+    </div>
+  `;
+
+  if (!step.prompt && step.result) {
+    html += renderResultBlock(step.result);
+    main.innerHTML = html;
+    attachResultCourt(step);
+    document.getElementById("continueBtn").onclick = () => {
+      applyScore(step.result);
+      idx++; showScenario();
+    };
+    return;
+  }
+
+  html += `<p class="scenario-text">${sc.setup}</p>`;
+  html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<p class="prompt">${step.prompt}</p>`;
+  html += `<div class="choices" id="choiceHolder"></div>`;
+
+  main.innerHTML = html;
+  document.getElementById("courtHolder").innerHTML = step.court();
+
+  const holder = document.getElementById("choiceHolder");
+  step.choices.forEach((c) => {
+    const b = document.createElement("button");
+    b.innerHTML = c.label + (c.sub ? `<span class="sub">${c.sub}</span>` : "");
+    b.onclick = () => handleChoice(c);
+    holder.appendChild(b);
+  });
+
+  if (mode === "timed") startTimer(step);
+}
+
+function handleChoice(choice) {
+  clearTimer();
+  if (choice.goto) {
+    currentStep.stepKey = choice.goto;
+    renderStep();
+  } else if (choice.result) {
+    renderResult(choice.result);
+  }
+}
+
+function renderResult(result) {
+  window.scrollTo(0, 0);
+  let html = `
+    <div class="progress"><span>${currentStep.scenario.title}</span></div>
+    <div class="court-card" id="courtHolder"></div>
+  `;
+  html += renderResultBlock(result);
+  main.innerHTML = html;
+  const step = currentStep.scenario.steps[currentStep.stepKey];
+  document.getElementById("courtHolder").innerHTML = step.court();
+  document.getElementById("continueBtn").onclick = () => {
+    applyScore(result);
+    idx++; showScenario();
+  };
+}
+
+function renderResultBlock(result) {
+  return `
+    <div class="feedback ${result.cls}">
+      <span class="tag">${result.tag}</span>
+      <div>${result.text}</div>
+    </div>
+    <button class="next-btn" id="continueBtn">Next &rarr;</button>
+  `;
+}
+
+function attachResultCourt(step) {
+  const holder = document.createElement("div");
+  holder.className = "court-card";
+  holder.innerHTML = step.court();
+  main.insertBefore(holder, main.children[1]);
+}
+
+function applyScore(result) {
+  if (result.score) tally[result.score] = (tally[result.score] || 0) + 1;
+}
+
+function startTimer(step) {
+  timeLeft = 15;
+  const disp = document.getElementById("timerDisplay");
+  if (disp) disp.textContent = "0:" + String(timeLeft).padStart(2, "0");
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const d = document.getElementById("timerDisplay");
+    if (d) d.textContent = "0:" + String(Math.max(timeLeft, 0)).padStart(2, "0");
+    if (timeLeft <= 0) {
+      clearTimer();
+      const fallback = step.choices[0];
+      if (fallback.goto) {
+        currentStep.stepKey = fallback.goto;
+        renderStep();
+      } else if (fallback.result) {
+        const timedOutResult = Object.assign({}, fallback.result, {
+          tag: "Time's up — " + fallback.result.tag,
+        });
+        renderResult(timedOutResult);
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function renderSummary() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Results";
+  try {
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "shooting_form", mode: mode, tally: Object.assign({}, tally) }, "*");
+  } catch (e) {}
+  const totalReads = tally.goodRead + tally.earlyPass + tally.forcedBad;
+  main.innerHTML = `
+    <p class="scenario-text">This one's about technique, not shot selection, so there's just one set of results.</p>
+    <h2 style="margin:4px 0 0;">Form checks</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num">${tally.goodRead}</div><div class="label">Correct</div></div>
+      <div class="stat-card"><div class="num">${tally.forcedBad}</div><div class="label">Needs work</div></div>
+      <div class="stat-card"><div class="num">${totalReads}</div><div class="label">Total decisions</div></div>
+      <div class="stat-card"><div class="num">${SCENARIOS.length ? Math.round(tally.goodRead / SCENARIOS.length * 100) : 0}%</div><div class="label">Accuracy</div></div>
+    </div>
+    <p class="scenario-text" style="margin-top:10px;">Screenshot this screen for your coach, this game saves no scores on its own.</p>
+    <div class="restart-row">
+      <button class="ghost-btn" id="replayBtn">Play Again</button>
+      <button class="next-btn" id="menuBtn">Change Mode</button>
+    </div>
+  `;
+  document.getElementById("replayBtn").onclick = () => startGame();
+  document.getElementById("menuBtn").onclick = () => renderIntro();
+}
+
+// boot
+try { parent.postMessage({ source: "silver-games", type: "ready", gameId: "shooting_form" }, "*"); } catch (e) {}
+setActiveMode();
+startGame();
+</script>
+</body>
+</html>

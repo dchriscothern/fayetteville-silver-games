@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rotation Rescue — Fayetteville Girls Silver</title>
+<style>
+  :root {
+    --purple: #5b2a86;
+    --purple-dark: #3f1d61;
+    --silver: #9aa0a6;
+    --silver-light: #e8e9ec;
+    --green: #1b7a43;
+    --green-light: #e7f4ec;
+    --blue: #2563eb;
+    --blue-light: #e6edfc;
+    --gold: #c9961f;
+    --bad: #b5392f;
+    --ink: #1f2430;
+    --ink-dim: #5b606b;
+    --bg: #f6f5f8;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  header {
+    background: var(--purple);
+    color: #fff;
+    padding: 14px 16px 12px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  header .team {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--silver-light);
+    margin: 0 0 2px;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+    font-weight: 800;
+  }
+  .modebar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid #e2e0e6;
+  }
+  .modebar button {
+    flex: 1;
+    padding: 9px 6px;
+    border-radius: 999px;
+    border: 1.5px solid var(--purple);
+    background: #fff;
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .modebar button.active {
+    background: var(--purple);
+    color: #fff;
+  }
+  main {
+    flex: 1;
+    padding: 14px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    font-weight: 700;
+  }
+  .progress .timer {
+    color: var(--purple);
+    font-variant-numeric: tabular-nums;
+  }
+  .scenario-text {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .court-card {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid #e2e0e6;
+    padding: 10px;
+  }
+  .court-card svg { width: 100%; height: auto; display: block; }
+  .prompt {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 2px 0 0;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .choices button {
+    text-align: left;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #d8d6de;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .choices button:active { background: var(--silver-light); }
+  .choices button .sub {
+    display: block;
+    font-weight: 500;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+  .feedback {
+    border-radius: 12px;
+    padding: 13px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 5px solid var(--purple);
+    background: #f1ebf6;
+  }
+  .feedback.good { border-left-color: var(--green); background: var(--green-light); }
+  .feedback.bad { border-left-color: var(--bad); background: #fbeae8; }
+  .feedback .tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: var(--purple);
+  }
+  .feedback.good .tag { color: var(--green); }
+  .feedback.bad .tag { color: var(--bad); }
+  .next-btn {
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--purple);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .next-btn:active { background: var(--purple-dark); }
+  .instructions {
+    background: var(--surface);
+    border: 1px solid #e2e0e6;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .instructions h2 { font-size: 16px; margin: 0 0 8px; }
+  .instructions ul { margin: 6px 0 0; padding-left: 20px; }
+  .instructions li { margin: 5px 0; }
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 2px; }
+  .chip {
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .chip.green { background: var(--green-light); color: var(--green); }
+  .chip.blue { background: var(--blue-light); color: var(--blue); }
+  .big-btn {
+    padding: 15px 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--purple);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid #e2e0e6;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 26px; font-weight: 800; color: var(--purple); }
+  .stat-card .label { font-size: 11.5px; color: var(--ink-dim); font-weight: 700; margin-top: 2px; }
+  .restart-row { display: flex; gap: 10px; margin-top: 6px; }
+  .restart-row button { flex: 1; }
+  .ghost-btn {
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--purple);
+    background: #fff;
+    color: var(--purple);
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+  }
+  footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    padding: 10px 16px 20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
+    <h1 id="headerTitle">Rotation Rescue</h1>
+  </header>
+
+  <div class="modebar" id="modebar">
+    <button id="btnPractice" class="active">Practice Mode</button>
+    <button id="btnTimed">Timed Challenge</button>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   COURT DRAWING
+   Purple numbers = our team (1 is you, 2 is your help teammate).
+   Green numbers = an opponent who can shoot it (play tight, go over).
+   Blue numbers = an opponent who can't shoot it (give the gap, go under).
+   You guard your matching number: our 1 guards their 1, and so on.
+--------------------------------------------------------------------- */
+const LANE = { x: 95, y: 10, w: 110, h: 165 };
+
+// Every player on the court is the same size: a small head + body token,
+// colored by role. Only the fill color and label change.
+function playerToken(x, y, color, label, open) {
+  let s = "";
+  if (open) {
+    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+  }
+  // jersey-shaped body (shoulders wider than hips) + round head, same size for every player
+  s += `<polygon points="${x - 13},${y - 7} ${x + 13},${y - 7} ${x + 9},${y + 17} ${x - 9},${y + 17}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<circle cx="${x}" cy="${y - 14}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  s += `<text x="${x}" y="${y + 9}" font-size="13" fill="#fff" text-anchor="middle" font-weight="800" font-family="inherit">${label}</text>`;
+  return s;
+}
+
+function courtSVG(players) {
+  const colorFor = (p) => {
+    if (p.role === "green") return "#1b7a43";
+    if (p.role === "blue") return "#2563eb";
+    return "#5b2a86"; // you / teammateD — our team
+  };
+  let s = `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="2" y="2" width="296" height="396" rx="10" fill="#fbfafd" stroke="#d8d6de" stroke-width="2"/>`;
+  s += `<rect x="20" y="8" width="260" height="388" fill="#ffffff" stroke="#d8d6de" stroke-width="1.5"/>`;
+  s += `<rect x="${LANE.x}" y="${LANE.y}" width="${LANE.w}" height="${LANE.h}" fill="#f4f2f7" stroke="#c9c6d1" stroke-width="1.5"/>`;
+  s += `<circle cx="150" cy="${LANE.y + LANE.h}" r="45" fill="none" stroke="#c9c6d1" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s += `<line x1="118" y1="16" x2="182" y2="16" stroke="#3f1d61" stroke-width="4"/>`;
+  s += `<circle cx="150" cy="30" r="9" fill="none" stroke="#c9961f" stroke-width="3"/>`;
+  s += `<text x="150" y="392" font-size="10" fill="#9aa0a6" text-anchor="middle" font-family="inherit">half court</text>`;
+
+  players.forEach(p => {
+    const color = colorFor(p);
+    s += playerToken(p.x, p.y, color, p.label, p.focus);
+  });
+  s += `</svg>`;
+  return s;
+}
+
+/* ---------------------------------------------------------------------
+   SCENARIOS
+   role "you"/"teammateD" = our team, purple. role "green"/"blue" =
+   opponent, colored by whether she can shoot it. Matching numbers
+   across colors means "this is your matchup."
+--------------------------------------------------------------------- */
+const SCENARIOS = [
+
+{
+  id: "r1",
+  title: "Ball Screen vs. a Blue",
+  setup: "Your girl is blue, she can't shoot it. A ball screen is coming for her.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 200, role: "you", label: "1" },
+        { x: 150, y: 250, role: "blue", label: "1", focus: true },
+        { x: 110, y: 220, role: "green", label: "4" },
+      ]),
+      prompt: "The screen is coming. What's your call?",
+      choices: [
+        { label: "Go under the screen", sub: "Give her the gap, she can't shoot it", result: {
+          tag: "Shut down", cls: "good",
+          text: "Right call. She's blue, she can't shoot it. Go under, stay attached, keep her out of the paint. No need to fight over the top for someone who can't make you pay from outside.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Fight over the top of the screen", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "She's blue, she doesn't need that kind of pressure. Fighting over the screen got you hung up, and now she's got a free run to the rim. Go under on the blues.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r2",
+  title: "Ball Screen vs. a Green",
+  setup: "Your girl is green, she can really shoot it. A ball screen is coming for her.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 200, role: "you", label: "1" },
+        { x: 150, y: 250, role: "green", label: "1", focus: true },
+        { x: 110, y: 220, role: "blue", label: "4" },
+      ]),
+      prompt: "The screen is coming. What's your call?",
+      choices: [
+        { label: "Go over the top of the screen", sub: "Stay tight, don't give her the outside shot", result: {
+          tag: "Shut down", cls: "good",
+          text: "That's it. She's green, she can really shoot it. Go over, work hard through the screen, and stay in her space so she doesn't get a clean look.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Go under the screen", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "Going under gives a green shooter exactly what she wants, a clean look. She's a shooter, go over and stay tight.",
+          score: "wrongCall", outcome: "openShot"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r3",
+  title: "Caught on the Screen",
+  setup: "You try to get through, but the screen catches you solid. You truly cannot get back to your girl in time.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 140, y: 230, role: "you", label: "1" },
+        { x: 110, y: 225, role: "green", label: "4" },
+        { x: 150, y: 260, role: "blue", label: "1", focus: true },
+      ]),
+      prompt: "You're stuck on the screen. What's your call?",
+      choices: [
+        { label: "Call \"Switch!\"", sub: "Trade with the screener's defender", result: {
+          tag: "Shut down", cls: "good",
+          text: "That's the right time for it. You truly couldn't get through, so you call switch, trade players, and the ball stays in front of someone. Switch is for when you really can't get to your girl.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Keep fighting to get through, say nothing", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "You were caught, no way through, and nobody called it. That's a wide open driving lane now. When you truly can't get back to your girl, call switch.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r4",
+  title: "Don't Over-Switch",
+  setup: "A light screen brushes you, but you can still fight through and stay with your own girl.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 235, role: "you", label: "1" },
+        { x: 120, y: 225, role: "blue", label: "4" },
+        { x: 150, y: 260, role: "green", label: "1", focus: true },
+      ]),
+      prompt: "The screen barely touches you. What's your call?",
+      choices: [
+        { label: "Fight through, stay with your own girl", sub: "You can still get there", result: {
+          tag: "Shut down", cls: "good",
+          text: "Exactly right. You could still get through, so you stayed with your own player instead of switching. Switch is only for when you truly can't get to your girl, not every time a screen shows up.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Call \"Switch!\" anyway", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "You could have gotten through. Switching here just trades a problem you didn't have, and now your teammate is stuck on someone she wasn't ready for. Save switch for when you're truly caught.",
+          score: "wrongCall", outcome: "openShot"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r5",
+  title: "Beat Off the Dribble",
+  setup: "Your girl blows right by you toward the rim.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 160, role: "blue", label: "1", focus: true },
+        { x: 150, y: 210, role: "you", label: "1" },
+        { x: 80, y: 230, role: "teammateD", label: "2" },
+      ]),
+      prompt: "You got beat. What do you do?",
+      choices: [
+        { label: "Call \"Help!\" and sprint to recover", result: {
+          tag: "Shut down", cls: "good",
+          text: "Say something. Calling help gives your teammate the chance to step in front of the ball while you recover. Silence is what turns one breakdown into an easy bucket.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Chase from behind, don't say anything", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "Chasing from behind rarely catches anybody, and nobody knew to help because nobody called it. Talk on defense, every time you get beat.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r6",
+  title: "You're the Helper",
+  setup: "Your teammate just got beat. The ball is coming into the paint.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 150, role: "blue", label: "1", focus: true },
+        { x: 170, y: 200, role: "teammateD", label: "1" },
+        { x: 100, y: 110, role: "you", label: "3" },
+        { x: 95, y: 170, role: "green", label: "3" },
+      ]),
+      prompt: "The ball is coming into the lane. What do you do?",
+      choices: [
+        { label: "Step in front, call \"I got her!\"", sub: "Stop the ball, tell your teammate to recover", result: {
+          tag: "Shut down", cls: "good",
+          text: "That's a help defender's job. You step in and stop the ball, and your call tells your teammate exactly who to recover to. Communication is what makes a rotation actually work.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Stay home on your own girl, say nothing", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "The ball went straight to the rim with nobody there to meet it. When your teammate gets beat, you have to help, and you have to say so.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r7",
+  title: "Recover to a Green",
+  setup: "You helped, good call. Now the ball swings out to the girl you left behind. She's green.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 150, role: "you", label: "3" },
+        { x: 90, y: 180, role: "green", label: "3", focus: true },
+      ]),
+      prompt: "The pass is in the air to your green shooter. What do you do?",
+      choices: [
+        { label: "Sprint and close out hard", sub: "She can really shoot it", result: {
+          tag: "Shut down", cls: "good",
+          text: "Right urgency. She's green, a slow closeout there is an open shot. Sprint, get a hand up, take away the shot first.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Jog back, no rush", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "She's a shooter and you jogged. That's an open look for someone who makes you pay for it. Green means sprint the closeout.",
+          score: "wrongCall", outcome: "openShot"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r8",
+  title: "Recover to a Blue",
+  setup: "Same help, good call. This time the open kick-out goes to a blue player.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 150, role: "you", label: "3" },
+        { x: 90, y: 180, role: "blue", label: "3", focus: true },
+      ]),
+      prompt: "The pass is in the air to your blue player. What do you do?",
+      choices: [
+        { label: "Close out under control", sub: "She can't shoot it, don't fly by her", result: {
+          tag: "Shut down", cls: "good",
+          text: "Good read. She's blue, she can't hurt you from outside. Close out under control so you don't fly past her and open up a drive instead.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Fly at her full speed like she's a shooter", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "She's blue, that shot wasn't the threat. Flying out of control just got you beat off the bounce instead. Match your closeout to who you're closing out on.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r9",
+  title: "Watch the Cutter",
+  setup: "The ball is swinging side to side. Everyone's eyes are on it.",
+  start: "choice",
+  steps: {
+    choice: {
+      court: () => courtSVG([
+        { x: 150, y: 260, role: "you", label: "1" },
+        { x: 230, y: 240, role: "blue", label: "2" },
+        { x: 70, y: 150, role: "green", label: "3", focus: true },
+      ]),
+      prompt: "You see a player cutting open toward the basket. What do you do?",
+      choices: [
+        { label: "Step in and tag the cutter", sub: "See the cutter, not just the ball", result: {
+          tag: "Shut down", cls: "good",
+          text: "That's watching the cutter. You saw someone open heading to the rim and reacted instead of just following the ball. That's what stops the backdoor.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Keep watching the ball", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "Ball-watching let a cutter walk right in for a free look at the rim. If you see an open player cutting to the basket, you have to react to her, not just the ball.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "r10",
+  title: "Full Possession",
+  setup: "The hardest one: a screen, a switch, and a recovery, all in the same possession. Your girl is green.",
+  start: "screen",
+  steps: {
+    screen: {
+      court: () => courtSVG([
+        { x: 150, y: 220, role: "you", label: "1" },
+        { x: 150, y: 260, role: "green", label: "1", focus: true },
+        { x: 110, y: 230, role: "blue", label: "4" },
+      ]),
+      prompt: "The screen is coming for your green shooter. What's your call?",
+      choices: [
+        { label: "Go over the top", goto: "caught" },
+        { label: "Go under", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "She's green. Going under just handed her a clean look.",
+          score: "wrongCall", outcome: "openShot"
+        }},
+      ],
+    },
+    caught: {
+      court: () => courtSVG([
+        { x: 140, y: 230, role: "you", label: "1" },
+        { x: 110, y: 225, role: "blue", label: "4" },
+        { x: 150, y: 260, role: "green", label: "1", focus: true },
+      ]),
+      prompt: "Good effort, but the screen catches you solid this time. You can't get through. What now?",
+      choices: [
+        { label: "Call \"Switch!\"", goto: "recover" },
+        { label: "Keep fighting, say nothing", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "You were caught with no way through and nobody called it. That's a driving lane straight to the rim.",
+          score: "wrongCall", outcome: "easyBucket"
+        }},
+      ],
+    },
+    recover: {
+      court: () => courtSVG([
+        { x: 110, y: 225, role: "you", label: "4" },
+        { x: 150, y: 150, role: "teammateD", label: "1" },
+        { x: 90, y: 160, role: "green", label: "1", focus: true },
+      ]),
+      prompt: "Good switch. Now the ball swings out to your new green shooter. What do you do?",
+      choices: [
+        { label: "Sprint and close out hard", result: {
+          tag: "Shut down", cls: "good",
+          text: "That's the whole possession read: go over for a shooter, switch when you're truly caught, then sprint the closeout because she's still a shooter after the switch. Nice work.",
+          score: "correctCall", outcome: "stop"
+        }},
+        { label: "Jog back, no rush", result: {
+          tag: "Breakdown", cls: "bad",
+          text: "Everything up to here was right, but she's green and you jogged. Sprint every closeout on a shooter, switch or no switch.",
+          score: "wrongCall", outcome: "openShot"
+        }},
+      ],
+    },
+  },
+},
+
+];
+
+/* ---------------------------------------------------------------------
+   GAME STATE + ENGINE
+--------------------------------------------------------------------- */
+let mode = "practice"; // "practice" | "timed"
+let order = [];
+let idx = 0;
+let currentStep = null;
+let timerInterval = null;
+let timeLeft = 15;
+
+const tally = {
+  correctCall: 0, wrongCall: 0,
+  stop: 0, openShot: 0, easyBucket: 0,
+};
+
+const main = document.getElementById("main");
+const headerTitle = document.getElementById("headerTitle");
+const btnPractice = document.getElementById("btnPractice");
+const btnTimed = document.getElementById("btnTimed");
+
+btnPractice.onclick = () => { mode = "practice"; setActiveMode(); startGame(); };
+btnTimed.onclick = () => { mode = "timed"; setActiveMode(); startGame(); };
+
+function setActiveMode() {
+  btnPractice.classList.toggle("active", mode === "practice");
+  btnTimed.classList.toggle("active", mode === "timed");
+}
+
+function scenarioOrder() {
+  // Fixed easy-to-hard order (not shuffled) so the first scenarios a
+  // player sees are always the simplest ones.
+  return SCENARIOS.map((_, i) => i);
+}
+
+function resetTally() {
+  tally.correctCall = 0; tally.wrongCall = 0;
+  tally.stop = 0; tally.openShot = 0; tally.easyBucket = 0;
+}
+
+function startGame() {
+  resetTally();
+  order = scenarioOrder();
+  idx = 0;
+  renderIntro();
+}
+
+function renderIntro() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Rotation Rescue";
+  main.innerHTML = `
+    <div class="instructions">
+      <h2>How to play</h2>
+      <p>Ten defensive situations: screens, help, switches, and cutters. Make the right call and protect the basket.</p>
+      <ul>
+        <li>Purple numbers are our team. 1 is you. Green or blue numbers are the opponent.</li>
+        <li>Go under a player who can't shoot it. Go over a player who can.</li>
+        <li>Switch only when you truly can't get back to your own player, not as a first option.</li>
+        <li>Talk: call "Help" when you get beat, call "I got her" when you step in, call out the cutter.</li>
+      </ul>
+      <div class="chip-row">
+        <span class="chip green">Green number: she can shoot it</span>
+        <span class="chip blue">Blue number: she can't shoot it</span>
+      </div>
+      ${mode === "timed" ? "<p><b>Timed Challenge:</b> you get 15 seconds per decision. Read fast!</p>" : "<p><b>Practice Mode:</b> take your time, read every explanation.</p>"}
+    </div>
+    <button class="big-btn" id="startBtn">Start — Scenario 1 of ${SCENARIOS.length}</button>
+  `;
+  document.getElementById("startBtn").onclick = () => showScenario();
+}
+
+function showScenario() {
+  clearTimer();
+  if (idx >= order.length) { renderSummary(); return; }
+  const sc = SCENARIOS[order[idx]];
+  currentStep = { scenario: sc, stepKey: sc.start };
+  renderStep();
+}
+
+function renderStep() {
+  window.scrollTo(0, 0);
+  const sc = currentStep.scenario;
+  const step = sc.steps[currentStep.stepKey];
+  headerTitle.textContent = `Scenario ${idx + 1} / ${SCENARIOS.length}`;
+
+  let html = `
+    <div class="progress">
+      <span>${sc.title}</span>
+      ${mode === "timed" ? `<span class="timer" id="timerDisplay">0:15</span>` : ""}
+    </div>
+  `;
+
+  if (!step.prompt && step.result) {
+    html += renderResultBlock(step.result);
+    main.innerHTML = html;
+    attachResultCourt(step);
+    document.getElementById("continueBtn").onclick = () => {
+      applyScore(step.result);
+      idx++; showScenario();
+    };
+    return;
+  }
+
+  html += `<p class="scenario-text">${sc.setup}</p>`;
+  html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<p class="prompt">${step.prompt}</p>`;
+  html += `<div class="choices" id="choiceHolder"></div>`;
+
+  main.innerHTML = html;
+  document.getElementById("courtHolder").innerHTML = step.court();
+
+  const holder = document.getElementById("choiceHolder");
+  step.choices.forEach((c) => {
+    const b = document.createElement("button");
+    b.innerHTML = c.label + (c.sub ? `<span class="sub">${c.sub}</span>` : "");
+    b.onclick = () => handleChoice(c);
+    holder.appendChild(b);
+  });
+
+  if (mode === "timed") startTimer(step);
+}
+
+function handleChoice(choice) {
+  clearTimer();
+  if (choice.goto) {
+    currentStep.stepKey = choice.goto;
+    renderStep();
+  } else if (choice.result) {
+    renderResult(choice.result);
+  }
+}
+
+function renderResult(result) {
+  window.scrollTo(0, 0);
+  let html = `
+    <div class="progress"><span>${currentStep.scenario.title}</span></div>
+    <div class="court-card" id="courtHolder"></div>
+  `;
+  html += renderResultBlock(result);
+  main.innerHTML = html;
+  const step = currentStep.scenario.steps[currentStep.stepKey];
+  document.getElementById("courtHolder").innerHTML = step.court();
+  document.getElementById("continueBtn").onclick = () => {
+    applyScore(result);
+    idx++; showScenario();
+  };
+}
+
+function renderResultBlock(result) {
+  return `
+    <div class="feedback ${result.cls}">
+      <span class="tag">${result.tag}</span>
+      <div>${result.text}</div>
+    </div>
+    <button class="next-btn" id="continueBtn">Next &rarr;</button>
+  `;
+}
+
+function attachResultCourt(step) {
+  const holder = document.createElement("div");
+  holder.className = "court-card";
+  holder.innerHTML = step.court();
+  main.insertBefore(holder, main.children[1]);
+}
+
+function applyScore(result) {
+  if (result.score) tally[result.score] = (tally[result.score] || 0) + 1;
+  if (result.outcome) tally[result.outcome] = (tally[result.outcome] || 0) + 1;
+}
+
+function startTimer(step) {
+  timeLeft = 15;
+  const disp = document.getElementById("timerDisplay");
+  if (disp) disp.textContent = "0:" + String(timeLeft).padStart(2, "0");
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const d = document.getElementById("timerDisplay");
+    if (d) d.textContent = "0:" + String(Math.max(timeLeft, 0)).padStart(2, "0");
+    if (timeLeft <= 0) {
+      clearTimer();
+      const fallback = step.choices[0];
+      if (fallback.goto) {
+        currentStep.stepKey = fallback.goto;
+        renderStep();
+      } else if (fallback.result) {
+        const timedOutResult = Object.assign({}, fallback.result, {
+          tag: "Time's up — " + fallback.result.tag,
+        });
+        renderResult(timedOutResult);
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function renderSummary() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Results";
+  try {
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "rotation_rescue", mode: mode, tally: Object.assign({}, tally) }, "*");
+  } catch (e) {}
+  const totalCalls = tally.correctCall + tally.wrongCall;
+  const totalOutcomes = tally.stop + tally.openShot + tally.easyBucket;
+  main.innerHTML = `
+    <p class="scenario-text">Calls and outcomes are scored separately, a good call that still gets scored on is still a good call.</p>
+    <h2 style="margin:4px 0 0;">Calls</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num">${tally.correctCall}</div><div class="label">Right call</div></div>
+      <div class="stat-card"><div class="num">${tally.wrongCall}</div><div class="label">Wrong call</div></div>
+      <div class="stat-card"><div class="num">${totalCalls}</div><div class="label">Total decisions</div></div>
+      <div class="stat-card"><div class="num">${SCENARIOS.length}</div><div class="label">Scenarios</div></div>
+    </div>
+    <h2 style="margin:14px 0 0;">Possession outcome</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num" style="color:#1b7a43;">${tally.stop}</div><div class="label">Shut down</div></div>
+      <div class="stat-card"><div class="num" style="color:#c9961f;">${tally.openShot}</div><div class="label">Open shot allowed</div></div>
+      <div class="stat-card"><div class="num" style="color:#b5392f;">${tally.easyBucket}</div><div class="label">Easy bucket allowed</div></div>
+      <div class="stat-card"><div class="num">${totalOutcomes}</div><div class="label">Total possessions</div></div>
+    </div>
+    <p class="scenario-text" style="margin-top:10px;">Screenshot this screen for your coach, this game saves no scores on its own.</p>
+    <div class="restart-row">
+      <button class="ghost-btn" id="replayBtn">Play Again</button>
+      <button class="next-btn" id="menuBtn">Change Mode</button>
+    </div>
+  `;
+  document.getElementById("replayBtn").onclick = () => startGame();
+  document.getElementById("menuBtn").onclick = () => renderIntro();
+}
+
+// boot
+try { parent.postMessage({ source: "silver-games", type: "ready", gameId: "rotation_rescue" }, "*"); } catch (e) {}
+setActiveMode();
+startGame();
+</script>
+</body>
+</html>

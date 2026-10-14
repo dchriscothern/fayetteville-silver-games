@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beat the Closeout — Fayetteville Girls Silver</title>
+<style>
+  :root {
+    --purple: #5b2a86;
+    --purple-dark: #3f1d61;
+    --silver: #9aa0a6;
+    --silver-light: #e8e9ec;
+    --gold: #c9961f;
+    --bad: #b5392f;
+    --ink: #1f2430;
+    --ink-dim: #5b606b;
+    --bg: #f6f5f8;
+    --surface: #ffffff;
+    --good: #1b7a43;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  header {
+    background: var(--purple);
+    color: #fff;
+    padding: 14px 16px 12px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  header .team {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--silver-light);
+    margin: 0 0 2px;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+    font-weight: 800;
+  }
+  .modebar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid #e2e0e6;
+  }
+  .modebar button {
+    flex: 1;
+    padding: 9px 6px;
+    border-radius: 999px;
+    border: 1.5px solid var(--purple);
+    background: #fff;
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .modebar button.active {
+    background: var(--purple);
+    color: #fff;
+  }
+  main {
+    flex: 1;
+    padding: 14px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    font-weight: 700;
+  }
+  .progress .timer {
+    color: var(--purple);
+    font-variant-numeric: tabular-nums;
+  }
+  .scenario-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
+  }
+  .scenario-text {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .court-card {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid #e2e0e6;
+    padding: 10px;
+  }
+  .court-card svg { width: 100%; height: auto; display: block; }
+  .prompt {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 2px 0 0;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .choices button {
+    text-align: left;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #d8d6de;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .choices button:active { background: var(--silver-light); }
+  .choices button .sub {
+    display: block;
+    font-weight: 500;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+  .feedback {
+    border-radius: 12px;
+    padding: 13px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 5px solid var(--purple);
+    background: #f1ebf6;
+  }
+  .feedback.good { border-left-color: var(--good); background: #e7f4ec; }
+  .feedback.gold { border-left-color: var(--gold); background: #faf1dd; }
+  .feedback.silver { border-left-color: var(--silver); background: #eceef0; }
+  .feedback.bad { border-left-color: var(--bad); background: #fbeae8; }
+  .feedback .tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: var(--purple);
+  }
+  .feedback.good .tag { color: var(--good); }
+  .feedback.gold .tag { color: var(--gold); }
+  .feedback.silver .tag { color: #6b7076; }
+  .feedback.bad .tag { color: var(--bad); }
+  .next-btn {
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--purple);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .next-btn:active { background: var(--purple-dark); }
+  .instructions {
+    background: var(--surface);
+    border: 1px solid #e2e0e6;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .instructions h2 { font-size: 16px; margin: 0 0 8px; }
+  .instructions ul { margin: 6px 0 0; padding-left: 20px; }
+  .instructions li { margin: 5px 0; }
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 2px; }
+  .chip {
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .chip.gold { background: #faf1dd; color: var(--gold); }
+  .chip.silver { background: #eceef0; color: #6b7076; }
+  .chip.bad { background: #fbeae8; color: var(--bad); }
+  .big-btn {
+    padding: 15px 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--purple);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid #e2e0e6;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 26px; font-weight: 800; color: var(--purple); }
+  .stat-card .label { font-size: 11.5px; color: var(--ink-dim); font-weight: 700; margin-top: 2px; }
+  .restart-row { display: flex; gap: 10px; margin-top: 6px; }
+  .restart-row button { flex: 1; }
+  .ghost-btn {
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--purple);
+    background: #fff;
+    color: var(--purple);
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+  }
+  footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    padding: 10px 16px 20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
+    <h1 id="headerTitle">Beat the Closeout</h1>
+  </header>
+
+  <div class="modebar" id="modebar">
+    <button id="btnPractice" class="active">Practice Mode</button>
+    <button id="btnTimed">Timed Challenge</button>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   COURT DRAWING — same conventions as Advantage Hunter.
+   Gold = inside lane. Silver = just outside lane. Bad = contested
+   outside, or someone else was more open.
+   Our team is purple, numbered. 1 is always you, catching the ball.
+   Defenders are dark and marked X.
+--------------------------------------------------------------------- */
+const LANE = { x: 95, y: 10, w: 110, h: 165 };
+
+function playerToken(x, y, color, label, open) {
+  let s = "";
+  if (open) {
+    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+  }
+  // jersey-shaped body (shoulders wider than hips) + round head, same size for every player
+  s += `<polygon points="${x - 13},${y - 7} ${x + 13},${y - 7} ${x + 9},${y + 17} ${x - 9},${y + 17}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<circle cx="${x}" cy="${y - 14}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  s += `<text x="${x}" y="${y + 9}" font-size="13" fill="#fff" text-anchor="middle" font-weight="800" font-family="inherit">${label}</text>`;
+  return s;
+}
+
+function courtSVG(players, opts) {
+  opts = opts || {};
+  const laneFill = opts.highlightLane ? "#f3e9d9" : "#f4f2f7";
+  let s = `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="2" y="2" width="296" height="396" rx="10" fill="#fbfafd" stroke="#d8d6de" stroke-width="2"/>`;
+  s += `<rect x="20" y="8" width="260" height="388" fill="#ffffff" stroke="#d8d6de" stroke-width="1.5"/>`;
+  s += `<rect x="${LANE.x}" y="${LANE.y}" width="${LANE.w}" height="${LANE.h}" fill="${laneFill}" stroke="#c9c6d1" stroke-width="1.5"/>`;
+  s += `<circle cx="150" cy="${LANE.y + LANE.h}" r="45" fill="none" stroke="#c9c6d1" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s += `<line x1="118" y1="16" x2="182" y2="16" stroke="#3f1d61" stroke-width="4"/>`;
+  s += `<circle cx="150" cy="30" r="9" fill="none" stroke="#c9961f" stroke-width="3"/>`;
+  s += `<text x="150" y="392" font-size="10" fill="#9aa0a6" text-anchor="middle" font-family="inherit">half court</text>`;
+
+  players.forEach(p => {
+    const color = p.role === "defender" ? "#1f2430" : "#5b2a86";
+    s += playerToken(p.x, p.y, color, p.label, p.open);
+  });
+  s += `</svg>`;
+  return s;
+}
+
+/* ---------------------------------------------------------------------
+   SCENARIOS — easiest to hardest.
+   This game is specifically about the closeout moment: a defender
+   sprinting or recovering at you as you catch, not an open fast break.
+   Start basic (6 scenarios); more can be appended through the season
+   without changing the engine below.
+--------------------------------------------------------------------- */
+const SCENARIOS = [
+
+{
+  id: "c1",
+  title: "Meet the Pass",
+  setup: "You're 1. A pass is coming to you on the wing while a defender closes out.",
+  start: "catch",
+  steps: {
+    catch: {
+      court: () => courtSVG([
+        { x: 150, y: 280, role: "ball", label: "1" },
+        { x: 230, y: 300, role: "teammate", label: "2" },
+        { x: 150, y: 170, role: "defender", label: "X" },
+      ]),
+      prompt: "How do you catch this pass?",
+      choices: [
+        { label: "Move toward the pass, land in triple threat", goto: "landed" },
+        { label: "Stand still and let it come to you", goto: "late" },
+      ],
+    },
+    late: {
+      court: () => courtSVG([
+        { x: 150, y: 280, role: "ball", label: "1" },
+        { x: 150, y: 220, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "We meet our passes. Waiting on it gives the closing-out defender extra time to get set and take away your options. Move to the ball and land in triple threat.",
+        score: "earlyPass"
+      },
+    },
+    landed: {
+      court: () => courtSVG([
+        { x: 150, y: 230, role: "ball", label: "1" },
+        { x: 230, y: 280, role: "teammate", label: "2" },
+        { x: 150, y: 185, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Good read", cls: "good",
+        text: "That's it, meet the pass and land balanced in triple threat: ready to shoot, pass, or drive before the defender even gets there.",
+        score: "goodRead"
+      },
+    },
+  },
+},
+
+{
+  id: "c2",
+  title: "Soft Closeout, Open Shot",
+  setup: "You're 1, already in triple threat. A defender jogs out under control and stays back off you.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 230, role: "ball", label: "1", open: true },
+        { x: 150, y: 165, role: "defender", label: "X" },
+      ]),
+      prompt: "Her closeout is slow and under control, and she's staying back. What's your read?",
+      choices: [
+        { label: "Catch and shoot, you're open", goto: "shoot" },
+        { label: "Put it on the floor anyway", goto: "dribble_away" },
+      ],
+    },
+    shoot: {
+      court: () => courtSVG([
+        { x: 150, y: 230, role: "ball", label: "1" },
+        { x: 150, y: 165, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Silver shot", cls: "silver",
+        text: "A soft, under-control closeout usually means she's giving you the shot on purpose. You're open just outside the lane, take the silver shot.",
+        score: "goodRead", shot: "silver"
+      },
+    },
+    dribble_away: {
+      court: () => courtSVG([
+        { x: 100, y: 260, role: "ball", label: "1" },
+        { x: 140, y: 200, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "Nothing wrong happened, but you gave up an open shot you already had to go create a tougher one. If you're open and in range, take it.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+{
+  id: "c3",
+  title: "Hard Closeout, Attack It",
+  setup: "You're 1, already in triple threat. This time the defender flies at you out of control, off balance.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 230, y: 270, role: "teammate", label: "2" },
+        { x: 150, y: 190, role: "defender", label: "X" },
+      ]),
+      prompt: "She's sprinting at you, off balance, hands too high. What do you do?",
+      choices: [
+        { label: "Attack it with a purposeful first dribble toward the rim", goto: "drive" },
+        { label: "Shoot right over her anyway", goto: "forced_shot" },
+      ],
+    },
+    drive: {
+      court: () => courtSVG([
+        { x: 150, y: 120, role: "ball", label: "1" },
+        { x: 170, y: 160, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "An out-of-control closeout is an invitation to attack. Your first dribble should gain ground toward the rim, right past her. You're in the lane, gold medal shot.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    forced_shot: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 190, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Bad shot", cls: "bad",
+        text: "She's out of control and off balance, that's a lane to the rim, not a shot to force over a flying hand. Attack it instead.",
+        score: "forcedBad", shot: "bad"
+      },
+    },
+  },
+},
+
+{
+  id: "c4",
+  title: "First Dribble With a Purpose",
+  setup: "You're 1, attacking a hard closeout. You've beaten her off the catch and have a driving lane.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 220, role: "ball", label: "1" },
+        { x: 175, y: 170, role: "defender", label: "X" },
+      ]),
+      prompt: "You have a driving lane. What should that first dribble do?",
+      choices: [
+        { label: "Drive it hard toward the paint, get your body past her", sub: "Get the paint touch", goto: "finish" },
+        { label: "Dribble sideways a few times first", goto: "settle" },
+      ],
+    },
+    finish: {
+      court: () => courtSVG([
+        { x: 150, y: 100, role: "ball", label: "1" },
+        { x: 165, y: 130, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "That first dribble gained real ground toward the rim and got your body past her. You're in the lane, gold medal shot.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    settle: {
+      court: () => courtSVG([
+        { x: 110, y: 230, role: "ball", label: "1" },
+        { x: 150, y: 200, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "Dribbling sideways lets her recover and reset. The first dribble should have a purpose, toward the paint, not just dribbling to dribble.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+{
+  id: "c5",
+  title: "Finish Through Contact",
+  setup: "You're 1. You drove hard on the first dribble and a defender is still attached to you near the rim.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 100, role: "ball", label: "1" },
+        { x: 155, y: 120, role: "defender", label: "X" },
+      ]),
+      prompt: "She's still attached to you right at the rim. What now?",
+      choices: [
+        { label: "Go up strong through the contact and finish", goto: "finish" },
+        { label: "Pull the ball back out instead", goto: "pull_out" },
+      ],
+    },
+    finish: {
+      court: () => courtSVG([
+        { x: 150, y: 90, role: "ball", label: "1" },
+        { x: 155, y: 110, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "That's a paint touch with a purpose: if she's still on you at the rim, go ahead and finish through the contact instead of bailing out. Gold medal shot.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    pull_out: {
+      court: () => courtSVG([
+        { x: 150, y: 170, role: "ball", label: "1" },
+        { x: 155, y: 140, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "You already did the hard part getting here. If she's still on you this close to the rim, finish through the contact instead of backing out.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+{
+  id: "c6",
+  title: "Fake It to Beat the Help",
+  setup: "You're 1, attacking a hard closeout. A second defender rotates into the passing lane to 2.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 160, role: "ball", label: "1" },
+        { x: 230, y: 230, role: "teammate", label: "2", open: true },
+        { x: 170, y: 120, role: "defender", label: "X" },
+        { x: 195, y: 190, role: "defender", label: "X" },
+      ]),
+      prompt: "2 is open in the lane, but a defender is sitting right in that passing lane. What do you do?",
+      choices: [
+        { label: "Fake a pass one way, then make the real pass", sub: "Fake a pass to make a pass", goto: "fake_works" },
+        { label: "Throw the real pass straight through her", goto: "no_fake" },
+      ],
+    },
+    fake_works: {
+      court: () => courtSVG([
+        { x: 150, y: 160, role: "ball", label: "1" },
+        { x: 230, y: 230, role: "teammate", label: "2", open: true },
+        { x: 200, y: 170, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "Fake a pass to make a pass. The fake moved the help defender just enough to open the real lane, and 2 finishes in the paint for a gold medal shot.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    no_fake: {
+      court: () => courtSVG([
+        { x: 150, y: 160, role: "ball", label: "1" },
+        { x: 195, y: 190, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "She was sitting right in that lane and could see it coming. Fake a pass to make a pass, move her first, then deliver it.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+];
+
+/* ---------------------------------------------------------------------
+   GAME STATE + ENGINE — identical to Advantage Hunter.
+--------------------------------------------------------------------- */
+let mode = "practice";
+let order = [];
+let idx = 0;
+let currentStep = null;
+let timerInterval = null;
+let timeLeft = 15;
+
+const tally = {
+  goodRead: 0, earlyPass: 0, forcedBad: 0,
+  gold: 0, silver: 0, bad: 0,
+};
+
+const main = document.getElementById("main");
+const headerTitle = document.getElementById("headerTitle");
+const btnPractice = document.getElementById("btnPractice");
+const btnTimed = document.getElementById("btnTimed");
+
+btnPractice.onclick = () => { mode = "practice"; setActiveMode(); startGame(); };
+btnTimed.onclick = () => { mode = "timed"; setActiveMode(); startGame(); };
+
+function setActiveMode() {
+  btnPractice.classList.toggle("active", mode === "practice");
+  btnTimed.classList.toggle("active", mode === "timed");
+}
+
+function scenarioOrder() {
+  return SCENARIOS.map((_, i) => i);
+}
+
+function resetTally() {
+  tally.goodRead = 0; tally.earlyPass = 0; tally.forcedBad = 0;
+  tally.gold = 0; tally.silver = 0; tally.bad = 0;
+}
+
+function startGame() {
+  resetTally();
+  order = scenarioOrder();
+  idx = 0;
+  renderIntro();
+}
+
+function renderIntro() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Beat the Closeout";
+  main.innerHTML = `
+    <div class="instructions">
+      <h2>How to play</h2>
+      <p>Six closeout situations. A defender is recovering or sprinting at you as you catch the ball. Read her closeout and make the right decision.</p>
+      <ul>
+        <li>Purple with a number is our team. 1 is always you, catching the ball. X is a defender.</li>
+        <li>Meet every pass, land in triple threat.</li>
+        <li>Hard, out-of-control closeout: attack it with a purposeful first dribble.</li>
+        <li>Soft, under-control closeout: catch and shoot if you're open in range.</li>
+        <li>Fake a pass to make a pass when help is sitting in the lane.</li>
+      </ul>
+      <div class="chip-row">
+        <span class="chip gold">Gold shot: in the lane</span>
+        <span class="chip silver">Silver shot: open, just outside</span>
+        <span class="chip bad">Bad shot: contested, or someone else was more open</span>
+      </div>
+      ${mode === "timed" ? "<p><b>Timed Challenge:</b> you get 15 seconds per decision. Read fast!</p>" : "<p><b>Practice Mode:</b> take your time, read every explanation.</p>"}
+    </div>
+    <button class="big-btn" id="startBtn">Start — Scenario 1 of ${SCENARIOS.length}</button>
+  `;
+  document.getElementById("startBtn").onclick = () => showScenario();
+}
+
+function showScenario() {
+  clearTimer();
+  if (idx >= order.length) { renderSummary(); return; }
+  const sc = SCENARIOS[order[idx]];
+  currentStep = { scenario: sc, stepKey: sc.start };
+  renderStep();
+}
+
+function renderStep() {
+  window.scrollTo(0, 0);
+  const sc = currentStep.scenario;
+  const step = sc.steps[currentStep.stepKey];
+  headerTitle.textContent = `Scenario ${idx + 1} / ${SCENARIOS.length}`;
+
+  let html = `
+    <div class="progress">
+      <span>${sc.title}</span>
+      ${mode === "timed" ? `<span class="timer" id="timerDisplay">0:15</span>` : ""}
+    </div>
+  `;
+
+  if (!step.prompt && step.result) {
+    html += renderResultBlock(step.result);
+    main.innerHTML = html;
+    attachResultCourt(step);
+    document.getElementById("continueBtn").onclick = () => {
+      applyScore(step.result);
+      idx++; showScenario();
+    };
+    return;
+  }
+
+  html += `<p class="scenario-text">${sc.setup}</p>`;
+  html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<p class="prompt">${step.prompt}</p>`;
+  html += `<div class="choices" id="choiceHolder"></div>`;
+
+  main.innerHTML = html;
+  document.getElementById("courtHolder").innerHTML = step.court();
+
+  const holder = document.getElementById("choiceHolder");
+  step.choices.forEach((c) => {
+    const b = document.createElement("button");
+    b.innerHTML = c.label + (c.sub ? `<span class="sub">${c.sub}</span>` : "");
+    b.onclick = () => handleChoice(c);
+    holder.appendChild(b);
+  });
+
+  if (mode === "timed") startTimer(step);
+}
+
+function handleChoice(choice) {
+  clearTimer();
+  if (choice.goto) {
+    currentStep.stepKey = choice.goto;
+    renderStep();
+  } else if (choice.result) {
+    renderResult(choice.result);
+  }
+}
+
+function renderResult(result) {
+  window.scrollTo(0, 0);
+  let html = `
+    <div class="progress"><span>${currentStep.scenario.title}</span></div>
+    <div class="court-card" id="courtHolder"></div>
+  `;
+  html += renderResultBlock(result);
+  main.innerHTML = html;
+  const step = currentStep.scenario.steps[currentStep.stepKey];
+  document.getElementById("courtHolder").innerHTML = step.court();
+  document.getElementById("continueBtn").onclick = () => {
+    applyScore(result);
+    idx++; showScenario();
+  };
+}
+
+function renderResultBlock(result) {
+  return `
+    <div class="feedback ${result.cls}">
+      <span class="tag">${result.tag}</span>
+      <div>${result.text}</div>
+    </div>
+    <button class="next-btn" id="continueBtn">Next &rarr;</button>
+  `;
+}
+
+function attachResultCourt(step) {
+  const holder = document.createElement("div");
+  holder.className = "court-card";
+  holder.innerHTML = step.court();
+  main.insertBefore(holder, main.children[1]);
+}
+
+function applyScore(result) {
+  if (result.score) tally[result.score] = (tally[result.score] || 0) + 1;
+  if (result.shot) tally[result.shot] = (tally[result.shot] || 0) + 1;
+}
+
+function startTimer(step) {
+  timeLeft = 15;
+  const disp = document.getElementById("timerDisplay");
+  if (disp) disp.textContent = "0:" + String(timeLeft).padStart(2, "0");
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const d = document.getElementById("timerDisplay");
+    if (d) d.textContent = "0:" + String(Math.max(timeLeft, 0)).padStart(2, "0");
+    if (timeLeft <= 0) {
+      clearTimer();
+      const fallback = step.choices[0];
+      if (fallback.goto) {
+        currentStep.stepKey = fallback.goto;
+        renderStep();
+      } else if (fallback.result) {
+        const timedOutResult = Object.assign({}, fallback.result, {
+          tag: "Time's up — " + fallback.result.tag,
+        });
+        renderResult(timedOutResult);
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function renderSummary() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Results";
+  try {
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "beat_the_closeout", mode: mode, tally: Object.assign({}, tally) }, "*");
+  } catch (e) {}
+  const totalReads = tally.goodRead + tally.earlyPass + tally.forcedBad;
+  const totalShots = tally.gold + tally.silver + tally.bad;
+  main.innerHTML = `
+    <p class="scenario-text">Reads and shot selection are scored separately, a good read with a missed shot is still a good read.</p>
+    <h2 style="margin:4px 0 0;">Reads</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num">${tally.goodRead}</div><div class="label">Good reads</div></div>
+      <div class="stat-card"><div class="num">${tally.earlyPass}</div><div class="label">Passed too early</div></div>
+      <div class="stat-card"><div class="num">${tally.forcedBad}</div><div class="label">Forced it anyway</div></div>
+      <div class="stat-card"><div class="num">${totalReads}</div><div class="label">Total decisions</div></div>
+    </div>
+    <h2 style="margin:14px 0 0;">Shot selection</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num" style="color:#c9961f;">${tally.gold}</div><div class="label">Gold shots</div></div>
+      <div class="stat-card"><div class="num" style="color:#6b7076;">${tally.silver}</div><div class="label">Silver shots</div></div>
+      <div class="stat-card"><div class="num" style="color:#b5392f;">${tally.bad}</div><div class="label">Bad shots</div></div>
+      <div class="stat-card"><div class="num">${totalShots}</div><div class="label">Total shots</div></div>
+    </div>
+    <p class="scenario-text" style="margin-top:10px;">Screenshot this screen for your coach, this game saves no scores on its own.</p>
+    <div class="restart-row">
+      <button class="ghost-btn" id="replayBtn">Play Again</button>
+      <button class="next-btn" id="menuBtn">Change Mode</button>
+    </div>
+  `;
+  document.getElementById("replayBtn").onclick = () => startGame();
+  document.getElementById("menuBtn").onclick = () => renderIntro();
+}
+
+// boot
+try { parent.postMessage({ source: "silver-games", type: "ready", gameId: "beat_the_closeout" }, "*"); } catch (e) {}
+setActiveMode();
+startGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Last 90 Seconds — Fayetteville Girls Silver</title>
+<style>
+  :root {
+    --purple: #5b2a86;
+    --purple-dark: #3f1d61;
+    --silver: #9aa0a6;
+    --silver-light: #e8e9ec;
+    --gold: #c9961f;
+    --bad: #b5392f;
+    --ink: #1f2430;
+    --ink-dim: #5b606b;
+    --bg: #f6f5f8;
+    --surface: #ffffff;
+    --good: #1b7a43;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+  header { background: var(--purple); color: #fff; padding: 14px 16px 12px; text-align: center; position: sticky; top: 0; z-index: 5; }
+  header .team { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--silver-light); margin: 0 0 2px; }
+  header h1 { font-size: 20px; margin: 0; font-weight: 800; }
+  .modebar { display: flex; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid #e2e0e6; }
+  .modebar button { flex: 1; padding: 9px 6px; border-radius: 999px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 700; font-size: 12.5px; cursor: pointer; }
+  .modebar button.active { background: var(--purple); color: #fff; }
+  main { flex: 1; padding: 14px 16px 28px; display: flex; flex-direction: column; gap: 12px; }
+  .progress { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--ink-dim); font-weight: 700; }
+  .progress .timer { color: var(--purple); font-variant-numeric: tabular-nums; }
+  .scenario-text { font-size: 14px; color: var(--ink-dim); margin: 0; line-height: 1.45; }
+  .clock {
+    display: inline-block; background: var(--ink); color: #fff; font-weight: 800;
+    font-variant-numeric: tabular-nums; font-size: 13px; padding: 4px 10px; border-radius: 8px; margin-top: 4px;
+  }
+  .court-card { background: var(--surface); border-radius: 14px; border: 1px solid #e2e0e6; padding: 10px; }
+  .court-card svg { width: 100%; height: auto; display: block; }
+  .prompt { font-size: 15px; font-weight: 700; margin: 2px 0 0; }
+  .choices { display: flex; flex-direction: column; gap: 9px; }
+  .choices button { text-align: left; padding: 13px 14px; border-radius: 12px; border: 1.5px solid #d8d6de; background: var(--surface); color: var(--ink); font-size: 14.5px; font-weight: 700; cursor: pointer; }
+  .choices button:active { background: var(--silver-light); }
+  .choices button .sub { display: block; font-weight: 500; font-size: 12.5px; color: var(--ink-dim); margin-top: 2px; }
+  .feedback { border-radius: 12px; padding: 13px 14px; font-size: 14px; line-height: 1.5; border-left: 5px solid var(--purple); background: #f1ebf6; }
+  .feedback.good { border-left-color: var(--good); background: #e7f4ec; }
+  .feedback.gold { border-left-color: var(--gold); background: #faf1dd; }
+  .feedback.silver { border-left-color: var(--silver); background: #eceef0; }
+  .feedback.bad { border-left-color: var(--bad); background: #fbeae8; }
+  .feedback .tag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; color: var(--purple); }
+  .feedback.good .tag { color: var(--good); }
+  .feedback.gold .tag { color: var(--gold); }
+  .feedback.silver .tag { color: #6b7076; }
+  .feedback.bad .tag { color: var(--bad); }
+  .next-btn { padding: 13px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .next-btn:active { background: var(--purple-dark); }
+  .instructions { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 16px; font-size: 14px; line-height: 1.55; }
+  .instructions h2 { font-size: 16px; margin: 0 0 8px; }
+  .instructions ul { margin: 6px 0 0; padding-left: 20px; }
+  .instructions li { margin: 5px 0; }
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 2px; }
+  .chip { font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+  .chip.gold { background: #faf1dd; color: var(--gold); }
+  .chip.silver { background: #eceef0; color: #6b7076; }
+  .chip.bad { background: #fbeae8; color: var(--bad); }
+  .big-btn { padding: 15px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 4px; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 12px; padding: 12px; text-align: center; }
+  .stat-card .num { font-size: 26px; font-weight: 800; color: var(--purple); }
+  .stat-card .label { font-size: 11.5px; color: var(--ink-dim); font-weight: 700; margin-top: 2px; }
+  .restart-row { display: flex; gap: 10px; margin-top: 6px; }
+  .restart-row button { flex: 1; }
+  .ghost-btn { padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 800; font-size: 14.5px; cursor: pointer; }
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
+    <h1 id="headerTitle">Last 90 Seconds</h1>
+  </header>
+
+  <div class="modebar" id="modebar">
+    <button id="btnPractice" class="active">Practice Mode</button>
+    <button id="btnTimed">Timed Challenge</button>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   COURT DRAWING — same conventions as the other games.
+--------------------------------------------------------------------- */
+const LANE = { x: 95, y: 10, w: 110, h: 165 };
+
+function playerToken(x, y, color, label, open) {
+  let s = "";
+  if (open) {
+    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+  }
+  // jersey-shaped body (shoulders wider than hips) + round head, same size for every player
+  s += `<polygon points="${x - 13},${y - 7} ${x + 13},${y - 7} ${x + 9},${y + 17} ${x - 9},${y + 17}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<circle cx="${x}" cy="${y - 14}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  s += `<text x="${x}" y="${y + 9}" font-size="13" fill="#fff" text-anchor="middle" font-weight="800" font-family="inherit">${label}</text>`;
+  return s;
+}
+
+function courtSVG(players) {
+  let s = `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="2" y="2" width="296" height="396" rx="10" fill="#fbfafd" stroke="#d8d6de" stroke-width="2"/>`;
+  s += `<rect x="20" y="8" width="260" height="388" fill="#ffffff" stroke="#d8d6de" stroke-width="1.5"/>`;
+  s += `<rect x="${LANE.x}" y="${LANE.y}" width="${LANE.w}" height="${LANE.h}" fill="#f4f2f7" stroke="#c9c6d1" stroke-width="1.5"/>`;
+  s += `<circle cx="150" cy="${LANE.y + LANE.h}" r="45" fill="none" stroke="#c9c6d1" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s += `<line x1="118" y1="16" x2="182" y2="16" stroke="#3f1d61" stroke-width="4"/>`;
+  s += `<circle cx="150" cy="30" r="9" fill="none" stroke="#c9961f" stroke-width="3"/>`;
+  s += `<text x="150" y="392" font-size="10" fill="#9aa0a6" text-anchor="middle" font-family="inherit">half court</text>`;
+  players.forEach(p => {
+    const color = p.role === "defender" ? "#1f2430" : "#5b2a86";
+    s += playerToken(p.x, p.y, color, p.label, p.open);
+  });
+  s += `</svg>`;
+  return s;
+}
+
+/* ---------------------------------------------------------------------
+   SCENARIOS — easiest to hardest.
+   Late-clock decisions. The rules don't change under pressure: find the
+   best available shot, protect the possession when you have the lead,
+   and someone else being more open still means pass.
+--------------------------------------------------------------------- */
+const SCENARIOS = [
+
+{
+  id: "l1",
+  title: "Down 2, 18 Seconds",
+  setup: "You're 1. Silver trails by 2 with 18 seconds left. A teammate cuts open near the rim.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 100, role: "teammate", label: "2", open: true },
+      ]),
+      clock: "0:18",
+      prompt: "2 is cutting open right at the rim. What's your read?",
+      choices: [
+        { label: "Pass for the open gold shot", goto: "pass" },
+        { label: "Pull up for a guarded three", goto: "three" },
+      ],
+    },
+    pass: {
+      court: () => courtSVG([
+        { x: 150, y: 100, role: "ball", label: "2" },
+        { x: 150, y: 250, role: "teammate", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "You need two points, not three. She's open in the lane, that's a gold medal shot and gives your team the best chance to tie.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    three: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 100, role: "teammate", label: "2" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Bad shot", cls: "bad",
+        text: "You don't need three, you need a good shot. She was wide open in the lane, that's a bad shot when someone else is that open.",
+        score: "forcedBad", shot: "bad"
+      },
+    },
+  },
+},
+
+{
+  id: "l2",
+  title: "Up 1, 8 Seconds",
+  setup: "You're 1. Silver leads by 1 with 8 seconds left. A defender pressures the ball.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 70, y: 260, role: "teammate", label: "2" },
+        { x: 150, y: 185, role: "defender", label: "X" },
+      ]),
+      clock: "0:08",
+      prompt: "You're up 1. What matters most right now?",
+      choices: [
+        { label: "Protect the ball, find a safe pass", goto: "safe" },
+        { label: "Force a tough shot to extend the lead", goto: "force" },
+      ],
+    },
+    safe: {
+      court: () => courtSVG([
+        { x: 70, y: 260, role: "ball", label: "2" },
+        { x: 150, y: 250, role: "teammate", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Good read", cls: "good",
+        text: "When you have the lead late, value the possession. Be strong with the ball and find the safe pass instead of a risky one.",
+        score: "goodRead"
+      },
+    },
+    force: {
+      court: () => courtSVG([
+        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 185, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "You don't need another basket here, you need the clock to run out. Forcing a tough shot risks giving the ball right back.",
+        score: "forcedBad"
+      },
+    },
+  },
+},
+
+{
+  id: "l3",
+  title: "Down 3, 7 Seconds",
+  setup: "You're 1. Silver trails by 3 with 7 seconds left. A teammate is open in her practiced shooting range.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 230, y: 180, role: "teammate", label: "2", open: true },
+      ]),
+      clock: "0:07",
+      prompt: "2 is open in range. What do you do?",
+      choices: [
+        { label: "Get her the ball quickly", goto: "quick_pass" },
+        { label: "Hold it and look for something better", goto: "hold" },
+      ],
+    },
+    quick_pass: {
+      court: () => courtSVG([
+        { x: 230, y: 180, role: "ball", label: "2" },
+        { x: 150, y: 260, role: "teammate", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Silver shot", cls: "silver",
+        text: "You need a shot fast enough to beat the clock. She's open in range right now, get it to her quickly instead of searching for a better look that may never come.",
+        score: "goodRead", shot: "silver"
+      },
+    },
+    hold: {
+      court: () => courtSVG([
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 230, y: 180, role: "teammate", label: "2" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "With the clock this low, an open shot right now beats searching for a perfect one. Get it to her fast.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+{
+  id: "l4",
+  title: "Tie Game, Who's Open",
+  setup: "You're 1. Tie game, 12 seconds left. You have an OK look, but 2 is more open in the lane.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 190, role: "ball", label: "1" },
+        { x: 110, y: 110, role: "teammate", label: "2", open: true },
+        { x: 150, y: 150, role: "defender", label: "X" },
+      ]),
+      clock: "0:12",
+      prompt: "Your shot is OK. 2 is wide open in the lane. What's the read?",
+      choices: [
+        { label: "Pass to 2", goto: "pass" },
+        { label: "Take your own shot", goto: "own_shot" },
+      ],
+    },
+    pass: {
+      court: () => courtSVG([
+        { x: 110, y: 110, role: "ball", label: "2" },
+        { x: 150, y: 190, role: "teammate", label: "1" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "Late clock doesn't change the rule: if someone else is more open than you, that's the pass. She's in the lane, gold medal shot.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    own_shot: {
+      court: () => courtSVG([
+        { x: 150, y: 190, role: "ball", label: "1" },
+        { x: 150, y: 150, role: "defender", label: "X" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Bad shot", cls: "bad",
+        text: "Your look is OK, but bad shots aren't just contested ones, they're shots you take when someone else is more open than you. Pass it.",
+        score: "forcedBad", shot: "silver"
+      },
+    },
+  },
+},
+
+{
+  id: "l5",
+  title: "Down 1, Clock Running",
+  setup: "You're 1. Silver trails by 1, 15 seconds left. You attack and nobody has stopped you yet.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 80, y: 250, role: "teammate", label: "2" },
+        { x: 150, y: 180, role: "defender", label: "X" },
+      ]),
+      clock: "0:15",
+      prompt: "Nobody has stopped you yet. What's your read?",
+      choices: [
+        { label: "Keep going until someone actually stops you", goto: "stopped" },
+        { label: "Pass right now to be safe", goto: "early" },
+      ],
+    },
+    early: {
+      court: () => courtSVG([
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 80, y: 250, role: "teammate", label: "2" },
+      ]),
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "The clock creates urgency, but it doesn't change the rule: keep attacking until someone actually stops you, that's what forces the defense to leave someone open.",
+        score: "earlyPass"
+      },
+    },
+    stopped: {
+      court: () => courtSVG([
+        { x: 150, y: 150, role: "ball", label: "1" },
+        { x: 80, y: 210, role: "teammate", label: "2", open: true },
+        { x: 145, y: 110, role: "defender", label: "X" },
+      ]),
+      clock: "0:11",
+      prompt: "Now a defender commits to you. 2 is open. What now?",
+      choices: [
+        { label: "Pass to 2", result: {
+          tag: "Gold medal shot", cls: "gold",
+          text: "You made her commit first, then found the open player. Gold medal shot, with plenty of clock left to make something of it.",
+          score: "goodRead", shot: "gold"
+        }},
+        { label: "Force your own shot", result: {
+          tag: "Bad shot", cls: "bad",
+          text: "She's right on you and 2 is open. The clock is low, but it's not zero, there's still time to make the right pass.",
+          score: "forcedBad", shot: "bad"
+        }},
+      ],
+    },
+  },
+},
+
+{
+  id: "l6",
+  title: "Final Possession, Full Read",
+  setup: "You're 1. Down 2, 10 seconds left, the last possession of the half.",
+  start: "attack",
+  steps: {
+    attack: {
+      court: () => courtSVG([
+        { x: 150, y: 270, role: "ball", label: "1" },
+        { x: 60, y: 260, role: "teammate", label: "2" },
+        { x: 240, y: 260, role: "teammate", label: "3" },
+        { x: 140, y: 180, role: "defender", label: "X" },
+        { x: 200, y: 150, role: "defender", label: "X" },
+      ]),
+      clock: "0:10",
+      prompt: "You attack and a defender finally stops you. 2 looks open. What now?",
+      choices: [
+        { label: "Pass to 2", goto: "closed_out" },
+        { label: "Force your own shot", result: {
+          tag: "Bad shot", cls: "bad",
+          text: "She's stopped you and someone was open. Forcing it here is a bad shot, even with the clock low.",
+          score: "forcedBad", shot: "bad"
+        }},
+      ],
+    },
+    closed_out: {
+      court: () => courtSVG([
+        { x: 60, y: 260, role: "ball", label: "2" },
+        { x: 150, y: 270, role: "teammate", label: "1" },
+        { x: 240, y: 260, role: "teammate", label: "3", open: true },
+        { x: 70, y: 200, role: "defender", label: "X" },
+      ]),
+      clock: "0:06",
+      prompt: "Good pass, but a defender flies out and closes 2 down fast. 3 is wide open on the far side. What should 2 do?",
+      choices: [
+        { label: "Swing it to 3", sub: "Move the ball, don't stay on one side", result: {
+          tag: "Gold medal shot", cls: "gold",
+          text: "Even with the clock under 10 seconds, the read stays the same: swing it, don't stay on one side. 3 is wide open in the lane, gold medal shot.",
+          score: "goodRead", shot: "gold"
+        }},
+        { label: "Put her head down and drive into the closeout", result: {
+          tag: "Bad shot", cls: "bad",
+          text: "3 was wide open on the other side. Low clock doesn't make this drive a good idea, swing it instead.",
+          score: "forcedBad", shot: "bad"
+        }},
+      ],
+    },
+  },
+},
+
+];
+
+/* ---------------------------------------------------------------------
+   GAME STATE + ENGINE
+--------------------------------------------------------------------- */
+let mode = "practice";
+let order = [];
+let idx = 0;
+let currentStep = null;
+let timerInterval = null;
+let timeLeft = 15;
+
+const tally = {
+  goodRead: 0, earlyPass: 0, forcedBad: 0,
+  gold: 0, silver: 0, bad: 0,
+};
+
+const main = document.getElementById("main");
+const headerTitle = document.getElementById("headerTitle");
+const btnPractice = document.getElementById("btnPractice");
+const btnTimed = document.getElementById("btnTimed");
+
+btnPractice.onclick = () => { mode = "practice"; setActiveMode(); startGame(); };
+btnTimed.onclick = () => { mode = "timed"; setActiveMode(); startGame(); };
+
+function setActiveMode() {
+  btnPractice.classList.toggle("active", mode === "practice");
+  btnTimed.classList.toggle("active", mode === "timed");
+}
+
+function scenarioOrder() {
+  return SCENARIOS.map((_, i) => i);
+}
+
+function resetTally() {
+  tally.goodRead = 0; tally.earlyPass = 0; tally.forcedBad = 0;
+  tally.gold = 0; tally.silver = 0; tally.bad = 0;
+}
+
+function startGame() {
+  resetTally();
+  order = scenarioOrder();
+  idx = 0;
+  renderIntro();
+}
+
+function renderIntro() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Last 90 Seconds";
+  main.innerHTML = `
+    <div class="instructions">
+      <h2>How to play</h2>
+      <p>Six late-game situations with the score and clock on the line. Pressure goes up, but the decision rules stay exactly the same.</p>
+      <ul>
+        <li>Purple with a number is our team. 1 always starts with the ball. X is a defender.</li>
+        <li>Find the best available shot, not just any shot. Two points beats a harder three if two is what you need.</li>
+        <li>Protecting a lead matters as much as scoring.</li>
+        <li>Someone else being more open than you is still a pass, even with the clock low.</li>
+      </ul>
+      <div class="chip-row">
+        <span class="chip gold">Gold shot: in the lane</span>
+        <span class="chip silver">Silver shot: open, just outside</span>
+        <span class="chip bad">Bad shot: contested, or someone else was more open</span>
+      </div>
+      ${mode === "timed" ? "<p><b>Timed Challenge:</b> you get 15 seconds per decision. Read fast!</p>" : "<p><b>Practice Mode:</b> take your time, read every explanation.</p>"}
+    </div>
+    <button class="big-btn" id="startBtn">Start — Scenario 1 of ${SCENARIOS.length}</button>
+  `;
+  document.getElementById("startBtn").onclick = () => showScenario();
+}
+
+function showScenario() {
+  clearTimer();
+  if (idx >= order.length) { renderSummary(); return; }
+  const sc = SCENARIOS[order[idx]];
+  currentStep = { scenario: sc, stepKey: sc.start };
+  renderStep();
+}
+
+function renderStep() {
+  window.scrollTo(0, 0);
+  const sc = currentStep.scenario;
+  const step = sc.steps[currentStep.stepKey];
+  headerTitle.textContent = `Scenario ${idx + 1} / ${SCENARIOS.length}`;
+
+  let html = `
+    <div class="progress">
+      <span>${sc.title}</span>
+      ${mode === "timed" ? `<span class="timer" id="timerDisplay">0:15</span>` : ""}
+    </div>
+  `;
+
+  if (!step.prompt && step.result) {
+    html += renderResultBlock(step.result);
+    main.innerHTML = html;
+    attachResultCourt(step);
+    document.getElementById("continueBtn").onclick = () => {
+      applyScore(step.result);
+      idx++; showScenario();
+    };
+    return;
+  }
+
+  html += `<p class="scenario-text">${sc.setup}${step.clock ? ` <span class="clock">Game clock: ${step.clock}</span>` : ""}</p>`;
+  html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<p class="prompt">${step.prompt}</p>`;
+  html += `<div class="choices" id="choiceHolder"></div>`;
+
+  main.innerHTML = html;
+  document.getElementById("courtHolder").innerHTML = step.court();
+
+  const holder = document.getElementById("choiceHolder");
+  step.choices.forEach((c) => {
+    const b = document.createElement("button");
+    b.innerHTML = c.label + (c.sub ? `<span class="sub">${c.sub}</span>` : "");
+    b.onclick = () => handleChoice(c);
+    holder.appendChild(b);
+  });
+
+  if (mode === "timed") startTimer(step);
+}
+
+function handleChoice(choice) {
+  clearTimer();
+  if (choice.goto) {
+    currentStep.stepKey = choice.goto;
+    renderStep();
+  } else if (choice.result) {
+    renderResult(choice.result);
+  }
+}
+
+function renderResult(result) {
+  window.scrollTo(0, 0);
+  let html = `
+    <div class="progress"><span>${currentStep.scenario.title}</span></div>
+    <div class="court-card" id="courtHolder"></div>
+  `;
+  html += renderResultBlock(result);
+  main.innerHTML = html;
+  const step = currentStep.scenario.steps[currentStep.stepKey];
+  document.getElementById("courtHolder").innerHTML = step.court();
+  document.getElementById("continueBtn").onclick = () => {
+    applyScore(result);
+    idx++; showScenario();
+  };
+}
+
+function renderResultBlock(result) {
+  return `
+    <div class="feedback ${result.cls}">
+      <span class="tag">${result.tag}</span>
+      <div>${result.text}</div>
+    </div>
+    <button class="next-btn" id="continueBtn">Next &rarr;</button>
+  `;
+}
+
+function attachResultCourt(step) {
+  const holder = document.createElement("div");
+  holder.className = "court-card";
+  holder.innerHTML = step.court();
+  main.insertBefore(holder, main.children[1]);
+}
+
+function applyScore(result) {
+  if (result.score) tally[result.score] = (tally[result.score] || 0) + 1;
+  if (result.shot) tally[result.shot] = (tally[result.shot] || 0) + 1;
+}
+
+function startTimer(step) {
+  timeLeft = 15;
+  const disp = document.getElementById("timerDisplay");
+  if (disp) disp.textContent = "0:" + String(timeLeft).padStart(2, "0");
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const d = document.getElementById("timerDisplay");
+    if (d) d.textContent = "0:" + String(Math.max(timeLeft, 0)).padStart(2, "0");
+    if (timeLeft <= 0) {
+      clearTimer();
+      const fallback = step.choices[0];
+      if (fallback.goto) {
+        currentStep.stepKey = fallback.goto;
+        renderStep();
+      } else if (fallback.result) {
+        const timedOutResult = Object.assign({}, fallback.result, {
+          tag: "Time's up — " + fallback.result.tag,
+        });
+        renderResult(timedOutResult);
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function renderSummary() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "Results";
+  try {
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "last_90_seconds", mode: mode, tally: Object.assign({}, tally) }, "*");
+  } catch (e) {}
+  const totalReads = tally.goodRead + tally.earlyPass + tally.forcedBad;
+  const totalShots = tally.gold + tally.silver + tally.bad;
+  main.innerHTML = `
+    <p class="scenario-text">Reads and shot selection are scored separately, a good read with a missed shot is still a good read.</p>
+    <h2 style="margin:4px 0 0;">Reads</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num">${tally.goodRead}</div><div class="label">Good reads</div></div>
+      <div class="stat-card"><div class="num">${tally.earlyPass}</div><div class="label">Passed too early</div></div>
+      <div class="stat-card"><div class="num">${tally.forcedBad}</div><div class="label">Forced it anyway</div></div>
+      <div class="stat-card"><div class="num">${totalReads}</div><div class="label">Total decisions</div></div>
+    </div>
+    <h2 style="margin:14px 0 0;">Shot selection</h2>
+    <div class="summary-grid">
+      <div class="stat-card"><div class="num" style="color:#c9961f;">${tally.gold}</div><div class="label">Gold shots</div></div>
+      <div class="stat-card"><div class="num" style="color:#6b7076;">${tally.silver}</div><div class="label">Silver shots</div></div>
+      <div class="stat-card"><div class="num" style="color:#b5392f;">${tally.bad}</div><div class="label">Bad shots</div></div>
+      <div class="stat-card"><div class="num">${totalShots}</div><div class="label">Total shots</div></div>
+    </div>
+    <p class="scenario-text" style="margin-top:10px;">Screenshot this screen for your coach, this game saves no scores on its own.</p>
+    <div class="restart-row">
+      <button class="ghost-btn" id="replayBtn">Play Again</button>
+      <button class="next-btn" id="menuBtn">Change Mode</button>
+    </div>
+  `;
+  document.getElementById("replayBtn").onclick = () => startGame();
+  document.getElementById("menuBtn").onclick = () => renderIntro();
+}
+
+// boot
+try { parent.postMessage({ source: "silver-games", type: "ready", gameId: "last_90_seconds" }, "*"); } catch (e) {}
+setActiveMode();
+startGame();
+</script>
+</body>
+</html>
