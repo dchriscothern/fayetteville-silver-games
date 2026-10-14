@@ -139,7 +139,8 @@ function playerToken(x, y, colorKey, label, open) {
   return s;
 }
 
-function courtSVG(players) {
+function courtSVG(players, opts) {
+  opts = opts || {};
   let s = `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">`;
   s += `<rect x="2" y="2" width="296" height="396" rx="10" fill="#fbfafd" stroke="#d8d6de" stroke-width="2"/>`;
   s += `<rect x="20" y="8" width="260" height="388" fill="#ffffff" stroke="#d8d6de" stroke-width="1.5"/>`;
@@ -152,7 +153,23 @@ function courtSVG(players) {
     const color = p.role === "defender" ? "dark" : "purple";
     s += playerToken(p.x, p.y, color, p.label, p.open);
   });
+  if (!opts.hideBall) {
+    const carrier = players.find(p => p.role === "ball");
+    if (carrier) {
+      const pos = opts.ballPos || { x: carrier.x + 9, y: carrier.y + 15 };
+      s += drawBasketball(pos.x, pos.y);
+    }
+  }
   s += `</svg>`;
+  return s;
+}
+
+function drawBasketball(x, y) {
+  const r = 5.5;
+  let s = `<circle cx="${x}" cy="${y}" r="${r}" fill="#d36b29" stroke="#7a3a12" stroke-width="1"/>`;
+  s += `<path d="M ${x - r} ${y} Q ${x} ${y - r * 0.6} ${x + r} ${y}" fill="none" stroke="#7a3a12" stroke-width="0.8"/>`;
+  s += `<path d="M ${x - r} ${y} Q ${x} ${y + r * 0.6} ${x + r} ${y}" fill="none" stroke="#7a3a12" stroke-width="0.8"/>`;
+  s += `<line x1="${x}" y1="${y - r}" x2="${x}" y2="${y + r}" stroke="#7a3a12" stroke-width="0.8"/>`;
   return s;
 }
 
@@ -189,6 +206,42 @@ function animateCourt(container, players, done) {
     }
   }
   requestAnimationFrame(frame);
+}
+
+let lastBallLabel = null;
+let lastBallPos = null;
+
+function animateCourtWithPass(container, players, done) {
+  const carrier = players.find(p => p.role === "ball");
+  if (carrier && lastBallPos && lastBallLabel !== null && lastBallLabel !== carrier.label) {
+    // a pass happened since the last snapshot: hold players at rest and fly just the ball to its new owner
+    const from = lastBallPos;
+    const to = { x: carrier.x + 9, y: carrier.y + 15 };
+    const duration = 450;
+    const startTime = performance.now();
+    function frame(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = easeOutCubic(t);
+      const bx = lerp(from.x, to.x, eased);
+      const by = lerp(from.y, to.y, eased) - Math.sin(Math.PI * t) * 20;
+      let html = courtSVG(players, { hideBall: true });
+      html = html.replace("</svg>", drawBasketball(bx, by) + "</svg>");
+      container.innerHTML = html;
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        container.innerHTML = courtSVG(players);
+        lastBallLabel = carrier.label; lastBallPos = to;
+        if (done) done();
+      }
+    }
+    requestAnimationFrame(frame);
+  } else {
+    animateCourt(container, players, () => {
+      if (carrier) { lastBallLabel = carrier.label; lastBallPos = { x: carrier.x + 9, y: carrier.y + 15 }; }
+      if (done) done();
+    });
+  }
 }
 
 const SCENARIOS = [
@@ -466,9 +519,9 @@ const SCENARIOS = [
       prompt: "Good pass, but a defender flies out and closes 2 down fast. 3 is wide open on the far side. What should 2 do?",
       choices: [
         { label: "Swing it to 3", sub: "Move the ball, don't stay on one side", result: {
-          tag: "Gold medal shot", cls: "gold",
-          text: "Even with the clock under 10 seconds, the read stays the same: swing it, don't stay on one side. 3 is wide open in the lane, gold medal shot.",
-          score: "goodRead", shot: "gold"
+          tag: "Silver shot", cls: "silver",
+          text: "Even with the clock under 10 seconds, the read stays the same: swing it, don't stay on one side. 3 is wide open on the far side, good silver shot.",
+          score: "goodRead", shot: "silver"
         }},
         { label: "Put her head down and drive into the closeout", result: {
           tag: "Bad shot", cls: "bad",
@@ -554,6 +607,8 @@ function renderIntro() {
 function showScenario() {
   clearTimer();
   if (idx >= order.length) { renderSummary(); return; }
+  lastBallLabel = null;
+  lastBallPos = null;
   const sc = SCENARIOS[order[idx]];
   currentStep = { scenario: sc, stepKey: sc.start };
   renderStep();
@@ -600,7 +655,7 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+  animateCourtWithPass(document.getElementById("courtHolder"), step.players, () => {
     const reveal = document.getElementById("stepReveal");
     if (reveal) reveal.style.visibility = "visible";
     if (mode === "timed") startTimer(step);
@@ -626,7 +681,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  animateCourt(document.getElementById("courtHolder"), step.players);
+  animateCourtWithPass(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -647,7 +702,7 @@ function attachResultCourt(step) {
   const holder = document.createElement("div");
   holder.className = "court-card";
   main.insertBefore(holder, main.children[1]);
-  animateCourt(holder, step.players);
+  animateCourtWithPass(holder, step.players);
 }
 
 function applyScore(result) {
