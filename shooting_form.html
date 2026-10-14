@@ -143,6 +143,35 @@ function courtSVG(players) {
    taught at practice, one-hand close shots, two-hand side-of-backboard
    work, and the cookie-jar backspin finish.
 --------------------------------------------------------------------- */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function entryOffsetFor(role) {
+  return (role === "defender" || role === "green" || role === "blue") ? -30 : 30;
+}
+function animateCourt(container, players, done) {
+  const duration = 700;
+  const start = players.map(p => Object.assign({}, p, {
+    y: Math.max(20, Math.min(380, p.y + entryOffsetFor(p.role))),
+  }));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = players.map((p, i) => Object.assign({}, p, {
+      x: lerp(start[i].x, p.x, eased),
+      y: lerp(start[i].y, p.y, eased),
+    }));
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(players);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
 const SCENARIOS = [
 
 {
@@ -152,9 +181,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 100, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "What's the goal of this drill?",
       choices: [
         { label: "Build balance, elbow alignment, and soft backspin", result: {
@@ -179,9 +208,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 110, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "What should you focus on here?",
       choices: [
         { label: "Guide hand steadies it, shooting hand creates the shot, good bank angle", result: {
@@ -206,9 +235,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "What should your shooting hand look like on the finish?",
       choices: [
         { label: "Relaxed wrist, fingers down into the cookie jar, soft backspin", result: {
@@ -233,9 +262,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 110, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "What's the right order to work through the progression?",
       choices: [
         { label: "One-hand close shots first, then side-of-backboard two-hand work", result: {
@@ -260,9 +289,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 100, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "What's the fix?",
       choices: [
         { label: "Slow down, relax the wrist, finish into the cookie jar", result: {
@@ -287,9 +316,9 @@ const SCENARIOS = [
   start: "step1",
   steps: {
     step1: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 95, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "You're close to the rim. What do you work on first?",
       choices: [
         { label: "One-hand form: balance, elbow, soft backspin", goto: "step2" },
@@ -297,9 +326,9 @@ const SCENARIOS = [
       ],
     },
     skip: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 115, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Needs work", cls: "bad",
@@ -308,9 +337,9 @@ const SCENARIOS = [
       },
     },
     step2: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 115, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "Good, now you move to the side of the backboard. What's your focus with two hands?",
       choices: [
         { label: "Guide hand steadies it, shooting hand finishes with a good bank angle", goto: "step3" },
@@ -322,9 +351,9 @@ const SCENARIOS = [
       ],
     },
     step3: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Correct", cls: "good",
@@ -433,11 +462,12 @@ function renderStep() {
 
   html += `<p class="scenario-text">${sc.setup}</p>`;
   html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<div id="stepReveal" style="visibility:hidden;">`;
   html += `<p class="prompt">${step.prompt}</p>`;
   html += `<div class="choices" id="choiceHolder"></div>`;
+  html += `</div>`;
 
   main.innerHTML = html;
-  document.getElementById("courtHolder").innerHTML = step.court();
 
   const holder = document.getElementById("choiceHolder");
   step.choices.forEach((c) => {
@@ -447,7 +477,11 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  if (mode === "timed") startTimer(step);
+  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+    const reveal = document.getElementById("stepReveal");
+    if (reveal) reveal.style.visibility = "visible";
+    if (mode === "timed") startTimer(step);
+  });
 }
 
 function handleChoice(choice) {
@@ -469,7 +503,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  document.getElementById("courtHolder").innerHTML = step.court();
+  animateCourt(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -489,8 +523,8 @@ function renderResultBlock(result) {
 function attachResultCourt(step) {
   const holder = document.createElement("div");
   holder.className = "court-card";
-  holder.innerHTML = step.court();
   main.insertBefore(holder, main.children[1]);
+  animateCourt(holder, step.players);
 }
 
 function applyScore(result) {

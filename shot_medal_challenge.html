@@ -153,6 +153,35 @@ function courtSVG(players) {
    Silver = open shot just outside the lane, good shot.
    Bad = contested from outside, or someone else is more open than you.
 --------------------------------------------------------------------- */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function entryOffsetFor(role) {
+  return (role === "defender" || role === "green" || role === "blue") ? -30 : 30;
+}
+function animateCourt(container, players, done) {
+  const duration = 700;
+  const start = players.map(p => Object.assign({}, p, {
+    y: Math.max(20, Math.min(380, p.y + entryOffsetFor(p.role))),
+  }));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = players.map((p, i) => Object.assign({}, p, {
+      x: lerp(start[i].x, p.x, eased),
+      y: lerp(start[i].y, p.y, eased),
+    }));
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(players);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
 const SCENARIOS = [
 
 {
@@ -162,9 +191,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 110, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "How do we rate this shot?",
       choices: [
         { label: "Gold medal, take it", result: {
@@ -189,9 +218,9 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 250, role: "ball", label: "1" },
-      ]),
+      ],
       prompt: "How do we rate this shot?",
       choices: [
         { label: "Silver medal, a good open shot", result: {
@@ -216,10 +245,10 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 250, role: "ball", label: "1" },
         { x: 150, y: 220, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "How do we rate this shot?",
       choices: [
         { label: "Bad shot, it's contested from outside", result: {
@@ -244,10 +273,10 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 250, role: "ball", label: "1" },
         { x: 150, y: 100, role: "teammate", label: "2", open: true },
-      ]),
+      ],
       prompt: "You're open, but so is 2. How do we rate your shot here?",
       choices: [
         { label: "Bad shot, someone else is more open", result: {
@@ -272,10 +301,10 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 120, role: "ball", label: "1" },
         { x: 150, y: 95, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "How do we rate this shot?",
       choices: [
         { label: "Gold medal, you're in the lane, go up strong", result: {
@@ -300,10 +329,10 @@ const SCENARIOS = [
   start: "rate",
   steps: {
     rate: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 250, role: "ball", label: "1" },
         { x: 230, y: 255, role: "teammate", label: "2" },
-      ]),
+      ],
       prompt: "Nobody is closer to the rim than the other. How do we rate your shot?",
       choices: [
         { label: "Silver medal, take your own open shot", result: {
@@ -421,11 +450,12 @@ function renderStep() {
 
   html += `<p class="scenario-text">${sc.setup}</p>`;
   html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<div id="stepReveal" style="visibility:hidden;">`;
   html += `<p class="prompt">${step.prompt}</p>`;
   html += `<div class="choices" id="choiceHolder"></div>`;
+  html += `</div>`;
 
   main.innerHTML = html;
-  document.getElementById("courtHolder").innerHTML = step.court();
 
   const holder = document.getElementById("choiceHolder");
   step.choices.forEach((c) => {
@@ -435,7 +465,11 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  if (mode === "timed") startTimer(step);
+  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+    const reveal = document.getElementById("stepReveal");
+    if (reveal) reveal.style.visibility = "visible";
+    if (mode === "timed") startTimer(step);
+  });
 }
 
 function handleChoice(choice) {
@@ -457,7 +491,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  document.getElementById("courtHolder").innerHTML = step.court();
+  animateCourt(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -477,8 +511,8 @@ function renderResultBlock(result) {
 function attachResultCourt(step) {
   const holder = document.createElement("div");
   holder.className = "court-card";
-  holder.innerHTML = step.court();
   main.insertBefore(holder, main.children[1]);
+  animateCourt(holder, step.players);
 }
 
 function applyScore(result) {

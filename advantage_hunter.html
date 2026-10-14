@@ -350,6 +350,35 @@ function shotTierFor(x, y) {
    Our team is always numbered 1 (ball handler), 2, 3, 4 — purple.
    Defenders are X — dark.
 --------------------------------------------------------------------- */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function entryOffsetFor(role) {
+  return (role === "defender" || role === "green" || role === "blue") ? -30 : 30;
+}
+function animateCourt(container, players, done) {
+  const duration = 700;
+  const start = players.map(p => Object.assign({}, p, {
+    y: Math.max(20, Math.min(380, p.y + entryOffsetFor(p.role))),
+  }));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = players.map((p, i) => Object.assign({}, p, {
+      x: lerp(start[i].x, p.x, eased),
+      y: lerp(start[i].y, p.y, eased),
+    }));
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(players);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
 const SCENARIOS = [
 
 {
@@ -359,11 +388,11 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 250, role: "ball", label: "1" },
         { x: 90, y: 260, role: "teammate", label: "2" },
         { x: 150, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You take the ball to the rim. What now?",
       choices: [
         { label: "Keep going to the rim", sub: "Nobody has stopped you yet", goto: "stopped" },
@@ -375,11 +404,11 @@ const SCENARIOS = [
       ],
     },
     stopped: {
-      court: () => courtSVG([
+      players: [
         { x: 140, y: 120, role: "ball", label: "1" },
         { x: 70, y: 180, role: "teammate", label: "2", open: true },
         { x: 130, y: 90, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "The defender steps up and stops your dribble. Now what?",
       choices: [
         { label: "Pass to 2", sub: "She's wide open for the finish", result: {
@@ -404,11 +433,11 @@ const SCENARIOS = [
   start: "catch",
   steps: {
     catch: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 280, role: "ball", label: "1" },
         { x: 80, y: 290, role: "teammate", label: "2" },
         { x: 150, y: 160, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "The pass is on its way to you. How do you catch it?",
       choices: [
         { label: "Meet the pass, land in triple threat", goto: "attack" },
@@ -416,10 +445,10 @@ const SCENARIOS = [
       ],
     },
     late: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 280, role: "ball", label: "1" },
         { x: 150, y: 190, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -428,11 +457,11 @@ const SCENARIOS = [
       },
     },
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 80, y: 230, role: "teammate", label: "2", open: true },
         { x: 145, y: 100, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Good catch, triple threat. You attack and the defender finally stops you. 2 is open. What now?",
       choices: [
         { label: "Pass to 2", result: {
@@ -457,11 +486,11 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 230, role: "ball", label: "1" },
         { x: 90, y: 250, role: "teammate", label: "2" },
         { x: 145, y: 170, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "The defender is already right in front of you, cutting off your drive. What do you do?",
       choices: [
         { label: "Pass to 2 now", sub: "She already stopped you", goto: "resolve_good" },
@@ -469,11 +498,11 @@ const SCENARIOS = [
       ],
     },
     resolve_good: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 170, role: "ball", label: "1" },
         { x: 75, y: 190, role: "teammate", label: "2", open: true },
         { x: 145, y: 170, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
@@ -482,11 +511,11 @@ const SCENARIOS = [
       },
     },
     resolve_bad: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 170, role: "ball", label: "1" },
         { x: 75, y: 190, role: "teammate", label: "2", open: true },
         { x: 145, y: 170, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Bad shot", cls: "bad",
@@ -504,13 +533,13 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 260, role: "ball", label: "1" },
         { x: 70, y: 270, role: "teammate", label: "2" },
         { x: 230, y: 270, role: "teammate", label: "3" },
         { x: 130, y: 170, role: "defender", label: "X" },
         { x: 190, y: 120, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You attack the middle. What's your read?",
       choices: [
         { label: "Keep attacking the rim", sub: "No one has stopped you", goto: "stopped" },
@@ -518,11 +547,11 @@ const SCENARIOS = [
       ],
     },
     early: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 260, role: "ball", label: "1" },
         { x: 70, y: 270, role: "teammate", label: "2" },
         { x: 230, y: 270, role: "teammate", label: "3" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -531,13 +560,13 @@ const SCENARIOS = [
       },
     },
     stopped: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 70, y: 230, role: "teammate", label: "2", open: true },
         { x: 230, y: 230, role: "teammate", label: "3" },
         { x: 140, y: 110, role: "defender", label: "X" },
         { x: 185, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "A defender steps up on you. 2 is open. What now?",
       choices: [
         { label: "Pass to 2", sub: "Open just outside the lane", result: {
@@ -562,11 +591,11 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 140, role: "ball", label: "1" },
         { x: 190, y: 90, role: "teammate", label: "2", open: true },
         { x: 95, y: 170, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You have a decent look just outside the lane, but 2 is wide open in the lane. What do you do?",
       choices: [
         { label: "Take your own open shot", goto: "own_shot" },
@@ -574,10 +603,10 @@ const SCENARIOS = [
       ],
     },
     own_shot: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 140, role: "ball", label: "1" },
         { x: 190, y: 90, role: "teammate", label: "2" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Bad shot", cls: "bad",
@@ -586,10 +615,10 @@ const SCENARIOS = [
       },
     },
     pass_teammate: {
-      court: () => courtSVG([
+      players: [
         { x: 190, y: 90, role: "ball", label: "2" },
         { x: 110, y: 140, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -607,10 +636,10 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 260, role: "ball", label: "1" },
         { x: 150, y: 200, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Your defender is attached to your hip the whole way. What's your purpose with the dribble?",
       choices: [
         { label: "Dribble with a purpose into the paint, finish through contact", sub: "Get the paint touch", goto: "finish" },
@@ -618,10 +647,10 @@ const SCENARIOS = [
       ],
     },
     finish: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "1" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -630,10 +659,10 @@ const SCENARIOS = [
       },
     },
     settle: {
-      court: () => courtSVG([
+      players: [
         { x: 90, y: 250, role: "ball", label: "1" },
         { x: 95, y: 220, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -651,13 +680,13 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 270, role: "ball", label: "1" },
         { x: 70, y: 260, role: "teammate", label: "2" },
         { x: 230, y: 260, role: "teammate", label: "3" },
         { x: 150, y: 200, role: "defender", label: "X" },
         { x: 170, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Both defenders are hanging back, not committed yet. What's your move?",
       choices: [
         { label: "Keep attacking, make them commit", goto: "stopped" },
@@ -665,10 +694,10 @@ const SCENARIOS = [
       ],
     },
     early: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 270, role: "ball", label: "1" },
         { x: 70, y: 260, role: "teammate", label: "2" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -677,13 +706,13 @@ const SCENARIOS = [
       },
     },
     stopped: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 70, y: 220, role: "teammate", label: "2", open: true },
         { x: 230, y: 220, role: "teammate", label: "3" },
         { x: 145, y: 110, role: "defender", label: "X" },
         { x: 175, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Now a defender finally commits to you. 2 is open. What now?",
       choices: [
         { label: "Pass to 2", result: {
@@ -708,12 +737,12 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 70, y: 230, role: "teammate", label: "2", open: true },
         { x: 100, y: 190, role: "defender", label: "X" },
         { x: 190, y: 100, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "A defender is sitting right in the passing lane to 2. What do you do?",
       choices: [
         { label: "Fake a pass one way, then make the real pass", sub: "Fake a pass to make a pass", goto: "fake_works" },
@@ -721,11 +750,11 @@ const SCENARIOS = [
       ],
     },
     fake_works: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 70, y: 230, role: "teammate", label: "2", open: true },
         { x: 130, y: 200, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -734,10 +763,10 @@ const SCENARIOS = [
       },
     },
     no_fake: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "ball", label: "1" },
         { x: 100, y: 190, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -755,7 +784,7 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 270, role: "ball", label: "1" },
         { x: 60, y: 260, role: "teammate", label: "2" },
         { x: 240, y: 260, role: "teammate", label: "3" },
@@ -763,7 +792,7 @@ const SCENARIOS = [
         { x: 140, y: 180, role: "defender", label: "X" },
         { x: 200, y: 150, role: "defender", label: "X" },
         { x: 100, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You attack and a defender finally stops you. 2 looks open. What now?",
       choices: [
         { label: "Pass to 2", goto: "closed_out" },
@@ -775,13 +804,13 @@ const SCENARIOS = [
       ],
     },
     closed_out: {
-      court: () => courtSVG([
+      players: [
         { x: 60, y: 260, role: "ball", label: "2" },
         { x: 150, y: 270, role: "teammate", label: "1" },
         { x: 240, y: 260, role: "teammate", label: "3", open: true },
         { x: 70, y: 200, role: "defender", label: "X" },
         { x: 150, y: 180, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Good pass, but a defender flies out and closes 2 down fast. 3 is wide open on the far side. What should 2 do?",
       choices: [
         { label: "Swing it again to 3", sub: "Move the ball, don't stay on one side", result: {
@@ -806,7 +835,7 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 280, role: "ball", label: "1" },
         { x: 55, y: 260, role: "teammate", label: "2" },
         { x: 245, y: 260, role: "teammate", label: "3" },
@@ -814,7 +843,7 @@ const SCENARIOS = [
         { x: 150, y: 200, role: "defender", label: "X" },
         { x: 190, y: 150, role: "defender", label: "X" },
         { x: 110, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You push the middle. Nobody has stopped you yet. What's your read?",
       choices: [
         { label: "Keep attacking until someone stops you", goto: "stopped" },
@@ -822,10 +851,10 @@ const SCENARIOS = [
       ],
     },
     early: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 280, role: "ball", label: "1" },
         { x: 55, y: 260, role: "teammate", label: "2" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -834,12 +863,12 @@ const SCENARIOS = [
       },
     },
     stopped: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 170, role: "ball", label: "1" },
         { x: 55, y: 230, role: "teammate", label: "2", open: true },
         { x: 245, y: 230, role: "teammate", label: "3" },
         { x: 145, y: 120, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "A defender steps up and stops you. 2 is open. What now?",
       choices: [
         { label: "Pass to 2", goto: "closeout" },
@@ -851,12 +880,12 @@ const SCENARIOS = [
       ],
     },
     closeout: {
-      court: () => courtSVG([
+      players: [
         { x: 55, y: 230, role: "ball", label: "2" },
         { x: 150, y: 170, role: "teammate", label: "1" },
         { x: 245, y: 230, role: "teammate", label: "3", open: true },
         { x: 70, y: 180, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "A defender flies out at 2 fast. 3 is wide open on the far side. What should 2 do?",
       choices: [
         { label: "Swing it to 3", sub: "Move the ball, don't stay on one side", goto: "finish" },
@@ -868,11 +897,11 @@ const SCENARIOS = [
       ],
     },
     finish: {
-      court: () => courtSVG([
+      players: [
         { x: 245, y: 230, role: "ball", label: "3" },
         { x: 55, y: 230, role: "teammate", label: "2" },
         { x: 150, y: 170, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -990,11 +1019,12 @@ function renderStep() {
 
   html += `<p class="scenario-text">${sc.setup}</p>`;
   html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<div id="stepReveal" style="visibility:hidden;">`;
   html += `<p class="prompt">${step.prompt}</p>`;
   html += `<div class="choices" id="choiceHolder"></div>`;
+  html += `</div>`;
 
   main.innerHTML = html;
-  document.getElementById("courtHolder").innerHTML = step.court();
 
   const holder = document.getElementById("choiceHolder");
   step.choices.forEach((c) => {
@@ -1004,7 +1034,11 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  if (mode === "timed") startTimer(step);
+  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+    const reveal = document.getElementById("stepReveal");
+    if (reveal) reveal.style.visibility = "visible";
+    if (mode === "timed") startTimer(step);
+  });
 }
 
 function handleChoice(choice) {
@@ -1026,7 +1060,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  document.getElementById("courtHolder").innerHTML = step.court();
+  animateCourt(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -1047,8 +1081,8 @@ function attachResultCourt(step) {
   // used when a step has no prompt, i.e. auto-resolves straight to a result
   const holder = document.createElement("div");
   holder.className = "court-card";
-  holder.innerHTML = step.court();
   main.insertBefore(holder, main.children[1]);
+  animateCourt(holder, step.players);
 }
 
 function applyScore(result) {

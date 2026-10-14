@@ -333,6 +333,35 @@ function courtSVG(players) {
    opponent, colored by whether she can shoot it. Matching numbers
    across colors means "this is your matchup."
 --------------------------------------------------------------------- */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function entryOffsetFor(role) {
+  return (role === "defender" || role === "green" || role === "blue") ? -30 : 30;
+}
+function animateCourt(container, players, done) {
+  const duration = 700;
+  const start = players.map(p => Object.assign({}, p, {
+    y: Math.max(20, Math.min(380, p.y + entryOffsetFor(p.role))),
+  }));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = players.map((p, i) => Object.assign({}, p, {
+      x: lerp(start[i].x, p.x, eased),
+      y: lerp(start[i].y, p.y, eased),
+    }));
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(players);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
 const SCENARIOS = [
 
 {
@@ -342,11 +371,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 200, role: "you", label: "1" },
         { x: 150, y: 250, role: "blue", label: "1", focus: true },
         { x: 110, y: 220, role: "green", label: "4" },
-      ]),
+      ],
       prompt: "The screen is coming. What's your call?",
       choices: [
         { label: "Go under the screen", sub: "Give her the gap, she can't shoot it", result: {
@@ -371,11 +400,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 200, role: "you", label: "1" },
         { x: 150, y: 250, role: "green", label: "1", focus: true },
         { x: 110, y: 220, role: "blue", label: "4" },
-      ]),
+      ],
       prompt: "The screen is coming. What's your call?",
       choices: [
         { label: "Go over the top of the screen", sub: "Stay tight, don't give her the outside shot", result: {
@@ -400,11 +429,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 140, y: 230, role: "you", label: "1" },
         { x: 110, y: 225, role: "green", label: "4" },
         { x: 150, y: 260, role: "blue", label: "1", focus: true },
-      ]),
+      ],
       prompt: "You're stuck on the screen. What's your call?",
       choices: [
         { label: "Call \"Switch!\"", sub: "Trade with the screener's defender", result: {
@@ -429,11 +458,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 235, role: "you", label: "1" },
         { x: 120, y: 225, role: "blue", label: "4" },
         { x: 150, y: 260, role: "green", label: "1", focus: true },
-      ]),
+      ],
       prompt: "The screen barely touches you. What's your call?",
       choices: [
         { label: "Fight through, stay with your own girl", sub: "You can still get there", result: {
@@ -458,11 +487,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 160, role: "blue", label: "1", focus: true },
         { x: 150, y: 210, role: "you", label: "1" },
         { x: 80, y: 230, role: "teammateD", label: "2" },
-      ]),
+      ],
       prompt: "You got beat. What do you do?",
       choices: [
         { label: "Call \"Help!\" and sprint to recover", result: {
@@ -487,12 +516,12 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "blue", label: "1", focus: true },
         { x: 170, y: 200, role: "teammateD", label: "1" },
         { x: 100, y: 110, role: "you", label: "3" },
         { x: 95, y: 170, role: "green", label: "3" },
-      ]),
+      ],
       prompt: "The ball is coming into the lane. What do you do?",
       choices: [
         { label: "Step in front, call \"I got her!\"", sub: "Stop the ball, tell your teammate to recover", result: {
@@ -517,10 +546,10 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "you", label: "3" },
         { x: 90, y: 180, role: "green", label: "3", focus: true },
-      ]),
+      ],
       prompt: "The pass is in the air to your green shooter. What do you do?",
       choices: [
         { label: "Sprint and close out hard", sub: "She can really shoot it", result: {
@@ -545,10 +574,10 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 150, role: "you", label: "3" },
         { x: 90, y: 180, role: "blue", label: "3", focus: true },
-      ]),
+      ],
       prompt: "The pass is in the air to your blue player. What do you do?",
       choices: [
         { label: "Close out under control", sub: "She can't shoot it, don't fly by her", result: {
@@ -573,11 +602,11 @@ const SCENARIOS = [
   start: "choice",
   steps: {
     choice: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 260, role: "you", label: "1" },
         { x: 230, y: 240, role: "blue", label: "2" },
         { x: 70, y: 150, role: "green", label: "3", focus: true },
-      ]),
+      ],
       prompt: "You see a player cutting open toward the basket. What do you do?",
       choices: [
         { label: "Step in and tag the cutter", sub: "See the cutter, not just the ball", result: {
@@ -602,11 +631,11 @@ const SCENARIOS = [
   start: "screen",
   steps: {
     screen: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 220, role: "you", label: "1" },
         { x: 150, y: 260, role: "green", label: "1", focus: true },
         { x: 110, y: 230, role: "blue", label: "4" },
-      ]),
+      ],
       prompt: "The screen is coming for your green shooter. What's your call?",
       choices: [
         { label: "Go over the top", goto: "caught" },
@@ -618,11 +647,11 @@ const SCENARIOS = [
       ],
     },
     caught: {
-      court: () => courtSVG([
+      players: [
         { x: 140, y: 230, role: "you", label: "1" },
         { x: 110, y: 225, role: "blue", label: "4" },
         { x: 150, y: 260, role: "green", label: "1", focus: true },
-      ]),
+      ],
       prompt: "Good effort, but the screen catches you solid this time. You can't get through. What now?",
       choices: [
         { label: "Call \"Switch!\"", goto: "recover" },
@@ -634,11 +663,11 @@ const SCENARIOS = [
       ],
     },
     recover: {
-      court: () => courtSVG([
+      players: [
         { x: 110, y: 225, role: "you", label: "4" },
         { x: 150, y: 150, role: "teammateD", label: "1" },
         { x: 90, y: 160, role: "green", label: "1", focus: true },
-      ]),
+      ],
       prompt: "Good switch. Now the ball swings out to your new green shooter. What do you do?",
       choices: [
         { label: "Sprint and close out hard", result: {
@@ -762,11 +791,12 @@ function renderStep() {
 
   html += `<p class="scenario-text">${sc.setup}</p>`;
   html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<div id="stepReveal" style="visibility:hidden;">`;
   html += `<p class="prompt">${step.prompt}</p>`;
   html += `<div class="choices" id="choiceHolder"></div>`;
+  html += `</div>`;
 
   main.innerHTML = html;
-  document.getElementById("courtHolder").innerHTML = step.court();
 
   const holder = document.getElementById("choiceHolder");
   step.choices.forEach((c) => {
@@ -776,7 +806,11 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  if (mode === "timed") startTimer(step);
+  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+    const reveal = document.getElementById("stepReveal");
+    if (reveal) reveal.style.visibility = "visible";
+    if (mode === "timed") startTimer(step);
+  });
 }
 
 function handleChoice(choice) {
@@ -798,7 +832,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  document.getElementById("courtHolder").innerHTML = step.court();
+  animateCourt(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -818,8 +852,8 @@ function renderResultBlock(result) {
 function attachResultCourt(step) {
   const holder = document.createElement("div");
   holder.className = "court-card";
-  holder.innerHTML = step.court();
   main.insertBefore(holder, main.children[1]);
+  animateCourt(holder, step.players);
 }
 
 function applyScore(result) {

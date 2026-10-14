@@ -153,6 +153,35 @@ function courtSVG(players) {
    catch and establish a pivot foot, then turn and finish or kick out
    if help arrives.
 --------------------------------------------------------------------- */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function entryOffsetFor(role) {
+  return (role === "defender" || role === "green" || role === "blue") ? -30 : 30;
+}
+function animateCourt(container, players, done) {
+  const duration = 700;
+  const start = players.map(p => Object.assign({}, p, {
+    y: Math.max(20, Math.min(380, p.y + entryOffsetFor(p.role))),
+  }));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = players.map((p, i) => Object.assign({}, p, {
+      x: lerp(start[i].x, p.x, eased),
+      y: lerp(start[i].y, p.y, eased),
+    }));
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(players);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
 const SCENARIOS = [
 
 {
@@ -162,11 +191,11 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 115, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: "How do you help the passer get you the ball?",
       choices: [
         { label: "Get a legal seal and show a target hand", goto: "sealed" },
@@ -174,11 +203,11 @@ const SCENARIOS = [
       ],
     },
     sealed: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5", open: true },
         { x: 150, y: 120, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
@@ -187,11 +216,11 @@ const SCENARIOS = [
       },
     },
     no_seal: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -209,11 +238,11 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: "Your defender is sealed low. Where should you target the pass?",
       choices: [
         { label: "Show your high hand, away from the defender", goto: "high_target" },
@@ -221,10 +250,10 @@ const SCENARIOS = [
       ],
     },
     high_target: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -233,10 +262,10 @@ const SCENARIOS = [
       },
     },
     bad_target: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -254,10 +283,10 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 120, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You've caught it strong. What's your next step?",
       choices: [
         { label: "Establish a pivot foot, turn toward the rim", goto: "pivoted" },
@@ -265,10 +294,10 @@ const SCENARIOS = [
       ],
     },
     pivoted: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 80, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
@@ -277,10 +306,10 @@ const SCENARIOS = [
       },
     },
     travel: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 120, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -298,10 +327,10 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 80, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "You're facing the rim in the lane with a clean look. What do you do?",
       choices: [
         { label: "Take the shot, you're in the lane", goto: "shoot" },
@@ -309,10 +338,10 @@ const SCENARIOS = [
       ],
     },
     shoot: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 75, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
@@ -321,10 +350,10 @@ const SCENARIOS = [
       },
     },
     back_out: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 140, role: "ball", label: "5" },
         { x: 150, y: 150, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -342,12 +371,12 @@ const SCENARIOS = [
   start: "attack",
   steps: {
     attack: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 120, role: "defender", label: "X" },
         { x: 190, y: 140, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1", open: true },
-      ]),
+      ],
       prompt: "A second defender has arrived to help. 1 is wide open on the wing. What now?",
       choices: [
         { label: "Kick it out to 1", goto: "kick_out" },
@@ -355,10 +384,10 @@ const SCENARIOS = [
       ],
     },
     kick_out: {
-      court: () => courtSVG([
+      players: [
         { x: 230, y: 230, role: "ball", label: "1" },
         { x: 150, y: 90, role: "teammate", label: "5" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Silver shot", cls: "silver",
@@ -367,11 +396,11 @@ const SCENARIOS = [
       },
     },
     force: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 120, role: "defender", label: "X" },
         { x: 190, y: 140, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Bad shot", cls: "bad",
@@ -389,11 +418,11 @@ const SCENARIOS = [
   start: "seal",
   steps: {
     seal: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 110, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: "Your teammate has the ball on the wing. What's your first job?",
       choices: [
         { label: "Seal your defender and show a target", goto: "caught" },
@@ -401,11 +430,11 @@ const SCENARIOS = [
       ],
     },
     no_seal: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 105, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -414,10 +443,10 @@ const SCENARIOS = [
       },
     },
     caught: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 115, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: "Good entry. Now what?",
       choices: [
         { label: "Establish your pivot foot and turn to the rim", goto: "pivoted" },
@@ -425,10 +454,10 @@ const SCENARIOS = [
       ],
     },
     dribble_away: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 110, role: "ball", label: "5" },
         { x: 150, y: 115, role: "defender", label: "X" },
-      ]),
+      ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
@@ -437,12 +466,12 @@ const SCENARIOS = [
       },
     },
     pivoted: {
-      court: () => courtSVG([
+      players: [
         { x: 150, y: 90, role: "ball", label: "5" },
         { x: 150, y: 115, role: "defender", label: "X" },
         { x: 185, y: 140, role: "defender", label: "X" },
         { x: 230, y: 230, role: "teammate", label: "1", open: true },
-      ]),
+      ],
       prompt: "You turn and see a second defender has rotated to help. 1 is open on the wing. What now?",
       choices: [
         { label: "Kick it out to 1", result: {
@@ -565,11 +594,12 @@ function renderStep() {
 
   html += `<p class="scenario-text">${sc.setup}</p>`;
   html += `<div class="court-card" id="courtHolder"></div>`;
+  html += `<div id="stepReveal" style="visibility:hidden;">`;
   html += `<p class="prompt">${step.prompt}</p>`;
   html += `<div class="choices" id="choiceHolder"></div>`;
+  html += `</div>`;
 
   main.innerHTML = html;
-  document.getElementById("courtHolder").innerHTML = step.court();
 
   const holder = document.getElementById("choiceHolder");
   step.choices.forEach((c) => {
@@ -579,7 +609,11 @@ function renderStep() {
     holder.appendChild(b);
   });
 
-  if (mode === "timed") startTimer(step);
+  animateCourt(document.getElementById("courtHolder"), step.players, () => {
+    const reveal = document.getElementById("stepReveal");
+    if (reveal) reveal.style.visibility = "visible";
+    if (mode === "timed") startTimer(step);
+  });
 }
 
 function handleChoice(choice) {
@@ -601,7 +635,7 @@ function renderResult(result) {
   html += renderResultBlock(result);
   main.innerHTML = html;
   const step = currentStep.scenario.steps[currentStep.stepKey];
-  document.getElementById("courtHolder").innerHTML = step.court();
+  animateCourt(document.getElementById("courtHolder"), step.players);
   document.getElementById("continueBtn").onclick = () => {
     applyScore(result);
     idx++; showScenario();
@@ -621,8 +655,8 @@ function renderResultBlock(result) {
 function attachResultCourt(step) {
   const holder = document.createElement("div");
   holder.className = "court-card";
-  holder.innerHTML = step.court();
   main.insertBefore(holder, main.children[1]);
+  animateCourt(holder, step.players);
 }
 
 function applyScore(result) {
