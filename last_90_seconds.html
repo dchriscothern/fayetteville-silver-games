@@ -114,18 +114,18 @@ function hairForLabel(label) {
 }
 
 function jerseyPath(x, y) {
-  return `M ${x - 18},${y - 10}
-          L ${x - 7},${y - 10}
-          Q ${x - 3},${y - 10} ${x},${y - 3}
-          Q ${x + 3},${y - 10} ${x + 7},${y - 10}
-          L ${x + 18},${y - 10}
-          Q ${x + 20},${y - 4} ${x + 15},${y + 2}
-          L ${x + 13},${y + 22}
-          Q ${x + 13},${y + 26} ${x + 9},${y + 26}
-          L ${x - 9},${y + 26}
-          Q ${x - 13},${y + 26} ${x - 13},${y + 22}
-          L ${x - 15},${y + 2}
-          Q ${x - 20},${y - 4} ${x - 18},${y - 10}
+  return `M ${x - 15},${y - 9}
+          L ${x - 6},${y - 9}
+          Q ${x - 2},${y - 9} ${x},${y - 2}
+          Q ${x + 2},${y - 9} ${x + 6},${y - 9}
+          L ${x + 15},${y - 9}
+          Q ${x + 13},${y - 3} ${x + 11},${y + 2}
+          L ${x + 10},${y + 18}
+          Q ${x + 10},${y + 21} ${x + 7},${y + 21}
+          L ${x - 7},${y + 21}
+          Q ${x - 10},${y + 21} ${x - 10},${y + 18}
+          L ${x - 11},${y + 2}
+          Q ${x - 13},${y - 3} ${x - 15},${y - 9}
           Z`;
 }
 function playerToken(x, y, colorKey, label, open) {
@@ -133,11 +133,11 @@ function playerToken(x, y, colorKey, label, open) {
   const hair = hairForLabel(label);
   let s = "";
   if (open) {
-    s += `<circle cx="${x}" cy="${y - 5}" r="36" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+    s += `<circle cx="${x}" cy="${y - 5}" r="32" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
   }
   s += `<path d="${jerseyPath(x, y)}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
-  s += `<image href="${FACES[hair]}" x="${x - 17}" y="${y - 37}" width="34" height="34"/>`;
-  s += `<text x="${x}" y="${y + 13}" font-size="18" fill="#fff" text-anchor="middle" font-weight="900" font-family="inherit" stroke="#00000080" stroke-width="3" paint-order="stroke">${label}</text>`;
+  s += `<image href="${FACES[hair]}" x="${x - 16}" y="${y - 35}" width="32" height="32"/>`;
+  s += `<text x="${x}" y="${y + 10}" font-size="16" fill="#fff" text-anchor="middle" font-weight="900" font-family="inherit" stroke="#00000080" stroke-width="2.6" paint-order="stroke">${label}</text>`;
   return s;
 }
 
