@@ -100,14 +100,14 @@ const SPRITES = {
 
 function playerToken(x, y, colorKey, label, open) {
   const spriteNatW = 260, spriteNatH = 159;
-  const displayW = 32;
+  const displayW = 46;
   const displayH = spriteNatH * (displayW / spriteNatW);
   let s = "";
   if (open) {
-    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="34" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
   }
   s += `<image href="${SPRITES[colorKey]}" x="${x - displayW / 2}" y="${y - displayH * 0.85}" width="${displayW}" height="${displayH}"/>`;
-  s += `<text x="${x}" y="${y + displayH * 0.22}" font-size="12" fill="#fff" text-anchor="middle" font-weight="900" font-family="inherit" stroke="#00000070" stroke-width="2.2" paint-order="stroke">${label}</text>`;
+  s += `<text x="${x}" y="${y - displayH * 0.05}" font-size="17" fill="#fff" text-anchor="middle" font-weight="900" font-family="inherit" stroke="#00000080" stroke-width="3" paint-order="stroke">${label}</text>`;
   return s;
 }
 
