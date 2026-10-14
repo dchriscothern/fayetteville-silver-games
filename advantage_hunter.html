@@ -278,11 +278,15 @@ const LANE = { x: 95, y: 10, w: 110, h: 165 };
 function playerToken(x, y, color, label, open) {
   let s = "";
   if (open) {
-    s += `<circle cx="${x}" cy="${y}" r="24" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="26" fill="none" stroke="#c9961f" stroke-width="2" stroke-dasharray="3 3"/>`;
   }
-  // jersey-shaped body (shoulders wider than hips) + round head, same size for every player
+  // jersey-shaped body (shoulders wider than hips), team-colored, same size for every player
   s += `<polygon points="${x - 13},${y - 7} ${x + 13},${y - 7} ${x + 9},${y + 17} ${x - 9},${y + 17}" fill="${color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
-  s += `<circle cx="${x}" cy="${y - 14}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  // head is a skin tone, not the team color, so hair reads clearly on top of it
+  s += `<circle cx="${x}" cy="${y - 14}" r="7.5" fill="#edbd94" stroke="#fff" stroke-width="1.5"/>`;
+  // hair: a cap over the top of the head plus a ponytail off to the side
+  s += `<path d="M ${x - 7.5} ${y - 15} Q ${x} ${y - 24} ${x + 7.5} ${y - 15} Q ${x + 5} ${y - 19} ${x} ${y - 19} Q ${x - 5} ${y - 19} ${x - 7.5} ${y - 15} Z" fill="#4a2f1f"/>`;
+  s += `<path d="M ${x + 5} ${y - 21} Q ${x + 14} ${y - 19} ${x + 10} ${y - 7} Q ${x + 5} ${y - 11} ${x + 4} ${y - 18} Z" fill="#4a2f1f"/>`;
   s += `<text x="${x}" y="${y + 9}" font-size="13" fill="#fff" text-anchor="middle" font-weight="800" font-family="inherit">${label}</text>`;
   return s;
 }
