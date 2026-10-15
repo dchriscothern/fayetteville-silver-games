@@ -254,9 +254,9 @@ const SCENARIOS = [
           text: "Correct. You're in the lane with nobody close, that's a gold medal shot every time.",
           score: "goodRead", shot: "gold"
         }},
-        { label: "Bad shot, never shoot in the lane", result: {
+        { label: "Silver medal, good shot but not gold", result: {
           tag: "Read", cls: "silver",
-          text: "A clear look in the lane is the best shot we have. This one's gold, take it.",
+          text: "A clear look in the lane is the best shot we have, that's gold, not silver. Take it.",
           score: "forcedBad", shot: "gold"
         }},
       ],
@@ -309,7 +309,7 @@ const SCENARIOS = [
           text: "Correct. A closely guarded outside shot is a bad shot, look for a better option.",
           score: "goodRead", shot: "bad"
         }},
-        { label: "Gold medal, any shot you take is fine", result: {
+        { label: "Silver medal, you're still in range", result: {
           tag: "Read", cls: "silver",
           text: "A tightly guarded shot from outside the lane is a bad shot. Look to pass or drive instead.",
           score: "forcedBad", shot: "bad"
@@ -393,7 +393,7 @@ const SCENARIOS = [
           text: "She's open, but not more open than you, and not in the lane. Your open look just outside the lane is a good, silver medal shot. Take it.",
           score: "goodRead", shot: "silver"
         }},
-        { label: "Bad shot, always pass instead of shooting", result: {
+        { label: "Bad shot, pass it to be safe", result: {
           tag: "Read", cls: "silver",
           text: "The rule is pass to someone MORE open, not pass every time a teammate is also open. This shot is silver, take it.",
           score: "forcedBad", shot: "silver"

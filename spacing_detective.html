@@ -345,7 +345,7 @@ const SCENARIOS = [
       prompt: "Everyone is crowded on your side. 3 is open on the far side. What do you try?",
       choices: [
         { label: "Swing it through the middle to 3", sub: "Move the ball, don't stay on one side", goto: "swing" },
-        { label: "Keep forcing passes on the crowded side", goto: "force" },
+        { label: "Keep passing on the crowded side", goto: "force" },
       ],
     },
     swing: {
@@ -440,7 +440,7 @@ const SCENARIOS = [
       prompt: "The defense slid over and crowded this side again. 3 is open back on the other side. What do you do?",
       choices: [
         { label: "Swing it again to 3", sub: "Keep moving the ball", goto: "swing_again" },
-        { label: "Force it here since you already moved it once", goto: "force_again" },
+        { label: "Keep it here since you already moved it once", goto: "force_again" },
       ],
     },
     swing_again: {
@@ -511,7 +511,7 @@ const SCENARIOS = [
       prompt: "Good, you cleared out. Now the defense is loaded on this side and 1 is wide open on the far side. What now?",
       choices: [
         { label: "Swing it to 1", sub: "Move the ball, don't stay on one side", goto: "finish" },
-        { label: "Force a pass into the crowd", result: {
+        { label: "Pass it into the crowd", result: {
           tag: "Bad shot", cls: "bad",
           text: "1 was wide open across the court. Forcing it into the crowd here is a bad shot.",
           score: "forcedBad", shot: "bad"

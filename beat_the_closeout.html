@@ -479,7 +479,7 @@ const SCENARIOS = [
       prompt: "Her closeout is slow and under control, and she's staying back. What's your read?",
       choices: [
         { label: "Catch and shoot, you're open", goto: "shoot" },
-        { label: "Put it on the floor anyway", goto: "dribble_away" },
+        { label: "Put it on the floor and drive", goto: "dribble_away" },
       ],
     },
     shoot: {
@@ -524,7 +524,7 @@ const SCENARIOS = [
       prompt: "She's sprinting at you, off balance, hands too high. What do you do?",
       choices: [
         { label: "Attack it with a purposeful first dribble toward the rim", goto: "drive" },
-        { label: "Shoot right over her anyway", goto: "forced_shot" },
+        { label: "Shoot right over her", goto: "forced_shot" },
       ],
     },
     drive: {

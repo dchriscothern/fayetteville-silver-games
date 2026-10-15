@@ -468,7 +468,7 @@ const SCENARIOS = [
           text: "That's it. You went to the rim until someone stopped you, then found the open player. Her shot is right in the lane — gold medal shot, she should take it.",
           score: "goodRead", shot: "gold"
         }},
-        { label: "Keep dribbling and force it up yourself", sub: "Through the defender", result: {
+        { label: "Keep the ball and go up strong", sub: "Try to finish through the defender", result: {
           tag: "Bad shot", cls: "bad",
           text: "She stopped you and 2 is wide open. Forcing it here is a bad shot — someone else was more open than you.",
           score: "forcedBad", shot: "bad"
@@ -521,7 +521,7 @@ const SCENARIOS = [
           text: "Meet the pass, triple threat, attack until stopped, then find the open player. She's in the lane, gold medal shot.",
           score: "goodRead", shot: "gold"
         }},
-        { label: "Force your own shot", result: {
+        { label: "Take the shot yourself", result: {
           tag: "Bad shot", cls: "bad",
           text: "She stopped you and 2 is open, someone else was more open than you.",
           score: "forcedBad", shot: "bad"
@@ -848,7 +848,7 @@ const SCENARIOS = [
       prompt: "You attack and a defender finally stops you. 2 looks open. What now?",
       choices: [
         { label: "Pass to 2", goto: "closed_out" },
-        { label: "Force a shot before passing", result: {
+        { label: "Shoot it before passing", result: {
           tag: "Read", cls: "silver",
           text: "She stopped you and someone was open, so passing is right, but think about who ends up with the ball once you do.",
           score: "forcedBad", shot: "bad"
@@ -924,7 +924,7 @@ const SCENARIOS = [
       prompt: "A defender steps up and stops you. 2 is open. What now?",
       choices: [
         { label: "Pass to 2", goto: "closeout" },
-        { label: "Force your own shot", result: {
+        { label: "Take the shot yourself", result: {
           tag: "Bad shot", cls: "bad",
           text: "She stopped you and 2 is wide open. Someone else was more open than you.",
           score: "forcedBad", shot: "bad"

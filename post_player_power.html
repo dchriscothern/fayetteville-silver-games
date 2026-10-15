@@ -433,7 +433,7 @@ const SCENARIOS = [
       prompt: "A second defender has arrived to help. 1 is wide open on the wing. What now?",
       choices: [
         { label: "Kick it out to 1", goto: "kick_out" },
-        { label: "Force a shot through both defenders", goto: "force" },
+        { label: "Shoot it through both defenders", goto: "force" },
       ],
     },
     kick_out: {
@@ -532,7 +532,7 @@ const SCENARIOS = [
           text: "Full sequence: seal, target, catch, pivot, and now the right read when help arrives. She's open, that's the pass.",
           score: "goodRead", shot: "silver"
         }},
-        { label: "Force it through two defenders", result: {
+        { label: "Shoot it through both defenders", result: {
           tag: "Bad shot", cls: "bad",
           text: "You did everything right up to this point, don't give it back by forcing a double-teamed shot. Kick it out.",
           score: "forcedBad", shot: "bad"

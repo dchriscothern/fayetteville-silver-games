@@ -307,7 +307,7 @@ const SCENARIOS = [
       prompt: "You're up 1. What matters most right now?",
       choices: [
         { label: "Protect the ball, find a safe pass", goto: "safe" },
-        { label: "Force a tough shot to extend the lead", goto: "force" },
+        { label: "Take a tough shot to extend the lead", goto: "force" },
       ],
     },
     safe: {
@@ -473,7 +473,7 @@ const SCENARIOS = [
           text: "You made her commit first, then found the open player. Gold medal shot, with plenty of clock left to make something of it.",
           score: "goodRead", shot: "gold"
         }},
-        { label: "Force your own shot", result: {
+        { label: "Take the shot yourself", result: {
           tag: "Bad shot", cls: "bad",
           text: "She's right on you and 2 is open. The clock is low, but it's not zero, there's still time to make the right pass.",
           score: "forcedBad", shot: "bad"
@@ -501,9 +501,9 @@ const SCENARIOS = [
       prompt: "You attack and a defender finally stops you. 2 looks open. What now?",
       choices: [
         { label: "Pass to 2", goto: "closed_out" },
-        { label: "Force your own shot", result: {
+        { label: "Take the shot yourself", result: {
           tag: "Bad shot", cls: "bad",
-          text: "She's stopped you and someone was open. Forcing it here is a bad shot, even with the clock low.",
+          text: "She's stopped you and someone was open. Taking it yourself here is a bad shot, even with the clock low.",
           score: "forcedBad", shot: "bad"
         }},
       ],
