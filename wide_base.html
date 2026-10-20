@@ -256,7 +256,7 @@ const PLAY = {
 
   positions: {
     start: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 85,  y: 25,  role: "teammate", label: "4" },
       { x: 105, y: 95,  role: "teammate", label: "5" },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -265,7 +265,7 @@ const PLAY = {
       { x: 140, y: 115, role: "defender", label: "X5" },
     ],
     smack: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 85,  y: 25,  role: "teammate", label: "4" },
       { x: 105, y: 95,  role: "teammate", label: "5" },
       { x: 45,  y: 210, role: "teammate", label: "1" },
@@ -274,7 +274,7 @@ const PLAY = {
       { x: 140, y: 115, role: "defender", label: "X5" },
     ],
     screenCut: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 175, y: 90,  role: "teammate", label: "4", open: true },
       { x: 100, y: 48,  role: "teammate", label: "5" },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -283,7 +283,7 @@ const PLAY = {
       { x: 132, y: 95,  role: "defender", label: "X5" },
     ],
     roll: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 175, y: 90,  role: "teammate", label: "4", open: true },
       { x: 205, y: 165, role: "teammate", label: "5", open: true },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -292,7 +292,7 @@ const PLAY = {
       { x: 175, y: 150, role: "defender", label: "X5" },
     ],
     wideUp: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 85,  y: 98,  role: "teammate", label: "4" },
       { x: 150, y: 55,  role: "teammate", label: "5", open: true },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -301,7 +301,7 @@ const PLAY = {
       { x: 155, y: 98,  role: "defender", label: "X5" },
     ],
     wideUnder: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 95,  y: 90,  role: "teammate", label: "4" },
       { x: 205, y: 165, role: "teammate", label: "5", open: true },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -310,7 +310,7 @@ const PLAY = {
       { x: 232, y: 195, role: "defender", label: "X5" },
     ],
     wideSlip: [
-      { x: 258, y: 25,  role: "ball", label: "3" },
+      { x: 289, y: 18,  role: "ball", label: "3" },
       { x: 95,  y: 95,  role: "teammate", label: "4" },
       { x: 130, y: 118, role: "teammate", label: "5", open: true },
       { x: 45,  y: 160, role: "teammate", label: "1" },
@@ -567,6 +567,42 @@ const PLAY = {
    SHARED HELPERS
 --------------------------------------------------------------------- */
 function phaseByIdx(i) { return PLAY.phases[i]; }
+
+function tweenPhase(container, fromPlayers, toPlayers, duration, done) {
+  const fromByLabel = Object.fromEntries(fromPlayers.map(p => [p.label, p]));
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutCubic(t);
+    const current = toPlayers.map(p => {
+      const from = fromByLabel[p.label] || p;
+      return Object.assign({}, p, {
+        x: lerp(from.x, p.x, eased),
+        y: lerp(from.y, p.y, eased),
+      });
+    });
+    container.innerHTML = courtSVG(current);
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      container.innerHTML = courtSVG(toPlayers);
+      if (done) done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function renderPhaseMove(container, phaseIdx, toPlayers, transform, done) {
+  // transform: optional (players => players) applied to both the "from" and
+  // "to" snapshots, e.g. Know Your Position's selected-player highlight.
+  const xf = transform || (p => p);
+  if (phaseIdx === 0) {
+    animateCourt(container, xf(toPlayers), done);
+    return;
+  }
+  const fromPlayers = xf(snapshotFor(phaseByIdx(phaseIdx - 1)));
+  tweenPhase(container, fromPlayers, xf(toPlayers), 1400, done);
+}
 function snapshotFor(phase) { return PLAY.positions[phase.snapshot]; }
 
 function withSelectedOpen(players, label) {
@@ -667,7 +703,7 @@ function runWatch(phaseIdx) {
       <button class="ghost-btn" id="slowBtn" style="flex:1;">${speed === 1 ? "Slow motion" : "Normal speed"}</button>
     </div>
   `;
-  animateCourtWithPass(document.getElementById("courtHolder"), players, () => {
+  renderPhaseMove(document.getElementById("courtHolder"), phaseIdx, players, null, () => {
     if (atDecision) {
       const best = phase.decision.choices.find(c => c.correct) || phase.decision.choices[0];
       const holder = document.getElementById("courtHolder");
@@ -720,7 +756,7 @@ function runKnow(phaseIdx) {
     <p class="scenario-text">${phase.narration}</p>
     <div id="stepReveal"></div>
   `;
-  animateCourtWithPass(document.getElementById("courtHolder"), players, () => {
+  renderPhaseMove(document.getElementById("courtHolder"), phaseIdx, snapshotFor(phase), p => withSelectedOpen(p, selectedLabel), () => {
     const reveal = document.getElementById("stepReveal");
     if (!mine) {
       reveal.innerHTML = `<button class="next-btn" id="nextBtn">Next &rarr;</button>`;
@@ -784,7 +820,7 @@ function runRead(phaseIdx) {
   if (!isDecision) {
     document.getElementById("stepReveal").innerHTML = `<button class="next-btn" id="nextBtn">Next &rarr;</button>`;
   }
-  animateCourtWithPass(document.getElementById("courtHolder"), players, () => {
+  renderPhaseMove(document.getElementById("courtHolder"), phaseIdx, players, null, () => {
     if (!isDecision) {
       document.getElementById("nextBtn").onclick = () => runRead(phaseIdx + 1);
       return;
