@@ -281,36 +281,36 @@ const PLAY = {
     ],
     screenCut: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 165, role: "teammate", label: "4" },
-      { x: 185, y: 45,  role: "teammate", label: "5", open: true },
+      { x: 188, y: 48,  role: "teammate", label: "4" },
+      { x: 170, y: 50,  role: "teammate", label: "5" },
       { x: 28,  y: 25,  role: "teammate", label: "1" },
       { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     roll: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 25,  role: "teammate", label: "4", open: true },
-      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 200, y: 28,  role: "teammate", label: "4", open: true },
+      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
       { x: 28,  y: 25,  role: "teammate", label: "1" },
       { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideUp: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 25,  role: "teammate", label: "4" },
-      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 200, y: 28,  role: "teammate", label: "4" },
+      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
       { x: 28,  y: 25,  role: "teammate", label: "1" },
       { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideUnder: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 25,  role: "teammate", label: "4" },
-      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 200, y: 28,  role: "teammate", label: "4" },
+      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
       { x: 28,  y: 25,  role: "teammate", label: "1" },
       { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideSlip: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 120, y: 112, role: "teammate", label: "4", open: true },
-      { x: 95,  y: 165, role: "teammate", label: "5" },
+      { x: 188, y: 48,  role: "teammate", label: "4" },
+      { x: 140, y: 78,  role: "teammate", label: "5", open: true },
       { x: 28,  y: 25,  role: "teammate", label: "1" },
       { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
@@ -320,7 +320,7 @@ const PLAY = {
     {
       id: "start",
       snapshot: "start",
-      narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 4 is in front of the inbounder, near the ball-side block. 5 is at the opposite elbow, set to cut to the near block off 4's screen. 1 and 2 are in the corners.",
+      narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 4 is in front of the inbounder, near the ball-side block, and waits there. 5 is at the opposite elbow, about to come across and screen for 4. 1 and 2 are in the corners.",
     },
     {
       id: "smack",
@@ -330,42 +330,42 @@ const PLAY = {
     {
       id: "screenCut",
       snapshot: "screenCut",
-      narration: "Phase 2 — Screen and cut. 4 moves across to the opposite elbow -- right where 5 started -- to screen 5's defender. 5 cuts off that screen down to the ball-side block, right in front of the inbounder -- right where 4 started.",
+      narration: "Phase 2 — Screen and cut. 5 comes across from the opposite elbow to set a screen right next to 4. 4 waits for it, fakes one way, then slides off it quickly the other way.",
       know: [
         {
           forLabel: "4",
-          question: "What is your first movement?",
-          choices: ["Move across to the opposite elbow to screen 5's defender", "Cut straight to the basket"],
+          question: "What do you do while you wait for the screen?",
+          choices: ["Hold your spot, fake one way, then cut hard off the screen the other way", "Cut on your own before the screen arrives"],
           correct: 0,
-          explain: "4 sets the screen first, at the opposite elbow, then rolls. Cutting straight to the basket skips the job that actually frees 5.",
+          explain: "Setting the defender up with a quick fake, then cutting off the screen the instant it arrives, is what actually creates separation. Cutting early just runs away from your own screen.",
         },
         {
           forLabel: "5",
-          question: "You start at the opposite elbow. What do you do when 4 arrives to screen?",
-          choices: ["Cut off the screen down to the ball-side block", "Stay at the elbow and wait"],
+          question: "What is your first movement?",
+          choices: ["Travel across from the opposite elbow to set a screen right next to 4", "Stay at the opposite elbow and wait for the pass"],
           correct: 0,
-          explain: "5 uses 4's screen to cut all the way down to the block in front of the inbounder -- that's the scoring chance.",
+          explain: "5 comes all the way across to screen for 4 — that one action is what creates both scoring looks.",
         },
       ],
     },
     {
       id: "roll",
       snapshot: "roll",
-      narration: "Phase 3 — Roll. 4 rolls off her own screen down to the block on the opposite side, finding open space rather than one fixed spot. Both 4 and 5 are now at a block, on opposite sides, looking for the ball.",
+      narration: "Phase 3 — Roll. 4 slides off the screen to the block right in front of the inbounder — the first option. 5 rolls quickly right behind her, cutting hard to the basket on the opposite block — the second option, and usually the most open.",
       know: [
         {
-          forLabel: "4",
-          question: "Where do you go right after you screen?",
-          choices: ["Roll down to the block on that same side and look for the ball", "Stay at the elbow where you screened"],
+          forLabel: "5",
+          question: "When do you roll?",
+          choices: ["Right after 4 goes by you off the screen — don't wait", "A couple seconds later, once 4 has fully cleared"],
           correct: 0,
-          explain: "Roll all the way down to the block -- staying at the elbow after the screen just gives the defense time to recover onto you.",
+          explain: "Rolling immediately, right as 4 clears the screen, is what keeps the defense from recovering to either of you.",
         },
       ],
     },
     {
       id: "decision",
       snapshot: "roll",
-      narration: "Phase 4 — 3 reads the defense: look off the target, pass-fake, then find whoever is actually open.",
+      narration: "Phase 4 — 3 reads the defense in order: first 4, then 5, then the safety outlet — and has to get the ball inbounds before a five-second count.",
       know: [
         {
           forLabel: "1",
@@ -384,42 +384,59 @@ const PLAY = {
         {
           forLabel: "3",
           question: "What should you do before you pass?",
-          choices: ["Look away from your target and pass-fake, then read who's open", "Pass immediately to whoever was open first in practice"],
+          choices: ["Look off your first read and pass-fake, then go in order: 4, then 5, then the outlet", "Hold the ball until someone is wide open, however long that takes"],
           correct: 0,
-          explain: "Looking off the target and pass-faking moves the defense before the real pass goes out -- the actual pass should go to whoever is open right now, not a memorized read.",
+          explain: "Read in order — 4 first, 5 second, outlet last — and get rid of it before a five-second count. A slightly worse pass beats a five-second violation every time.",
         },
       ],
       decision: {
-        prompt: "4 and 5 are both at a block after the screen, and 1/2 are available outlets. What's the best pass?",
-        choices: [
+        sequence: [
           {
-            label: "Pass to 5, cut to the near block",
-            target: "5",
-            tag: "Good read — often the best look", cls: "good",
-            text: "5 cut right in front of the inbounder -- a short, simple pass into a live scoring chance, and often the easiest look in the base WIDE play.",
-            score: "goodRead",
-            correct: true,
+            prompt: "First look: 4 is at the block right in front of you. Is she open?",
+            choices: [
+              {
+                label: "Yes — pass to 4", target: "4", end: true,
+                tag: "Good read — first option", cls: "good",
+                text: "4 is the first option for a reason — she's closest, the pass is shortest, and if she's open there's no reason to look further.",
+                score: "goodRead",
+              },
+              { label: "Not open yet, keep reading", advance: true },
+            ],
           },
           {
-            label: "Pass to 4, rolled to the opposite block",
-            target: "4",
-            tag: "Good read", cls: "good",
-            text: "4 rolled off her own screen to the opposite block -- a real scoring chance if she's open, just a longer pass across the lane.",
-            score: "goodRead",
+            prompt: "Second look, usually the most open: 5 is rolling to the bucket. Is she open?",
+            choices: [
+              {
+                label: "Yes — pass to 5", target: "5", end: true,
+                tag: "Good read — often the best look", cls: "good",
+                text: "5 rolling right behind the screen is usually the most open look in the base WIDE play — her defender is still catching up.",
+                score: "goodRead", correct: true,
+              },
+              { label: "Not open yet, keep reading", advance: true },
+            ],
           },
           {
-            label: "Pass to 1, safety outlet",
-            target: "1",
-            tag: "Safe read", cls: "silver",
-            text: "Using the outlet is the right read when 4 and 5 are actually covered. If one of them is open, this is the conservative choice, not a wrong one.",
-            score: "acceptableRead",
-          },
-          {
-            label: "Pass to 2, safety outlet",
-            target: "2",
-            tag: "Safe read", cls: "silver",
-            text: "Using the outlet is the right read when 4 and 5 are actually covered. If one of them is open, this is the conservative choice, not a wrong one.",
-            score: "acceptableRead",
+            prompt: "Neither is open and the count is climbing toward five seconds. What now?",
+            choices: [
+              {
+                label: "Safety pass to 1 or 2", target: "1", end: true,
+                tag: "Safe read", cls: "silver",
+                text: "Getting it inbounds to a safety outlet beats a five-second count every time — live to make the next read.",
+                score: "acceptableRead",
+              },
+              {
+                label: "Lob it up to your bigger player in the post", target: "5", end: true,
+                tag: "Good read", cls: "good",
+                text: "A high, soft lob gives your biggest player a real chance to go up and get it — far better than forcing the ball or taking the violation.",
+                score: "goodRead",
+              },
+              {
+                label: "Force a bounce pass right at the defender", target: "4", end: true,
+                tag: "Avoid this", cls: "bad",
+                text: "A bounce or chest pass straight at a defender is the one option that's actually bad here — it's an easy steal. Take the lob or the safety outlet instead.",
+                score: "forcedBad",
+              },
+            ],
           },
         ],
       },
@@ -427,7 +444,7 @@ const PLAY = {
     {
       id: "wideUp",
       snapshot: "wideUp",
-      narration: "WIDE UP — 5 is being guarded by a smaller defender. 3 smacks the ball, 5 establishes a strong position and presents a high target near the rim.",
+      narration: "WIDE UP — 5 is being guarded by a smaller defender after the roll. 5 establishes a strong position and presents a high target near the rim.",
       know: [
         {
           forLabel: "5",
@@ -515,42 +532,42 @@ const PLAY = {
     {
       id: "wideSlip",
       snapshot: "wideSlip",
-      narration: "WIDE SLIP — the defense starts switching the screen between 4 and 5. Instead of completing the screen at the opposite elbow, 4 slips early toward the basket.",
+      narration: "WIDE SLIP — the defense starts switching the screen between 4 and 5. Instead of completing the screen, 5 slips early toward open space near the basket.",
       know: [
         {
-          forLabel: "4",
+          forLabel: "5",
           question: "You see the defenders starting to switch. What do you do?",
-          choices: ["Slip before the screen is completed and cut decisively to the basket", "Set the screen anyway, exactly as drawn up"],
+          choices: ["Slip before the screen is completed and cut decisively to open space", "Set the screen anyway, exactly as drawn up"],
           correct: 0,
-          explain: "Once a switch is on, completing the screen just trades defenders onto you. Slipping before contact cuts into the space the switch creates.",
+          explain: "Once a switch is on, completing the screen just trades defenders. Slipping before contact cuts into the space the switch creates.",
         },
         {
           forLabel: "3",
-          question: "4 starts toward the screen, then cuts back toward the basket. What should you recognize?",
-          choices: ["The slip may have just created an immediate scoring chance for #4", "Nothing has changed, make the normal read"],
+          question: "5 starts across toward the screen, then cuts back toward the basket. What should you recognize?",
+          choices: ["The slip may have just created an immediate scoring chance for #5", "Nothing has changed, make the normal read"],
           correct: 0,
           explain: "A slip against a switch is often the fastest score in the whole WIDE family — it has to be recognized the moment it happens, not after the fact.",
         },
       ],
       decision: {
-        prompt: "The defenders are preparing to switch the screen. #4 starts toward the elbow but then cuts back toward the basket early. What should the inbounder recognize?",
+        prompt: "The defenders are preparing to switch the screen. #5 starts across toward 4 but then cuts back toward the basket early. What should the inbounder recognize?",
         choices: [
           {
-            label: "The slip may create an immediate scoring opportunity for #4", target: "4",
+            label: "The slip may create an immediate scoring opportunity for #5", target: "5",
             tag: "Good read", cls: "good",
-            text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 4.",
+            text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 5.",
             score: "goodRead", correct: true,
           },
           {
-            label: "Nothing has changed, proceed with the normal read", target: "5",
+            label: "Nothing has changed, proceed with the normal read", target: "4",
             tag: "Missed the slip", cls: "silver",
-            text: "Something did change — the defense committed to switching, and 4 attacked that before it finished. That's the opening.",
+            text: "Something did change — the defense committed to switching, and 5 attacked that before it finished. That's the opening.",
             score: "acceptableRead",
           },
           {
-            label: "Pass to 5 regardless", target: "5",
+            label: "Pass to 4 regardless", target: "4",
             tag: "Missed the slip", cls: "silver",
-            text: "5 may still be waiting on a screen that never came — the faster read is recognizing 4's slip.",
+            text: "4 may still be waiting on a screen that never came — the faster read is recognizing 5's slip.",
             score: "acceptableRead",
           },
         ],
@@ -618,7 +635,7 @@ const btnKnow = document.getElementById("btnKnow");
 const btnRead = document.getElementById("btnRead");
 
 let mode = "watch";
-const tally = { watched: 0, goodRead: 0, acceptableRead: 0, positionCorrect: 0, positionMissed: 0 };
+const tally = { watched: 0, goodRead: 0, acceptableRead: 0, forcedBad: 0, positionCorrect: 0, positionMissed: 0 };
 
 function setActiveMode() {
   btnWatch.classList.toggle("active", mode === "watch");
@@ -631,7 +648,7 @@ btnKnow.onclick = () => { mode = "know"; setActiveMode(); startGame(); };
 btnRead.onclick = () => { mode = "read"; setActiveMode(); startGame(); };
 
 function resetTally() {
-  tally.watched = 0; tally.goodRead = 0; tally.acceptableRead = 0;
+  tally.watched = 0; tally.goodRead = 0; tally.acceptableRead = 0; tally.forcedBad = 0;
   tally.positionCorrect = 0; tally.positionMissed = 0;
 }
 
@@ -680,6 +697,15 @@ function clearPlayTimer() {
   if (playTimer) { clearTimeout(playTimer); playTimer = null; }
 }
 
+function resolveSequence(sequence) {
+  for (let i = 0; i < sequence.length; i++) {
+    const best = sequence[i].choices.find(c => c.correct);
+    if (best) return { stepIdx: i, choice: best };
+  }
+  const last = sequence[sequence.length - 1];
+  return { stepIdx: sequence.length - 1, choice: last.choices.find(c => c.end) || last.choices[0] };
+}
+
 /* ---------------------------------------------------------------------
    MODE A — WATCH THE PLAY
 --------------------------------------------------------------------- */
@@ -701,16 +727,30 @@ function runWatch(phaseIdx) {
   `;
   renderPhaseMove(document.getElementById("courtHolder"), phaseIdx, players, null, () => {
     if (atDecision) {
-      const best = phase.decision.choices.find(c => c.correct) || phase.decision.choices[0];
       const holder = document.getElementById("courtHolder");
-      let html = courtSVG(players);
-      const fromP = players.find(p => p.role === "ball");
-      html = html.replace("</svg>", passLine(fromP, best.target, players) + "</svg>");
-      holder.innerHTML = html;
-      const caveat = phase.id === "decision" ? " (Other reads — passing to 4, or to the safety outlets — can be right too, depending on who's actually open.)" : "";
-      document.getElementById("narration").innerHTML = phase.narration + `<br><br><b>${best.label}.</b> ${best.text}${caveat}`;
+      const narrationEl = document.getElementById("narration");
+      if (phase.decision.sequence) {
+        const { stepIdx, choice } = resolveSequence(phase.decision.sequence);
+        let trail = "";
+        for (let i = 0; i < stepIdx; i++) {
+          trail += `<br><br>${phase.decision.sequence[i].prompt} <i>Not open — keep reading.</i>`;
+        }
+        trail += `<br><br>${phase.decision.sequence[stepIdx].prompt}<br><b>${choice.label}.</b> ${choice.text}`;
+        let html = courtSVG(players);
+        const fromP = players.find(p => p.role === "ball");
+        html = html.replace("</svg>", passLine(fromP, choice.target, players) + "</svg>");
+        holder.innerHTML = html;
+        narrationEl.innerHTML = phase.narration + trail;
+      } else {
+        const best = phase.decision.choices.find(c => c.correct) || phase.decision.choices[0];
+        let html = courtSVG(players);
+        const fromP = players.find(p => p.role === "ball");
+        html = html.replace("</svg>", passLine(fromP, best.target, players) + "</svg>");
+        holder.innerHTML = html;
+        narrationEl.innerHTML = phase.narration + `<br><br><b>${best.label}.</b> ${best.text}`;
+      }
     }
-    playTimer = setTimeout(() => runWatch(phaseIdx + 1), (atDecision ? 2800 : 1600) / speed);
+    playTimer = setTimeout(() => runWatch(phaseIdx + 1), (atDecision ? 3400 : 1600) / speed);
   });
 
   document.getElementById("pauseBtn").onclick = () => {
@@ -823,29 +863,55 @@ function runRead(phaseIdx) {
     }
     const reveal = document.getElementById("stepReveal");
     reveal.style.visibility = "visible";
-    reveal.innerHTML = `
-      <p class="prompt">${phase.decision.prompt}</p>
-      <div class="choices" id="choiceHolder"></div>
-    `;
-    const holder = document.getElementById("choiceHolder");
-    phase.decision.choices.forEach(c => {
-      const b = document.createElement("button");
-      b.textContent = c.label;
-      b.onclick = () => {
-        tally[c.score] = (tally[c.score] || 0) + 1;
-        const holder2 = document.getElementById("courtHolder");
-        let html = courtSVG(players);
-        const fromP = players.find(p => p.role === "ball");
-        html = html.replace("</svg>", passLine(fromP, c.target, players) + "</svg>");
-        holder2.innerHTML = html;
-        reveal.innerHTML = `
-          <div class="feedback ${c.cls}"><span class="tag">${c.tag}</span><div>${c.text}</div></div>
-          <button class="next-btn" id="nextBtn">Finish</button>
-        `;
-        document.getElementById("nextBtn").onclick = () => runRead(phaseIdx + 1);
-      };
-      holder.appendChild(b);
-    });
+
+    function finish(c) {
+      tally[c.score] = (tally[c.score] || 0) + 1;
+      const holder2 = document.getElementById("courtHolder");
+      let html = courtSVG(players);
+      const fromP = players.find(p => p.role === "ball");
+      html = html.replace("</svg>", passLine(fromP, c.target, players) + "</svg>");
+      holder2.innerHTML = html;
+      reveal.innerHTML = `
+        <div class="feedback ${c.cls}"><span class="tag">${c.tag}</span><div>${c.text}</div></div>
+        <button class="next-btn" id="nextBtn">Finish</button>
+      `;
+      document.getElementById("nextBtn").onclick = () => runRead(phaseIdx + 1);
+    }
+
+    function renderFlatChoices() {
+      reveal.innerHTML = `
+        <p class="prompt">${phase.decision.prompt}</p>
+        <div class="choices" id="choiceHolder"></div>
+      `;
+      const holder = document.getElementById("choiceHolder");
+      phase.decision.choices.forEach(c => {
+        const b = document.createElement("button");
+        b.textContent = c.label;
+        b.onclick = () => finish(c);
+        holder.appendChild(b);
+      });
+    }
+
+    function renderSequenceStep(stepIdx) {
+      const step = phase.decision.sequence[stepIdx];
+      reveal.innerHTML = `
+        <p class="prompt">${step.prompt}</p>
+        <div class="choices" id="choiceHolder"></div>
+      `;
+      const holder = document.getElementById("choiceHolder");
+      step.choices.forEach(c => {
+        const b = document.createElement("button");
+        b.textContent = c.label;
+        b.onclick = () => {
+          if (c.advance) { renderSequenceStep(stepIdx + 1); }
+          else { finish(c); }
+        };
+        holder.appendChild(b);
+      });
+    }
+
+    if (phase.decision.sequence) { renderSequenceStep(0); }
+    else { renderFlatChoices(); }
   });
 }
 
