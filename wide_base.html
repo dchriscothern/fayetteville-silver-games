@@ -240,15 +240,24 @@ function animateCourtWithPass(container, players, done) {
 
 /* ---------------------------------------------------------------------
    WIDE — BASE PLAY
-   Baseline out-of-bounds. Inbounder (3) on the right corner. 4 starts at
-   the opposite (left) elbow. 5 starts on the left side of the lane,
-   facing the inbounder, set to screen 4's defender. 1 and 2 are safety
-   outlets outside the lane, left and right.
+   Baseline out-of-bounds. Inbounder (3) stands out of bounds, close to
+   the basket on the right side. 4 starts in front of the inbounder,
+   near the ball-side block. 5 starts at the opposite elbow (the free
+   throw line end of the lane, not the basket end -- elbows and blocks
+   are easy to mix up, see below). 1 and 2 start in the corners.
+
+   4 moves across to the opposite elbow (right where 5 started) to
+   screen for 5's defender, then rolls down to the block on that same
+   (opposite) side. 5 cuts off that screen down to the ball-side block
+   -- right where 4 started. Both end up at a block, on opposite sides,
+   looking for the ball. 1 and 2 flash out of the corner and settle
+   back as safety outlets.
 
    Court conventions match the other games: viewBox 0 0 300 400, basket
-   near the top (y ~ 16-30), half-court label at the bottom (y ~ 392),
-   LANE = {x:95, y:10, w:110, h:165} so the elbows sit at x=95/x=205,
-   y=10, and the blocks at x=95/x=205, y=175.
+   near the top (y ~ 16-30), half-court label at the bottom (y ~ 392).
+   LANE = {x:95, y:10, w:110, h:165}: the BLOCKS (next to the basket)
+   are at the TOP of the lane, x=95/x=205, y~10-25. The ELBOWS (at the
+   free-throw line) are at the BOTTOM of the lane, x=95/x=205, y~165.
 --------------------------------------------------------------------- */
 
 const PLAY = {
@@ -258,62 +267,52 @@ const PLAY = {
   positions: {
     start: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 85,  y: 25,  role: "teammate", label: "4" },
-      { x: 105, y: 95,  role: "teammate", label: "5" },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
+      { x: 185, y: 45,  role: "teammate", label: "4" },
+      { x: 95,  y: 165, role: "teammate", label: "5" },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     smack: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 85,  y: 25,  role: "teammate", label: "4" },
-      { x: 105, y: 95,  role: "teammate", label: "5" },
-      { x: 45,  y: 210, role: "teammate", label: "1" },
-      { x: 245, y: 230, role: "teammate", label: "2" },
+      { x: 185, y: 45,  role: "teammate", label: "4" },
+      { x: 95,  y: 165, role: "teammate", label: "5" },
+      { x: 28,  y: 85,  role: "teammate", label: "1" },
+      { x: 272, y: 85,  role: "teammate", label: "2" },
     ],
     screenCut: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 175, y: 90,  role: "teammate", label: "4", open: true },
-      { x: 100, y: 48,  role: "teammate", label: "5" },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
-      { x: 128, y: 60,  role: "defender", label: "X4" },
-      { x: 132, y: 95,  role: "defender", label: "X5" },
+      { x: 95,  y: 165, role: "teammate", label: "4" },
+      { x: 185, y: 45,  role: "teammate", label: "5", open: true },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     roll: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 175, y: 90,  role: "teammate", label: "4", open: true },
-      { x: 205, y: 165, role: "teammate", label: "5", open: true },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
-      { x: 140, y: 75,  role: "defender", label: "X4" },
-      { x: 175, y: 150, role: "defender", label: "X5" },
+      { x: 95,  y: 25,  role: "teammate", label: "4", open: true },
+      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideUp: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 85,  y: 98,  role: "teammate", label: "4" },
-      { x: 150, y: 55,  role: "teammate", label: "5", open: true },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
-      { x: 115, y: 100, role: "defender", label: "X4" },
-      { x: 155, y: 98,  role: "defender", label: "X5" },
+      { x: 95,  y: 25,  role: "teammate", label: "4" },
+      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideUnder: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 90,  role: "teammate", label: "4" },
-      { x: 205, y: 165, role: "teammate", label: "5", open: true },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
-      { x: 125, y: 95,  role: "defender", label: "X4" },
-      { x: 232, y: 195, role: "defender", label: "X5" },
+      { x: 95,  y: 25,  role: "teammate", label: "4" },
+      { x: 195, y: 32,  role: "teammate", label: "5", open: true },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
     wideSlip: [
       { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 95,  y: 95,  role: "teammate", label: "4" },
-      { x: 130, y: 118, role: "teammate", label: "5", open: true },
-      { x: 45,  y: 160, role: "teammate", label: "1" },
-      { x: 245, y: 180, role: "teammate", label: "2" },
-      { x: 142, y: 58,  role: "defender", label: "X4" },
-      { x: 92,  y: 48,  role: "defender", label: "X5" },
+      { x: 120, y: 112, role: "teammate", label: "4", open: true },
+      { x: 95,  y: 165, role: "teammate", label: "5" },
+      { x: 28,  y: 25,  role: "teammate", label: "1" },
+      { x: 272, y: 25,  role: "teammate", label: "2" },
     ],
   },
 
@@ -321,45 +320,45 @@ const PLAY = {
     {
       id: "start",
       snapshot: "start",
-      narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds on the baseline. 4 is at the opposite elbow. 5 is on the ball side of the lane, facing 3, set to screen 4's defender. 1 and 2 are safety outlets outside the lane.",
+      narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 4 is in front of the inbounder, near the ball-side block. 5 is at the opposite elbow, set to cut to the near block off 4's screen. 1 and 2 are in the corners.",
     },
     {
       id: "smack",
       snapshot: "smack",
-      narration: "Phase 1 — Ball smack. 3 slaps the ball to start the play. 1 and 2 flash up to show for a release, then settle back down as outlets.",
+      narration: "Phase 1 — Ball smack. 3 slaps the ball to start the play. 1 and 2 flash out of the corner, then settle back down as outlets.",
     },
     {
       id: "screenCut",
       snapshot: "screenCut",
-      narration: "Phase 2 — Screen and cut. 5 screens 4's defender. 4 cuts down from the opposite elbow, right in front of the inbounder, looking for an open area near the rim — not one fixed spot.",
+      narration: "Phase 2 — Screen and cut. 4 moves across to the opposite elbow -- right where 5 started -- to screen 5's defender. 5 cuts off that screen down to the ball-side block, right in front of the inbounder -- right where 4 started.",
       know: [
-        {
-          forLabel: "5",
-          question: "Are you setting a screen or slipping?",
-          choices: ["Setting a screen on 4's defender", "Slipping to the basket immediately"],
-          correct: 0,
-          explain: "In the base WIDE play, 5 sets the screen first, then rolls. Slipping early is its own play (WIDE SLIP) for when the defense is about to switch.",
-        },
         {
           forLabel: "4",
           question: "What is your first movement?",
-          choices: ["Cut down from the opposite elbow, using 5's screen, in front of the inbounder", "Stand still at the elbow and wait for the pass"],
+          choices: ["Move across to the opposite elbow to screen 5's defender", "Cut straight to the basket"],
           correct: 0,
-          explain: "4 cuts off 5's screen toward the lane, looking for an open area near the basket — the cut is what creates the scoring chance.",
+          explain: "4 sets the screen first, at the opposite elbow, then rolls. Cutting straight to the basket skips the job that actually frees 5.",
+        },
+        {
+          forLabel: "5",
+          question: "You start at the opposite elbow. What do you do when 4 arrives to screen?",
+          choices: ["Cut off the screen down to the ball-side block", "Stay at the elbow and wait"],
+          correct: 0,
+          explain: "5 uses 4's screen to cut all the way down to the block in front of the inbounder -- that's the scoring chance.",
         },
       ],
     },
     {
       id: "roll",
       snapshot: "roll",
-      narration: "Phase 3 — Roll. 5 rolls off the screen to the opposite block, adjusting to find open space rather than a fixed spot. This is often the best look in the base play.",
+      narration: "Phase 3 — Roll. 4 rolls off her own screen down to the block on the opposite side, finding open space rather than one fixed spot. Both 4 and 5 are now at a block, on opposite sides, looking for the ball.",
       know: [
         {
-          forLabel: "5",
-          question: "Where should you move if your defender follows you off the screen?",
-          choices: ["Keep rolling to the opposite block and find the open space there", "Stop and wait where the screen happened"],
+          forLabel: "4",
+          question: "Where do you go right after you screen?",
+          choices: ["Roll down to the block on that same side and look for the ball", "Stay at the elbow where you screened"],
           correct: 0,
-          explain: "Roll all the way to the opposite block and adjust to where the space actually is — her defender trailing is exactly why this chance opens up.",
+          explain: "Roll all the way down to the block -- staying at the elbow after the screen just gives the defense time to recover onto you.",
         },
       ],
     },
@@ -380,33 +379,33 @@ const PLAY = {
           question: "What is your job once the ball is smacked?",
           choices: ["Be a safety outlet on the ball side", "Set a screen for 4"],
           correct: 0,
-          explain: "2 is the ball-side safety outlet, moving up then settling back down, the same job as 1 on the far side.",
+          explain: "2 is the ball-side safety outlet, flashing out of the corner then settling back, the same job as 1 on the far side.",
         },
         {
           forLabel: "3",
           question: "What should you do before you pass?",
           choices: ["Look away from your target and pass-fake, then read who's open", "Pass immediately to whoever was open first in practice"],
           correct: 0,
-          explain: "Looking off the target and pass-faking moves the defense before the real pass goes out — the actual pass should go to whoever is open right now, not a memorized read.",
+          explain: "Looking off the target and pass-faking moves the defense before the real pass goes out -- the actual pass should go to whoever is open right now, not a memorized read.",
         },
       ],
       decision: {
-        prompt: "4 and 5 are both showing after the screen, and 1/2 are available outlets. What's the best pass?",
+        prompt: "4 and 5 are both at a block after the screen, and 1/2 are available outlets. What's the best pass?",
         choices: [
           {
-            label: "Pass to 4, cutting to the rim",
-            target: "4",
-            tag: "Good read", cls: "good",
-            text: "4 came off the screen into an open area near the rim — a live scoring chance if she's open.",
-            score: "goodRead",
-          },
-          {
-            label: "Pass to 5, rolling to the opposite block",
+            label: "Pass to 5, cut to the near block",
             target: "5",
             tag: "Good read — often the best look", cls: "good",
-            text: "5's roll to the opposite block is frequently the best scoring option in the base WIDE play, especially if her defender trailed the screen.",
+            text: "5 cut right in front of the inbounder -- a short, simple pass into a live scoring chance, and often the easiest look in the base WIDE play.",
             score: "goodRead",
             correct: true,
+          },
+          {
+            label: "Pass to 4, rolled to the opposite block",
+            target: "4",
+            tag: "Good read", cls: "good",
+            text: "4 rolled off her own screen to the opposite block -- a real scoring chance if she's open, just a longer pass across the lane.",
+            score: "goodRead",
           },
           {
             label: "Pass to 1, safety outlet",
@@ -516,42 +515,42 @@ const PLAY = {
     {
       id: "wideSlip",
       snapshot: "wideSlip",
-      narration: "WIDE SLIP — the defense starts switching the screen between 4 and 5. Instead of completing the screen, 5 slips early toward open space near the basket.",
+      narration: "WIDE SLIP — the defense starts switching the screen between 4 and 5. Instead of completing the screen at the opposite elbow, 4 slips early toward the basket.",
       know: [
         {
-          forLabel: "5",
+          forLabel: "4",
           question: "You see the defenders starting to switch. What do you do?",
-          choices: ["Slip before the screen is completed and cut decisively to open space", "Set the screen anyway, exactly as drawn up"],
+          choices: ["Slip before the screen is completed and cut decisively to the basket", "Set the screen anyway, exactly as drawn up"],
           correct: 0,
-          explain: "Once a switch is on, completing the screen just trades defenders. Slipping before contact cuts into the space the switch creates.",
+          explain: "Once a switch is on, completing the screen just trades defenders onto you. Slipping before contact cuts into the space the switch creates.",
         },
         {
           forLabel: "3",
-          question: "5 starts toward the screen, then cuts back toward the basket. What should you recognize?",
-          choices: ["The slip may have just created an immediate scoring chance for #5", "Nothing has changed, make the normal read"],
+          question: "4 starts toward the screen, then cuts back toward the basket. What should you recognize?",
+          choices: ["The slip may have just created an immediate scoring chance for #4", "Nothing has changed, make the normal read"],
           correct: 0,
           explain: "A slip against a switch is often the fastest score in the whole WIDE family — it has to be recognized the moment it happens, not after the fact.",
         },
       ],
       decision: {
-        prompt: "The defenders are preparing to switch the screen. #5 starts toward the screen but then cuts back toward the basket. What should the inbounder recognize?",
+        prompt: "The defenders are preparing to switch the screen. #4 starts toward the elbow but then cuts back toward the basket early. What should the inbounder recognize?",
         choices: [
           {
-            label: "The slip may create an immediate scoring opportunity for #5", target: "5",
+            label: "The slip may create an immediate scoring opportunity for #4", target: "4",
             tag: "Good read", cls: "good",
-            text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 5.",
+            text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 4.",
             score: "goodRead", correct: true,
           },
           {
-            label: "Nothing has changed, proceed with the normal read", target: "4",
+            label: "Nothing has changed, proceed with the normal read", target: "5",
             tag: "Missed the slip", cls: "silver",
-            text: "Something did change — the defense committed to switching, and 5 attacked that before it finished. That's the opening.",
+            text: "Something did change — the defense committed to switching, and 4 attacked that before it finished. That's the opening.",
             score: "acceptableRead",
           },
           {
-            label: "Pass to 4 regardless", target: "4",
+            label: "Pass to 5 regardless", target: "5",
             tag: "Missed the slip", cls: "silver",
-            text: "4 may still be covered by the defender who's mid-switch — the faster read is recognizing 5's slip.",
+            text: "5 may still be waiting on a screen that never came — the faster read is recognizing 4's slip.",
             score: "acceptableRead",
           },
         ],
