@@ -260,326 +260,479 @@ function animateCourtWithPass(container, players, done) {
    free-throw line) are at the BOTTOM of the lane, x=95/x=205, y~165.
 --------------------------------------------------------------------- */
 
-const PLAY = {
-  id: "wide_base",
-  name: "WIDE — Base",
+/* ---------------------------------------------------------------------
+   WIDE — FOUR SEPARATE PLAYS (Base, Up, Under, Slip)
+   Baseline out-of-bounds family. Inbounder (3) stands out of bounds,
+   close to the basket on the right side. Landmarks:
+     BLOCK_R (195,48)  -- next to the basket, ball side, "in front of
+                          the inbounder"
+     BLOCK_L (95,48)   -- next to the basket, opposite side
+     ELBOW_L (95,165)  -- free-throw line, opposite side
+     CORNER_L (28,25) / CORNER_R (272,25)
 
-  positions: {
-    start: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 185, y: 45,  role: "teammate", label: "4" },
-      { x: 95,  y: 165, role: "teammate", label: "5" },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
-    ],
-    smack: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 185, y: 45,  role: "teammate", label: "4" },
-      { x: 95,  y: 165, role: "teammate", label: "5" },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
-    ],
-    screenCut: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 112, y: 150, role: "teammate", label: "4" },
-      { x: 98,  y: 162, role: "teammate", label: "5" },
-      { x: 28,  y: 85,  role: "teammate", label: "1" },
-      { x: 272, y: 85,  role: "teammate", label: "2" },
-    ],
-    roll: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 200, y: 28,  role: "teammate", label: "4", open: true },
-      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
-    ],
-    wideUp: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 200, y: 28,  role: "teammate", label: "4" },
-      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
-    ],
-    wideUnder: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 200, y: 28,  role: "teammate", label: "4" },
-      { x: 95,  y: 25,  role: "teammate", label: "5", open: true },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
-    ],
-    wideSlip: [
-      { x: 222, y: -18, role: "ball", label: "3" },
-      { x: 188, y: 48,  role: "teammate", label: "4" },
-      { x: 140, y: 78,  role: "teammate", label: "5", open: true },
-      { x: 28,  y: 25,  role: "teammate", label: "1" },
-      { x: 272, y: 25,  role: "teammate", label: "2" },
+   BASE: 4 starts at BLOCK_R and waits. 5 starts at ELBOW_L and stays
+   there to set the screen. 4 fakes one way, cuts across to use 5's
+   screen, and curls back to BLOCK_R (first option). Only once 4 has
+   clearly started that cut does 5 roll from ELBOW_L down to BLOCK_L
+   (second option, usually most open) -- she does not roll at the same
+   time 4 cuts. 1 and 2 flash out of the corner alongside 4's cut, and
+   settle back once she's home.
+
+   UP and UNDER are their own short plays: they start from the
+   beginning with 5 (not 4) lined up at BLOCK_R, right in front of the
+   inbounder, so the quick mismatch/positioning read is available
+   immediately, no screen needed.
+
+   SLIP starts exactly like BASE, but 5 only turns as if to screen,
+   then immediately slips back to her own (opposite) block instead of
+   completing it -- 4 never gets a real screen.
+--------------------------------------------------------------------- */
+
+const BLOCK_R  = { x: 195, y: 48 };
+const BLOCK_L  = { x: 95,  y: 48 };
+const ELBOW_L  = { x: 95,  y: 165 };
+const CORNER_L = { x: 28,  y: 25 };
+const CORNER_R = { x: 272, y: 25 };
+const INBOUNDER_SPOT = { x: 222, y: -18 };
+
+function p(x, y, role, label, open) {
+  const o = { x, y, role, label };
+  if (open) o.open = true;
+  return o;
+}
+
+const PLAYS = {
+
+  base: {
+    id: "base",
+    name: "WIDE — Base",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 4 is in front of the inbounder, near the ball-side block. 5 is at the opposite elbow, set to screen there. 1 and 2 are in the corners.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. 3 slaps the ball to start the play. Everyone else holds their spot for a beat.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "screenCut",
+        narration: "Phase 2 — Screen. 5 stays at the opposite elbow and sets the screen right there. 4 fakes one way, then cuts hard across the lane to use it. 1 and 2 flash out of the corner at the same time as 4's cut.",
+        know: [
+          {
+            forLabel: "4",
+            question: "What is your first movement?",
+            choices: ["Fake one way, then cut hard across the lane to use 5's screen at the opposite elbow", "Stay near the block and wait for the pass"],
+            correct: 0,
+            explain: "The fake sets the defender up; the cut across to use 5's screen is what actually creates the separation, not standing near the block and waiting.",
+          },
+          {
+            forLabel: "5",
+            question: "What is your job once the ball is smacked?",
+            choices: ["Hold your spot at the opposite elbow and set the screen right there", "Travel across to meet 4 near the block"],
+            correct: 0,
+            explain: "5 stays put and sets the screen at the opposite elbow — 4 is the one who does the traveling, using that screen to get free.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(112, 150, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(28, 85, "teammate", "1"),
+          p(272, 85, "teammate", "2"),
+        ],
+      },
+      {
+        id: "cutHome",
+        narration: "Phase 3 — Cut home. 4 curls back off the screen to the block right in front of the inbounder — the first option. 5 holds at the elbow and waits; she doesn't roll yet.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "roll",
+        narration: "Phase 4 — Roll. Only once 4 has started her cut to the basket does 5 roll, from the opposite elbow down to the far block — the second option, and usually the most open.",
+        know: [
+          {
+            forLabel: "5",
+            question: "When do you roll?",
+            choices: ["Wait until 4 has started cutting to the basket, then roll", "Roll at the exact same time 4 cuts"],
+            correct: 0,
+            explain: "Rolling at the same moment 4 cuts bunches both of you in the same space. Waiting until she's clearly started gives the defense two separate problems instead of one.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "decision",
+        narration: "Phase 5 — 3 reads the defense in order: first 4, then 5, then the safety outlet — and has to get the ball inbounds before a five-second count.",
+        know: [
+          {
+            forLabel: "1",
+            question: "Are you the first scoring option or the safety outlet?",
+            choices: ["Safety outlet — give 3 a release if 4 and 5 are covered", "First scoring option — expect the first pass"],
+            correct: 0,
+            explain: "1 and 2 are safety valves in the base WIDE play. The teaching priority is recognizing who's actually open, not running straight to a predetermined read.",
+          },
+          {
+            forLabel: "2",
+            question: "What is your job once the ball is smacked?",
+            choices: ["Be a safety outlet on the ball side", "Set a screen for 4"],
+            correct: 0,
+            explain: "2 is the ball-side safety outlet, flashing out of the corner then settling back, the same job as 1 on the far side.",
+          },
+          {
+            forLabel: "3",
+            question: "What should you do before you pass?",
+            choices: ["Look off your first read and pass-fake, then go in order: 4, then 5, then the outlet", "Hold the ball until someone is wide open, however long that takes"],
+            correct: 0,
+            explain: "Read in order — 4 first, 5 second, outlet last — and get rid of it before a five-second count. A slightly worse pass beats a five-second violation every time.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          sequence: [
+            {
+              prompt: "First look: 4 is at the block right in front of you. Is she open?",
+              choices: [
+                {
+                  label: "Yes — pass to 4", target: "4", end: true,
+                  tag: "Good read — first option", cls: "good",
+                  text: "4 is the first option for a reason — she's closest, the pass is shortest, and if she's open there's no reason to look further.",
+                  score: "goodRead",
+                },
+                { label: "Not open yet, keep reading", advance: true },
+              ],
+            },
+            {
+              prompt: "Second look, usually the most open: 5 is rolling to the bucket. Is she open?",
+              choices: [
+                {
+                  label: "Yes — pass to 5", target: "5", end: true,
+                  tag: "Good read — often the best look", cls: "good",
+                  text: "5 rolling right behind the screen is usually the most open look in the base WIDE play — her defender is still catching up.",
+                  score: "goodRead", correct: true,
+                },
+                { label: "Not open yet, keep reading", advance: true },
+              ],
+            },
+            {
+              prompt: "Neither is open and the count is climbing toward five seconds. What now?",
+              choices: [
+                {
+                  label: "Safety pass to 1 or 2", target: "1", end: true,
+                  tag: "Safe read", cls: "silver",
+                  text: "Getting it inbounds to a safety outlet beats a five-second count every time — live to make the next read.",
+                  score: "acceptableRead",
+                },
+                {
+                  label: "Lob it up to 4 or 5 in the post", target: "5", end: true,
+                  tag: "Good read", cls: "good",
+                  text: "A high, soft lob gives your post player a real chance to go up and get it — far better than forcing the ball or taking the violation.",
+                  score: "goodRead",
+                },
+                {
+                  label: "Force a bounce pass right at the defender", target: "4", end: true,
+                  tag: "Avoid this", cls: "bad",
+                  text: "A bounce or chest pass straight at a defender is the one option that's actually bad here — it's an easy steal. Take the lob or the safety outlet instead.",
+                  score: "forcedBad",
+                },
+              ],
+            },
+          ],
+        },
+      },
     ],
   },
 
-  phases: [
-    {
-      id: "start",
-      snapshot: "start",
-      narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 4 is in front of the inbounder, near the ball-side block. 5 is at the opposite elbow, set to screen there. 1 and 2 are in the corners.",
-    },
-    {
-      id: "smack",
-      snapshot: "smack",
-      narration: "Phase 1 — Ball smack. 3 slaps the ball to start the play. Everyone else holds their spot for a beat.",
-    },
-    {
-      id: "screenCut",
-      snapshot: "screenCut",
-      narration: "Phase 2 — Screen and cut. 5 stays at the opposite elbow and sets the screen right there. 4 fakes one way, then cuts hard across the lane to use it. 1 and 2 flash out of the corner at the same time as 4's cut.",
-      know: [
-        {
-          forLabel: "4",
-          question: "What is your first movement?",
-          choices: ["Fake one way, then cut hard across the lane to use 5's screen at the opposite elbow", "Stay near the block and wait for the pass"],
-          correct: 0,
-          explain: "The fake sets the defender up; the cut across to use 5's screen is what actually creates the separation, not standing near the block and waiting.",
-        },
-        {
-          forLabel: "5",
-          question: "What is your job once the ball is smacked?",
-          choices: ["Hold your spot at the opposite elbow and set the screen right there", "Travel across to meet 4 near the block"],
-          correct: 0,
-          explain: "5 stays put and sets the screen at the opposite elbow — 4 is the one who does the traveling, using that screen to get free.",
-        },
-      ],
-    },
-    {
-      id: "roll",
-      snapshot: "roll",
-      narration: "Phase 3 — Roll. 4 curls back off the screen to the block right in front of the inbounder — the first option. 5 rolls from the opposite elbow down to the far block — the second option, and usually the most open.",
-      know: [
-        {
-          forLabel: "5",
-          question: "When do you roll?",
-          choices: ["Right after 4 clears off your screen — don't wait", "A couple seconds later, once 4 has fully cleared"],
-          correct: 0,
-          explain: "Rolling immediately, right as 4 clears the screen, is what keeps the defense from recovering to either of you.",
-        },
-      ],
-    },
-    {
-      id: "decision",
-      snapshot: "roll",
-      narration: "Phase 4 — 3 reads the defense in order: first 4, then 5, then the safety outlet — and has to get the ball inbounds before a five-second count.",
-      know: [
-        {
-          forLabel: "1",
-          question: "Are you the first scoring option or the safety outlet?",
-          choices: ["Safety outlet — give 3 a release if 4 and 5 are covered", "First scoring option — expect the first pass"],
-          correct: 0,
-          explain: "1 and 2 are safety valves in the base WIDE play. The teaching priority is recognizing who's actually open, not running straight to a predetermined read.",
-        },
-        {
-          forLabel: "2",
-          question: "What is your job once the ball is smacked?",
-          choices: ["Be a safety outlet on the ball side", "Set a screen for 4"],
-          correct: 0,
-          explain: "2 is the ball-side safety outlet, flashing out of the corner then settling back, the same job as 1 on the far side.",
-        },
-        {
-          forLabel: "3",
-          question: "What should you do before you pass?",
-          choices: ["Look off your first read and pass-fake, then go in order: 4, then 5, then the outlet", "Hold the ball until someone is wide open, however long that takes"],
-          correct: 0,
-          explain: "Read in order — 4 first, 5 second, outlet last — and get rid of it before a five-second count. A slightly worse pass beats a five-second violation every time.",
-        },
-      ],
-      decision: {
-        sequence: [
-          {
-            prompt: "First look: 4 is at the block right in front of you. Is she open?",
-            choices: [
-              {
-                label: "Yes — pass to 4", target: "4", end: true,
-                tag: "Good read — first option", cls: "good",
-                text: "4 is the first option for a reason — she's closest, the pass is shortest, and if she's open there's no reason to look further.",
-                score: "goodRead",
-              },
-              { label: "Not open yet, keep reading", advance: true },
-            ],
-          },
-          {
-            prompt: "Second look, usually the most open: 5 is rolling to the bucket. Is she open?",
-            choices: [
-              {
-                label: "Yes — pass to 5", target: "5", end: true,
-                tag: "Good read — often the best look", cls: "good",
-                text: "5 rolling right behind the screen is usually the most open look in the base WIDE play — her defender is still catching up.",
-                score: "goodRead", correct: true,
-              },
-              { label: "Not open yet, keep reading", advance: true },
-            ],
-          },
-          {
-            prompt: "Neither is open and the count is climbing toward five seconds. What now?",
-            choices: [
-              {
-                label: "Safety pass to 1 or 2", target: "1", end: true,
-                tag: "Safe read", cls: "silver",
-                text: "Getting it inbounds to a safety outlet beats a five-second count every time — live to make the next read.",
-                score: "acceptableRead",
-              },
-              {
-                label: "Lob it up to 4 or 5 in the post", target: "5", end: true,
-                tag: "Good read", cls: "good",
-                text: "A high, soft lob gives your biggest player a real chance to go up and get it — far better than forcing the ball or taking the violation.",
-                score: "goodRead",
-              },
-              {
-                label: "Force a bounce pass right at the defender", target: "4", end: true,
-                tag: "Avoid this", cls: "bad",
-                text: "A bounce or chest pass straight at a defender is the one option that's actually bad here — it's an easy steal. Take the lob or the safety outlet instead.",
-                score: "forcedBad",
-              },
-            ],
-          },
+  up: {
+    id: "up",
+    name: "WIDE UP",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE UP — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block, because her defender today is smaller. 4, 1, and 2 fill their normal spots.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
       },
-    },
-    {
-      id: "wideUp",
-      snapshot: "wideUp",
-      narration: "WIDE UP — 5 is being guarded by a smaller defender after the roll. 5 establishes a strong position and presents a high target near the rim.",
-      know: [
-        {
-          forLabel: "5",
-          question: "Your defender is smaller than you. What do you do?",
-          choices: ["Get big, show your hands high, and protect the ball on the catch", "Drift out to the three-point line to avoid contact"],
-          correct: 0,
-          explain: "Recognize the size advantage: get big, present a high target, and finish without bringing the ball low where a smaller defender can still reach it.",
-        },
-        {
-          forLabel: "3",
-          question: "You see 5 has a smaller defender and is open high. What is the best pass?",
-          choices: ["A controlled lob over the top", "A hard bounce pass at her feet"],
-          correct: 0,
-          explain: "A lob is the pass that actually uses the size mismatch. A bounce pass gives the smaller defender's hands something to reach for.",
-        },
-      ],
-      decision: {
-        prompt: "Your teammate #5 has a smaller defender guarding her and is open high near the basket. What is the best pass?",
-        choices: [
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. 5 establishes a strong, high position right away and presents a target.",
+        know: [
           {
-            label: "A controlled lob to #5", target: "5",
-            tag: "Good read", cls: "good",
-            text: "A controlled lob over a smaller defender is exactly how WIDE UP uses the mismatch. Catch high, protect the ball, finish without bringing it low.",
-            score: "goodRead", correct: true,
+            forLabel: "5",
+            question: "Your defender is smaller than you. What do you do?",
+            choices: ["Get big, show your hands high, and protect the ball on the catch", "Drift out to the three-point line to avoid contact"],
+            correct: 0,
+            explain: "Recognize the size advantage: get big, present a high target, and finish without bringing the ball low where a smaller defender can still reach it.",
           },
           {
-            label: "A bounce pass to #5", target: "5",
-            tag: "Wrong tool for this trigger", cls: "silver",
-            text: "5 is open high, not low — a bounce pass gives the smaller defender something to reach for instead of using the size advantage.",
-            score: "acceptableRead",
-          },
-          {
-            label: "Pass to 1, safety outlet", target: "1",
-            tag: "Missed the mismatch", cls: "silver",
-            text: "Safe, but this passes up a real size advantage that's there right now.",
-            score: "acceptableRead",
+            forLabel: "3",
+            question: "You see 5 has a smaller defender and is open high. What is the best pass?",
+            choices: ["A controlled lob over the top", "A hard bounce pass at her feet"],
+            correct: 0,
+            explain: "A lob is the pass that actually uses the size mismatch. A bounce pass gives the smaller defender's hands something to reach for.",
           },
         ],
-      },
-    },
-    {
-      id: "wideUnder",
-      snapshot: "wideUnder",
-      narration: "WIDE UNDER — 5's defender is positioned on the side away from the basket instead of between 5 and the rim, opening a bounce-passing lane.",
-      know: [
-        {
-          forLabel: "5",
-          question: "Your defender is on the outside, away from the basket. What should you do?",
-          choices: ["Stay ready to catch and finish quickly near the rim before the defense recovers", "Reset further away and restart your move"],
-          correct: 0,
-          explain: "The defender being on the wrong side only matters if you catch and finish quickly, before she can recover to the inside.",
-        },
-        {
-          forLabel: "3",
-          question: "The defender is on the outside of #5. What is the best pass?",
-          choices: ["A quick bounce pass through the open lane", "A high lob over the top"],
-          correct: 0,
-          explain: "The open lane here is low and direct, not high — a quick bounce pass gets there before the defense can recover. A lob is the WIDE UP answer, not this one.",
-        },
-      ],
-      decision: {
-        prompt: "The defender is on the outside of #5, leaving an open bounce-passing lane toward the basket. What should the inbounder do?",
-        choices: [
-          {
-            label: "A quick bounce pass to #5", target: "5",
-            tag: "Good read", cls: "good",
-            text: "Delivering it quickly through the open lane is the whole point of WIDE UNDER — before the defense can recover to the inside.",
-            score: "goodRead", correct: true,
-          },
-          {
-            label: "A high lob to #5", target: "5",
-            tag: "Wrong tool for this trigger", cls: "silver",
-            text: "The opening here is low and direct. A lob is how you attack a smaller defender underneath the rim (WIDE UP), not a defender positioned outside.",
-            score: "acceptableRead",
-          },
-          {
-            label: "Use 1 or 2 as the safety outlet", target: "1",
-            tag: "Missed the window", cls: "silver",
-            text: "Safe, but this open lane closes fast once the defense recovers — it's worth taking when it's there.",
-            score: "acceptableRead",
-          },
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y - 3, "teammate", "5", true),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
       },
-    },
-    {
-      id: "wideSlip",
-      snapshot: "wideSlip",
-      narration: "WIDE SLIP — the defense starts switching the screen between 4 and 5. Instead of completing the screen, 5 slips early toward open space near the basket.",
-      know: [
-        {
-          forLabel: "5",
-          question: "You see the defenders starting to switch. What do you do?",
-          choices: ["Slip before the screen is completed and cut decisively to open space", "Set the screen anyway, exactly as drawn up"],
-          correct: 0,
-          explain: "Once a switch is on, completing the screen just trades defenders. Slipping before contact cuts into the space the switch creates.",
+      {
+        id: "decision",
+        narration: "Phase 2 — 3 recognizes the mismatch and reads the pass.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y - 3, "teammate", "5", true),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          prompt: "Your teammate #5 has a smaller defender guarding her and is open high near the basket. What is the best pass?",
+          choices: [
+            {
+              label: "A controlled lob to #5", target: "5",
+              tag: "Good read", cls: "good",
+              text: "A controlled lob over a smaller defender is exactly how WIDE UP uses the mismatch. Catch high, protect the ball, finish without bringing it low.",
+              score: "goodRead", correct: true,
+            },
+            {
+              label: "A bounce pass to #5", target: "5",
+              tag: "Wrong tool for this trigger", cls: "silver",
+              text: "5 is open high, not low — a bounce pass gives the smaller defender something to reach for instead of using the size advantage.",
+              score: "acceptableRead",
+            },
+            {
+              label: "Pass to 1, safety outlet", target: "1",
+              tag: "Missed the mismatch", cls: "silver",
+              text: "Safe, but this passes up a real size advantage that's there right now.",
+              score: "acceptableRead",
+            },
+          ],
         },
-        {
-          forLabel: "3",
-          question: "5 starts across toward the screen, then cuts back toward the basket. What should you recognize?",
-          choices: ["The slip may have just created an immediate scoring chance for #5", "Nothing has changed, make the normal read"],
-          correct: 0,
-          explain: "A slip against a switch is often the fastest score in the whole WIDE family — it has to be recognized the moment it happens, not after the fact.",
-        },
-      ],
-      decision: {
-        prompt: "The defenders are preparing to switch the screen. #5 starts across toward 4 but then cuts back toward the basket early. What should the inbounder recognize?",
-        choices: [
-          {
-            label: "The slip may create an immediate scoring opportunity for #5", target: "5",
-            tag: "Good read", cls: "good",
-            text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 5.",
-            score: "goodRead", correct: true,
-          },
-          {
-            label: "Nothing has changed, proceed with the normal read", target: "4",
-            tag: "Missed the slip", cls: "silver",
-            text: "Something did change — the defense committed to switching, and 5 attacked that before it finished. That's the opening.",
-            score: "acceptableRead",
-          },
-          {
-            label: "Pass to 4 regardless", target: "4",
-            tag: "Missed the slip", cls: "silver",
-            text: "4 may still be waiting on a screen that never came — the faster read is recognizing 5's slip.",
-            score: "acceptableRead",
-          },
+      },
+    ],
+  },
+
+  under: {
+    id: "under",
+    name: "WIDE UNDER",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE UNDER — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block. This time her defender settles in on the wrong side — away from the basket instead of between 5 and the rim.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
       },
-    },
-  ],
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. 5 stays ready near the block as the defender settles in on the outside.",
+        know: [
+          {
+            forLabel: "5",
+            question: "Your defender is on the outside, away from the basket. What should you do?",
+            choices: ["Stay ready to catch and finish quickly near the rim before the defense recovers", "Reset further away and restart your move"],
+            correct: 0,
+            explain: "The defender being on the wrong side only matters if you catch and finish quickly, before she can recover to the inside.",
+          },
+          {
+            forLabel: "3",
+            question: "The defender is on the outside of #5. What is the best pass?",
+            choices: ["A quick bounce pass through the open lane", "A high lob over the top"],
+            correct: 0,
+            explain: "The open lane here is low and direct, not high — a quick bounce pass gets there before the defense can recover. A lob is the WIDE UP answer, not this one.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5", true),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "decision",
+        narration: "Phase 2 — 3 recognizes the opening and reads the pass.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5", true),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          prompt: "The defender is on the outside of #5, leaving an open bounce-passing lane toward the basket. What should the inbounder do?",
+          choices: [
+            {
+              label: "A quick bounce pass to #5", target: "5",
+              tag: "Good read", cls: "good",
+              text: "Delivering it quickly through the open lane is the whole point of WIDE UNDER — before the defense can recover to the inside.",
+              score: "goodRead", correct: true,
+            },
+            {
+              label: "A high lob to #5", target: "5",
+              tag: "Wrong tool for this trigger", cls: "silver",
+              text: "The opening here is low and direct. A lob is how you attack a smaller defender underneath the rim (WIDE UP), not a defender positioned outside.",
+              score: "acceptableRead",
+            },
+            {
+              label: "Use 1 or 2 as the safety outlet", target: "1",
+              tag: "Missed the window", cls: "silver",
+              text: "Safe, but this open lane closes fast once the defense recovers — it's worth taking when it's there.",
+              score: "acceptableRead",
+            },
+          ],
+        },
+      },
+    ],
+  },
+
+  slip: {
+    id: "slip",
+    name: "WIDE SLIP",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE SLIP — starting alignment, same as the base play. 3 is the inbounder. 4 is in front of her, near the ball-side block. 5 is at the opposite elbow. 1 and 2 are in the corners.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "slip",
+        narration: "Phase 2 — Slip. 5 turns toward 4 as if she's about to set the screen, then immediately slips back to the block on her own side instead of completing it. 4 never gets a real screen this time.",
+        know: [
+          {
+            forLabel: "5",
+            question: "You see the defenders getting ready to switch. What do you do?",
+            choices: ["Turn toward the screen, then slip back to your own block before any contact happens", "Set the screen anyway, exactly as drawn up"],
+            correct: 0,
+            explain: "Once a switch is on, completing the screen just trades defenders. Turning toward it and slipping back before contact is what actually creates the opening.",
+          },
+          {
+            forLabel: "3",
+            question: "5 turns toward the screen, then slips back to her own block. What should you recognize?",
+            choices: ["The slip may have just created an immediate scoring chance for #5", "Nothing has changed, make the normal read"],
+            correct: 0,
+            explain: "A slip against a switch is often the fastest score in the whole WIDE family — it has to be recognized the moment it happens, not after the fact.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "decision",
+        narration: "Phase 3 — 3 recognizes the slip and reads the pass.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          prompt: "The defenders were preparing to switch the screen. #5 turned toward it, then slipped straight back to her own block. What should the inbounder recognize?",
+          choices: [
+            {
+              label: "The slip may create an immediate scoring opportunity for #5", target: "5",
+              tag: "Good read", cls: "good",
+              text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 5.",
+              score: "goodRead", correct: true,
+            },
+            {
+              label: "Nothing has changed, proceed with the normal read", target: "4",
+              tag: "Missed the slip", cls: "silver",
+              text: "Something did change — the defense committed to switching, and 5 attacked that before it finished. That's the opening.",
+              score: "acceptableRead",
+            },
+            {
+              label: "Pass to 4 regardless", target: "4",
+              tag: "Missed the slip", cls: "silver",
+              text: "4 never got a real screen this time — she's probably still covered. The faster read is recognizing 5's slip.",
+              score: "acceptableRead",
+            },
+          ],
+        },
+      },
+    ],
+  },
 };
+
+const PLAY_ORDER = ["base", "up", "under", "slip"];
 
 /* ---------------------------------------------------------------------
    SHARED HELPERS
 --------------------------------------------------------------------- */
-function phaseByIdx(i) { return PLAY.phases[i]; }
+let currentPlayKey = "base";
+function currentPlay() { return PLAYS[currentPlayKey]; }
+function phaseByIdx(i) { return currentPlay().phases[i]; }
+function snapshotFor(phase) { return phase.players; }
 
 function tweenPhase(container, fromPlayers, toPlayers, duration, done) {
   const fromByLabel = Object.fromEntries(fromPlayers.map(p => [p.label, p]));
@@ -616,7 +769,6 @@ function renderPhaseMove(container, phaseIdx, toPlayers, transform, done) {
   const fromPlayers = xf(snapshotFor(phaseByIdx(phaseIdx - 1)));
   tweenPhase(container, fromPlayers, xf(toPlayers), 1400, done);
 }
-function snapshotFor(phase) { return PLAY.positions[phase.snapshot]; }
 
 function withSelectedOpen(players, label) {
   return players.map(p => Object.assign({}, p, { open: p.label === label ? true : p.open }));
@@ -654,24 +806,41 @@ function resetTally() {
 
 function startGame() {
   resetTally();
-  renderIntro();
+  renderPlayPicker();
+}
+
+function renderPlayPicker() {
+  window.scrollTo(0, 0);
+  headerTitle.textContent = "WIDE";
+  main.innerHTML = `
+    <div class="instructions">
+      <h2>Which play?</h2>
+      <p>WIDE has four calls, all off the same starting look.</p>
+      <div class="player-select-row" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        ${PLAY_ORDER.map(k => `<button class="ghost-btn" data-play="${k}" style="text-align:left;">${PLAYS[k].name}</button>`).join("")}
+      </div>
+    </div>
+  `;
+  main.querySelectorAll("[data-play]").forEach(b => {
+    b.onclick = () => { currentPlayKey = b.dataset.play; renderIntro(); };
+  });
 }
 
 function renderIntro() {
   window.scrollTo(0, 0);
-  headerTitle.textContent = "WIDE — Base Play";
+  headerTitle.textContent = currentPlay().name;
   let body = "";
   if (mode === "watch") {
-    body = `<p>Watch the whole play run automatically — ball smack, screen, cut, roll, and the inbounder's read. Play, pause, or slow it down.</p>`;
+    body = `<p>Watch ${currentPlay().name} run automatically, start to finish. Play, pause, or slow it down.</p>`;
   } else if (mode === "know") {
     body = `
-      <p>Pick your jersey number. You'll watch the same play, but it will stop at the moments that matter for your job and ask you about it.</p>
+      <p>Pick your jersey number. You'll watch ${currentPlay().name}, but it will stop at the moments that matter for your job and ask you about it.</p>
       <div class="player-select-row" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
         ${["1","2","3","4","5"].map(n => `<button class="ghost-btn" data-num="${n}" style="min-width:52px;">#${n}</button>`).join("")}
       </div>
     `;
   } else {
-    body = `<p>Watch the play build, then read the defense at the decision point. More than one pass can be the right read — pick the one you'd make.</p>`;
+    body = `<p>Watch ${currentPlay().name} build, then read the defense at the decision point. More than one pass can be the right read — pick the one you'd make.</p>`;
   }
   main.innerHTML = `
     <div class="instructions">
@@ -679,6 +848,7 @@ function renderIntro() {
       ${body}
     </div>
     ${mode !== "know" ? `<button class="big-btn" id="startBtn">Start</button>` : ""}
+    <button class="ghost-btn" id="changePlayBtn" style="margin-top:8px;">Choose a different play</button>
   `;
   if (mode === "know") {
     main.querySelectorAll("[data-num]").forEach(b => {
@@ -687,6 +857,7 @@ function renderIntro() {
   } else {
     document.getElementById("startBtn").onclick = () => runPlay();
   }
+  document.getElementById("changePlayBtn").onclick = () => renderPlayPicker();
 }
 
 let selectedLabel = null;
@@ -711,13 +882,13 @@ function resolveSequence(sequence) {
 --------------------------------------------------------------------- */
 function runWatch(phaseIdx) {
   clearPlayTimer();
-  if (phaseIdx >= PLAY.phases.length) { renderWatchDone(); return; }
+  if (phaseIdx >= currentPlay().phases.length) { renderWatchDone(); return; }
   const phase = phaseByIdx(phaseIdx);
   const players = snapshotFor(phase);
   const atDecision = !!phase.decision;
 
   main.innerHTML = `
-    <div class="progress"><span>${PLAY.name}</span><span>Phase ${phaseIdx + 1} / ${PLAY.phases.length}</span></div>
+    <div class="progress"><span>${currentPlay().name}</span><span>Phase ${phaseIdx + 1} / ${currentPlay().phases.length}</span></div>
     <div class="court-card" id="courtHolder"></div>
     <p class="scenario-text" id="narration">${phase.narration}</p>
     <div class="row" style="gap:8px;">
@@ -766,28 +937,27 @@ function runWatch(phaseIdx) {
 function renderWatchDone() {
   tally.watched = 1;
   main.innerHTML = `
-    <div class="feedback good"><span class="tag">Play complete</span><div>That's the base WIDE play, start to finish. Try Read the Defense to make the inbounder's call yourself, or Know Your Position to see one player's job up close.</div></div>
+    <div class="feedback good"><span class="tag">Play complete</span><div>That's ${currentPlay().name}, start to finish. Try Read the Defense to make the inbounder's call yourself, or Know Your Position to see one player's job up close.</div></div>
     <div class="restart-row">
       <button class="ghost-btn" id="replayBtn">Watch Again</button>
-      <button class="next-btn" id="menuBtn">Change Mode</button>
+      <button class="next-btn" id="menuBtn">Choose a Play</button>
     </div>
   `;
   postSummary();
   document.getElementById("replayBtn").onclick = () => runPlay();
-  document.getElementById("menuBtn").onclick = () => renderIntro();
+  document.getElementById("menuBtn").onclick = () => renderPlayPicker();
 }
 
 /* ---------------------------------------------------------------------
    MODE B — KNOW YOUR POSITION
 --------------------------------------------------------------------- */
 function runKnow(phaseIdx) {
-  if (phaseIdx >= PLAY.phases.length) { renderKnowDone(); return; }
+  if (phaseIdx >= currentPlay().phases.length) { renderKnowDone(); return; }
   const phase = phaseByIdx(phaseIdx);
-  const players = withSelectedOpen(snapshotFor(phase), selectedLabel);
   const mine = (phase.know || []).find(k => k.forLabel === selectedLabel);
 
   main.innerHTML = `
-    <div class="progress"><span>${PLAY.name} — You are #${selectedLabel}</span><span>Phase ${phaseIdx + 1} / ${PLAY.phases.length}</span></div>
+    <div class="progress"><span>${currentPlay().name} — You are #${selectedLabel}</span><span>Phase ${phaseIdx + 1} / ${currentPlay().phases.length}</span></div>
     <div class="court-card" id="courtHolder"></div>
     <p class="scenario-text">${phase.narration}</p>
     <div id="stepReveal"></div>
@@ -823,32 +993,32 @@ function runKnow(phaseIdx) {
 
 function renderKnowDone() {
   main.innerHTML = `
-    <div class="feedback good"><span class="tag">Done</span><div>That's #${selectedLabel}'s job in the base WIDE play, start to finish.</div></div>
+    <div class="feedback good"><span class="tag">Done</span><div>That's #${selectedLabel}'s job in ${currentPlay().name}, start to finish.</div></div>
     <div class="summary-grid">
       <div class="stat-card"><div class="num">${tally.positionCorrect}</div><div class="label">Correct</div></div>
       <div class="stat-card"><div class="num">${tally.positionMissed}</div><div class="label">Review again</div></div>
     </div>
     <div class="restart-row">
       <button class="ghost-btn" id="replayBtn">Pick Another Number</button>
-      <button class="next-btn" id="menuBtn">Change Mode</button>
+      <button class="next-btn" id="menuBtn">Choose a Play</button>
     </div>
   `;
   postSummary();
   document.getElementById("replayBtn").onclick = () => renderIntro();
-  document.getElementById("menuBtn").onclick = () => { mode = "watch"; setActiveMode(); renderIntro(); };
+  document.getElementById("menuBtn").onclick = () => renderPlayPicker();
 }
 
 /* ---------------------------------------------------------------------
    MODE C — READ THE DEFENSE
 --------------------------------------------------------------------- */
 function runRead(phaseIdx) {
-  if (phaseIdx >= PLAY.phases.length) { renderReadDone(); return; }
+  if (phaseIdx >= currentPlay().phases.length) { renderReadDone(); return; }
   const phase = phaseByIdx(phaseIdx);
   const players = snapshotFor(phase);
   const isDecision = !!phase.decision;
 
   main.innerHTML = `
-    <div class="progress"><span>${PLAY.name}</span><span>Phase ${phaseIdx + 1} / ${PLAY.phases.length}</span></div>
+    <div class="progress"><span>${currentPlay().name}</span><span>Phase ${phaseIdx + 1} / ${currentPlay().phases.length}</span></div>
     <div class="court-card" id="courtHolder"></div>
     <p class="scenario-text">${phase.narration}</p>
     <div id="stepReveal" style="visibility:${isDecision ? "hidden" : "visible"};"></div>
@@ -917,19 +1087,19 @@ function runRead(phaseIdx) {
 
 function renderReadDone() {
   main.innerHTML = `
-    <div class="feedback good"><span class="tag">Play complete</span><div>That's the inbounder's read in the base WIDE play. More than one pass can be the right one — the goal is recognizing who's actually open, not a memorized number.</div></div>
+    <div class="feedback good"><span class="tag">Play complete</span><div>That's the inbounder's read in ${currentPlay().name}. More than one pass can be the right one — the goal is recognizing who's actually open, not a memorized number.</div></div>
     <div class="summary-grid">
       <div class="stat-card"><div class="num">${tally.goodRead}</div><div class="label">Good reads</div></div>
       <div class="stat-card"><div class="num">${tally.acceptableRead}</div><div class="label">Safe reads</div></div>
     </div>
     <div class="restart-row">
       <button class="ghost-btn" id="replayBtn">Run It Again</button>
-      <button class="next-btn" id="menuBtn">Change Mode</button>
+      <button class="next-btn" id="menuBtn">Choose a Play</button>
     </div>
   `;
   postSummary();
   document.getElementById("replayBtn").onclick = () => runPlay();
-  document.getElementById("menuBtn").onclick = () => renderIntro();
+  document.getElementById("menuBtn").onclick = () => renderPlayPicker();
 }
 
 /* ---------------------------------------------------------------------
@@ -946,7 +1116,7 @@ function runPlay() {
 
 function postSummary() {
   try {
-    parent.postMessage({ source: "silver-games", type: "summary", gameId: "wide_base", mode: mode, tally: Object.assign({}, tally) }, "*");
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "wide_base", mode: mode + ":" + currentPlayKey, tally: Object.assign({}, tally) }, "*");
   } catch (e) {}
 }
 
