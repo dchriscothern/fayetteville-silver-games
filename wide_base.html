@@ -351,7 +351,7 @@ const PLAYS = {
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(95, 165, "teammate", "4"),
-          p(118, 152, "teammate", "5"),
+          p(130, 165, "teammate", "5"),
           p(28, 85, "teammate", "1"),
           p(272, 85, "teammate", "2"),
         ],
@@ -362,7 +362,7 @@ const PLAYS = {
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
-          p(118, 152, "teammate", "5"),
+          p(130, 165, "teammate", "5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -767,7 +767,7 @@ function renderPhaseMove(container, phaseIdx, toPlayers, transform, done) {
     return;
   }
   const fromPlayers = xf(snapshotFor(phaseByIdx(phaseIdx - 1)));
-  tweenPhase(container, fromPlayers, xf(toPlayers), 1400, done);
+  tweenPhase(container, fromPlayers, xf(toPlayers), 2200 / speed, done);
 }
 
 function withSelectedOpen(players, label) {
