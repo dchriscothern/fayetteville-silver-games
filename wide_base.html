@@ -70,6 +70,22 @@
   footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
   .back-link { display: block; text-align: left; font-size: 11px; font-weight: 700; color: #fff; text-decoration: none; opacity: 0.85; margin-bottom: 4px; }
   .back-link:active { opacity: 1; }
+
+  /* Phones stay exactly as tuned above (no-scroll, one screen). On a wider
+     browser window - a laptop, not a phone, even though the column below
+     still centers narrow - there's real spare height, so let the court and
+     text grow a bit instead of leaving empty space under the content. */
+  @media (min-width: 540px) {
+    main { justify-content: center; }
+    header h1 { font-size: 21px; }
+    .scenario-text { font-size: 15px; }
+    .court-card svg { height: min(48vh, 560px); }
+    .prompt { font-size: 17px; }
+    .choices button { font-size: 15.5px; padding: 13px 16px; }
+    .feedback { font-size: 15px; padding: 13px 16px; }
+    .next-btn { font-size: 16px; padding: 13px 18px; }
+    .ghost-btn { font-size: 16px; padding: 12px 18px; }
+  }
 </style>
 </head>
 <body>
@@ -490,7 +506,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(150, 190, "defender", "X4"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
-          p(245, 90, "defender", "X5"),
+          p(172, 35, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -503,7 +519,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(150, 190, "defender", "X4"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
-          p(245, 90, "defender", "X5"),
+          p(172, 35, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -532,7 +548,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(145, 185, "defender", "X4"),
           p(185, 195, "teammate", "5"),
-          p(245, 90, "defender", "X5"),
+          p(172, 35, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -545,7 +561,7 @@ const PLAYS = {
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
           p(140, 180, "defender", "X4"),
           p(185, 195, "teammate", "5"),
-          p(228, 68, "defender", "X5"),
+          p(171, 38, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -567,7 +583,7 @@ const PLAYS = {
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
           p(160, 140, "defender", "X4"),
           p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
-          p(230, 60, "defender", "X5"),
+          p(170, 40, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -580,7 +596,7 @@ const PLAYS = {
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
           p(160, 140, "defender", "X4"),
           p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
-          p(230, 60, "defender", "X5"),
+          p(170, 40, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -731,6 +747,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+          p(245, 90, "defender", "X"),
         ],
       },
       {
@@ -758,6 +775,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+          p(245, 90, "defender", "X"),
         ],
       },
       {
@@ -769,6 +787,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+          p(245, 90, "defender", "X"),
         ],
         decision: {
           prompt: "The defender guarding #5 has settled on the outside, away from the basket. What should the inbounder do?",
@@ -912,7 +931,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(150, 190, "defender", "X4"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
-          p(245, 90, "defender", "X5"),
+          p(172, 35, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -925,7 +944,7 @@ const PLAYS = {
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(150, 190, "defender", "X4"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
-          p(245, 90, "defender", "X5"),
+          p(172, 35, "defender", "X5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
