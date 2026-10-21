@@ -35,6 +35,12 @@ family with six variations and three ways to study each one.
 - The hub only saves a score to Supabase when a parent is signed in **and** has a
   player selected; otherwise it shows a "played offline" toast and nothing is lost
   except the save.
+- Every game has a `<a href="index.html" target="_top" class="back-link">` as the
+  first element inside `<header>`, laid out in normal flow (not absolutely
+  positioned — that collided with the team-label text at narrow widths in the
+  games whose header font hasn't been shrunk). If a 10th game gets added, copy
+  this same `<header>` opening and the `.back-link` CSS rule from any existing
+  game file.
 
 ## WIDE (`wide_base.html`) — the play family
 
