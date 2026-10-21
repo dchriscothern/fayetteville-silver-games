@@ -114,6 +114,11 @@ nobody within reach of 5 once she bails and cuts to the far block alone.
   screen, a contested catch) where crowding is the point, and only when not also
   squeezed against a third token. Check new coordinates with a quick
   distance script before trusting a screenshot.
+- **Every jersey has at least one Know Your Position question in every play.**
+  A jersey with none used to click straight through to "0 correct" and save an
+  empty result. If a new play is added, give each of #1–#5 a question.
+- The score resets at the start of every play (`runPlay()` calls `resetTally()`),
+  and the summary sends `rounds` (number of answers in that play).
 - **Answer order is randomized** (`shuffled()`) in Know Your Position and Read
   the Defense specifically because every quiz in the file originally had the
   correct answer hardcoded as the first button — fixed so a player can't just

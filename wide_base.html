@@ -591,6 +591,29 @@ const PLAYS = {
       {
         id: "decision",
         narration: "Phase 5 — 3 reads the real defenders this time, not just a narrated read. 4's defender is still miles away recovering. 5's defender rotated onto 4 and is nowhere near 5.",
+        know: [
+          {
+            forLabel: "3",
+            question: "You can see both real defenders now. How do you make your read?",
+            choices: ["Look at 4, then 5, then the outlet, and get it in before the five-second count", "Wait until someone is completely wide open, however long it takes"],
+            correct: 0,
+            explain: "Read the defenders in order and let go of the ball fast. 4's defender is stuck on the screen and 5's defender left to help, so one of them is usually open. A slightly worse pass beats a five-second violation every time.",
+          },
+          {
+            forLabel: "1",
+            question: "4 and 5 are both covered and the count is climbing. What's your job?",
+            choices: ["Be the safety outlet: show your hands so 3 has a safe pass", "Cut into the lane to get open"],
+            correct: 0,
+            explain: "Cutting into the lane brings your defender into the space 4 and 5 just cleared. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+          {
+            forLabel: "2",
+            question: "You're in the ball-side corner. 3 is running out of time. What do you do?",
+            choices: ["Show your hands and be ready as the ball-side safety outlet", "Turn and watch the post players"],
+            correct: 0,
+            explain: "You're the closest safe pass for 3. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+        ],
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
@@ -675,6 +698,27 @@ const PLAYS = {
         narration: "Phase 1 — Ref hands 3 the ball. Up to now 5 has stood still, so the defense has nothing to read. The instant the ref hands 3 the ball, and not before, 5 gets big: strong, high position, hands up, presenting a target.",
         know: [
           {
+            forLabel: "4",
+            question: "You're at the elbow on WIDE UP. What do you do?",
+            choices: ["Stay still and keep your defender away from 5", "Cut down to help 5 post up"],
+            correct: 0,
+            explain: "5 needs room to use her size. Cutting down drags your defender into the paint, right where the lob is going. Stay still and let 5 go to work.",
+          },
+          {
+            forLabel: "1",
+            question: "You're in the far corner. What do you do before the ref hands 3 the ball?",
+            choices: ["Stand still in the corner and be ready as a safety outlet", "Start moving so your defender has to chase you"],
+            correct: 0,
+            explain: "WIDE UP works because the defense doesn't know it's coming. Any movement before the handoff gives them a clue and time to adjust. If the lob isn't there, you're the safety pass.",
+          },
+          {
+            forLabel: "2",
+            question: "You're in the ball-side corner on WIDE UP. What's your job?",
+            choices: ["Stay still, then be the safety outlet if the lob isn't there", "Cut to the block next to 5"],
+            correct: 0,
+            explain: "Cutting next to 5 brings another defender into her space and takes away the lob. Stay still and be ready for a safe pass.",
+          },
+          {
             forLabel: "5",
             question: "Your defender is smaller than you. When do you get big?",
             choices: ["Stay still until the ref hands 3 the ball, then get big right away: hands high, protect the ball on the catch", "Get big early while everyone is lining up so 3 can see you"],
@@ -754,6 +798,27 @@ const PLAYS = {
         id: "smack",
         narration: "Phase 1 — Ref hands 3 the ball. 5 stood still while her defender settled in on the outside. The instant the ref hands 3 the ball, and not before, 5 gets big, sealing that defender on the outside and showing a target.",
         know: [
+          {
+            forLabel: "4",
+            question: "You're at the elbow on WIDE UNDER. What do you do?",
+            choices: ["Stay still at the elbow so the lane stays open for the bounce pass", "Cut into the lane toward 5"],
+            correct: 0,
+            explain: "The bounce pass needs an open lane. Cutting in brings your defender right into it. Stay still and let 3 hit 5 quickly.",
+          },
+          {
+            forLabel: "1",
+            question: "You're in the far corner. What do you do before the ref hands 3 the ball?",
+            choices: ["Stand still in the corner and be ready as a safety outlet", "Start moving so your defender has to chase you"],
+            correct: 0,
+            explain: "WIDE UNDER works because 5's defender is on the wrong side and doesn't know it yet. Moving early gives the defense a reason to look around and fix it. If the bounce pass isn't there, you're the safety pass.",
+          },
+          {
+            forLabel: "2",
+            question: "You're in the ball-side corner on WIDE UNDER. What's your job?",
+            choices: ["Stay still, then be the safety outlet if the bounce pass isn't there", "Cut toward the block to help 5"],
+            correct: 0,
+            explain: "Cutting toward 5 brings another defender into the lane the bounce pass needs. Stay still and be ready for a safe pass.",
+          },
           {
             forLabel: "5",
             question: "Your defender is on the outside, away from the basket. What should you do?",
@@ -847,6 +912,13 @@ const PLAYS = {
         narration: "Phase 2 — 5 starts the same quick trip she always makes, heading toward 4 at the opposite elbow like she's about to set the screen. 4 is already working her defender, same as always.",
         know: [
           {
+            forLabel: "4",
+            question: "5 is heading your way like a normal screen. What do you do?",
+            choices: ["Work your defender like you're about to use the screen, so the slip looks real", "Stand still, since you know the screen isn't coming"],
+            correct: 0,
+            explain: "If you stand still, the defense can tell the screen isn't real. Sell it so they're still thinking screen when 5 slips away.",
+          },
+          {
             forLabel: "5",
             question: "You start toward 4 like a normal screen. What's different this time?",
             choices: ["At the middle of the lane, cut away toward the other block instead of finishing the trip to 4", "Keep going all the way to 4 and set the screen like usual"],
@@ -885,6 +957,22 @@ const PLAYS = {
       {
         id: "decision",
         narration: "Phase 4 — 3 recognizes the slip and reads the pass.",
+        know: [
+          {
+            forLabel: "1",
+            question: "5 just slipped to the far block. What's your job?",
+            choices: ["Stay ready in your corner as the safety outlet in case the slip is covered", "Run to the block to help 5"],
+            correct: 0,
+            explain: "Running to the block brings your defender right to 5. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+          {
+            forLabel: "2",
+            question: "5 just slipped to the far block. What's your job?",
+            choices: ["Stay ready in the ball-side corner as the safety outlet", "Run to the block to help 5"],
+            correct: 0,
+            explain: "Running to the block brings your defender right to 5. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+        ],
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -954,6 +1042,13 @@ const PLAYS = {
         narration: "Phase 2 — 5 starts the same quick trip toward 4 like a normal screen. Both defenders start cheating toward the middle early, already getting ready to switch before anything has actually happened.",
         know: [
           {
+            forLabel: "4",
+            question: "Both defenders are cheating toward a switch. What do you do?",
+            choices: ["Keep working your defender like the screen is coming, so they keep cheating", "Stop moving and wait"],
+            correct: 0,
+            explain: "The defenders are guessing screen. If you keep selling it, they stay out of position, and that's what leaves 5 alone when she slips.",
+          },
+          {
             forLabel: "5",
             question: "Both defenders are already cheating toward a switch. What does that tell you?",
             choices: ["They're ready to trade you for each other right where you are now — the perfect moment to slip away instead", "Nothing — keep heading to set the real screen no matter what they do"],
@@ -996,6 +1091,22 @@ const PLAYS = {
       {
         id: "decision",
         narration: "Phase 4 — 3 recognizes the slip and reads the real defenders.",
+        know: [
+          {
+            forLabel: "1",
+            question: "5 slipped away and both defenders are stuck in the middle. What's your job?",
+            choices: ["Stay ready in your corner as the safety outlet in case 5 gets covered", "Run to the block to help 5"],
+            correct: 0,
+            explain: "Running to the block brings your defender right to 5. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+          {
+            forLabel: "2",
+            question: "5 slipped away and both defenders are stuck in the middle. What's your job?",
+            choices: ["Stay ready in the ball-side corner as the safety outlet", "Run to the block to help 5"],
+            correct: 0,
+            explain: "Running to the block brings your defender right to 5. 3 only has five seconds. If 4 and 5 are covered, a quick, safe pass to you gets the ball in and keeps the possession alive.",
+          },
+        ],
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -1438,6 +1549,7 @@ function renderReadDone() {
    DISPATCH + SUMMARY
 --------------------------------------------------------------------- */
 function runPlay() {
+  resetTally();
   lastBallLabel = null;
   lastBallPos = null;
   window.scrollTo(0, 0);
@@ -1448,7 +1560,7 @@ function runPlay() {
 
 function postSummary() {
   try {
-    parent.postMessage({ source: "silver-games", type: "summary", gameId: "wide_base", mode: mode + ":" + currentPlayKey, tally: Object.assign({}, tally) }, "*");
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "wide_base", mode: mode + ":" + currentPlayKey, rounds: Object.values(tally).reduce((a, b) => a + b, 0), tally: Object.assign({}, tally) }, "*");
   } catch (e) {}
 }
 
