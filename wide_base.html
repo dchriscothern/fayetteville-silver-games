@@ -305,7 +305,7 @@ const PLAYS = {
 
   base: {
     id: "base",
-    name: "WIDE — Base",
+    name: "WIDE",
     phases: [
       {
         id: "start",
@@ -639,11 +639,11 @@ const PLAYS = {
     phases: [
       {
         id: "start",
-        narration: "WIDE SLIP — starting alignment, same as the base play. 3 is the inbounder. 4 is in front of her, near the ball-side block. 5 is at the opposite elbow. 1 and 2 are in the corners.",
+        narration: "WIDE SLIP — starting alignment, same as WIDE. 3 is the inbounder. 5 lines up down low, near the ball-side block. 4 is at the opposite elbow. 1 and 2 are in the corners.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
-          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
-          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
@@ -653,34 +653,47 @@ const PLAYS = {
         narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
-          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
-          p(ELBOW_L.x, ELBOW_L.y, "teammate", "5"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
       },
       {
-        id: "slip",
-        narration: "Phase 2 — Slip. 5 turns toward 4 as if she's about to set the screen, then immediately slips back to the block on her own side instead of completing it. 4 never gets a real screen this time.",
+        id: "slipStart",
+        narration: "Phase 2 — 5 starts the same trip she always makes, heading toward 4 at the opposite elbow like she's about to set the screen. 4 holds her spot, same as always.",
         know: [
           {
             forLabel: "5",
-            question: "You see the defenders getting ready to switch. What do you do?",
-            choices: ["Turn toward the screen, then slip back to your own block before any contact happens", "Set the screen anyway, exactly as drawn up"],
+            question: "You start toward 4 like a normal screen. What's different this time?",
+            choices: ["At the middle of the lane, cut away toward the other block instead of finishing the trip to 4", "Keep going all the way to 4 and set the screen like usual"],
             correct: 0,
-            explain: "Once a switch is on, completing the screen just trades defenders. Turning toward it and slipping back before contact is what actually creates the opening.",
-          },
-          {
-            forLabel: "3",
-            question: "5 turns toward the screen, then slips back to her own block. What should you recognize?",
-            choices: ["The slip may have just created an immediate scoring chance for #5", "Nothing has changed, make the normal read"],
-            correct: 0,
-            explain: "A slip against a switch is often the fastest score in the whole WIDE family — it has to be recognized the moment it happens, not after the fact.",
+            explain: "The slip only works if it looks identical to the real screen at first. The defense has to believe it's coming before 5 bails out of it.",
           },
         ],
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
-          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(144, 100, "teammate", "5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "slipCut",
+        narration: "Phase 3 — Slip. Instead of continuing on to set the screen, 5 cuts away at the middle of the lane and heads for the other block. 4 never had a real screen coming this time.",
+        know: [
+          {
+            forLabel: "3",
+            question: "5 peels off toward the other block instead of finishing the screen. What should you recognize?",
+            choices: ["The slip may create an immediate scoring opportunity for #5", "Nothing has changed, make the normal read"],
+            correct: 0,
+            explain: "A slip is often the fastest score in the whole WIDE family — it has to be recognized the moment 5 cuts, not after the fact.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
@@ -688,33 +701,33 @@ const PLAYS = {
       },
       {
         id: "decision",
-        narration: "Phase 3 — 3 recognizes the slip and reads the pass.",
+        narration: "Phase 4 — 3 recognizes the slip and reads the pass.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
-          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
           p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
           p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
           p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
         ],
         decision: {
-          prompt: "The defenders were preparing to switch the screen. #5 turned toward it, then slipped straight back to her own block. What should the inbounder recognize?",
+          prompt: "5 never finished the screen — she cut away at the middle of the lane to the other block instead. What should the inbounder recognize?",
           choices: [
             {
               label: "The slip may create an immediate scoring opportunity for #5", target: "5",
               tag: "Good read", cls: "good",
-              text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking switch, not recovering to 5.",
+              text: "Reading the slip the instant it happens is the whole teaching point of WIDE SLIP — the defense is still thinking screen, not recovering to 5 on the other block.",
               score: "goodRead", correct: true,
             },
             {
               label: "Nothing has changed, proceed with the normal read", target: "4",
               tag: "Missed the slip", cls: "silver",
-              text: "Something did change — the defense committed to switching, and 5 attacked that before it finished. That's the opening.",
+              text: "Something did change — 5 never set the screen at all. That's the opening, and it's gone fast.",
               score: "acceptableRead",
             },
             {
               label: "Pass to 4 regardless", target: "4",
               tag: "Missed the slip", cls: "silver",
-              text: "4 never got a real screen this time — she's probably still covered. The faster read is recognizing 5's slip.",
+              text: "4 never got a real screen this time, and there was never really a plan to free her up — the faster read is recognizing 5's slip.",
               score: "acceptableRead",
             },
           ],
