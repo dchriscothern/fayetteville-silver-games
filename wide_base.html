@@ -894,6 +894,12 @@ function resolveSequence(sequence) {
   return { stepIdx: sequence.length - 1, choice: last.choices.find(c => c.end) || last.choices[0] };
 }
 
+function dwellFor(text, atDecision) {
+  const words = (text || "").trim().split(/\s+/).filter(Boolean).length;
+  const base = atDecision ? 3400 : 1800;
+  return Math.max(base, words * 170 + 900);
+}
+
 function shuffled(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -947,7 +953,7 @@ function runWatch(phaseIdx) {
         narrationEl.innerHTML = phase.narration + `<br><br><b>${best.label}.</b> ${best.text}`;
       }
     }
-    playTimer = setTimeout(() => runWatch(phaseIdx + 1), (atDecision ? 3400 : 1600) / speed);
+    playTimer = setTimeout(() => runWatch(phaseIdx + 1), dwellFor(phase.narration, atDecision) / speed);
   });
 
   document.getElementById("pauseBtn").onclick = () => {
