@@ -32,6 +32,9 @@ family with six variations and three ways to study each one.
   `rounds` is the actual number of scenarios/questions completed — added so the
   hub doesn't have to guess it from the tally object (see "Fixes this session"
   below for why that mattered).
+- My Progress has a "How we keep your daughter's information safe" card, shown
+  signed in or out. If what gets stored changes (new columns, analytics, any
+  external script), update that card so it stays true.
 - The hub only saves a score to Supabase when a parent is signed in **and** has a
   player selected; otherwise it shows a "played offline" toast and nothing is lost
   except the save.
@@ -53,10 +56,18 @@ Court convention: `BLOCK_R`/`BLOCK_L` are near the basket (top of the lane, smal
 y). `ELBOW_L` is at the free-throw line (bottom of the lane, larger y). This is
 easy to get backwards — it was a real, repeated bug during development.
 
+**Timing rule (coach's call, reflected in all narration and quiz text):** in WIDE
+and WIDE SLIP (and their vs Defense versions), nobody waits after the ball smack.
+5 and 4 move immediately and 5 rolls quickly to the bucket after the screen,
+because the inbounder only has five seconds. In WIDE UP and WIDE UNDER there is
+no smack: everyone stays still, and 5 gets big only when the ref hands 3 the
+ball, never before, so the defense has no time to adjust. The animations were
+left as they were; only the words say this.
+
 **WIDE** (the base call): 3 inbounds on the baseline. 5 starts near the inbounder
-(ball-side block), 4 at the opposite elbow. 5 travels across and sets a screen
-next to 4. 4 waits for the screen, then cuts off it to the near block (first
-read). 5 continues past the screen point in a straight line to the far block
+(ball-side block), 4 at the opposite elbow. 5 sprints across and sets a screen
+next to 4. 4 works her defender right away, then cuts off the screen to the near
+block (first read). 5 rolls hard in a straight line to the far block
 (second read, usually the most open). 1 and 2 are corner safety outlets. Final
 read order: 4, then 5, then a safety pass or a lob — never a forced pass at a
 defender.

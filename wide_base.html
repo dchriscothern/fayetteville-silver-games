@@ -328,7 +328,7 @@ const PLAYS = {
     phases: [
       {
         id: "start",
-        narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 5 lines up down low, near the ball-side block. 4 is at the opposite elbow, waiting. 1 and 2 are in the corners.",
+        narration: "WIDE — starting alignment. 3 is the inbounder, out of bounds, close to the basket on the right side. 5 lines up down low, near the ball-side block. 4 is at the opposite elbow, ready to go. 1 and 2 are in the corners.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -339,7 +339,7 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. 3 slaps the ball to start the play. Everyone else holds their spot for a beat.",
+        narration: "Phase 1 — Ball smack. 3 slaps the ball and the play is on. Nobody waits: the ref's five-second count is already running, so 5 and 4 move the instant they hear the smack.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -350,21 +350,21 @@ const PLAYS = {
       },
       {
         id: "screenCut",
-        narration: "Phase 2 — Screen. 5 travels all the way across from the ball-side block to the opposite elbow and sets the screen right next to 4. 4 waits for her to arrive. 1 and 2 flash out of the corner at the same time as 5's travel.",
+        narration: "Phase 2 — Screen. 5 sprints all the way across from the ball-side block to the opposite elbow and sets the screen right next to 4. 4 isn't standing still: she works her defender with a jab step so she's ready to come off the screen the second 5 gets there. 1 and 2 flash out of the corner at the same time as 5's travel.",
         know: [
           {
             forLabel: "5",
             question: "What is your first movement?",
-            choices: ["Travel all the way across to the opposite elbow and set the screen next to 4", "Stay near the block and wait for the pass"],
+            choices: ["Sprint all the way across to the opposite elbow right away and set the screen next to 4", "Stay near the block and wait for the pass"],
             correct: 0,
-            explain: "5 is the one who makes the long trip across, setting the screen right next to 4 at the opposite elbow — that's what frees 4 up.",
+            explain: "5 is the one who makes the long trip across, setting the screen right next to 4 at the opposite elbow — that's what frees 4 up. Go the instant the ball is smacked: 3 only has five seconds to get it in, so a slow trip across wastes the whole play.",
           },
           {
             forLabel: "4",
-            question: "What do you do while you wait?",
-            choices: ["Hold your spot at the opposite elbow until 5 arrives and sets the screen", "Cut on your own before the screen arrives"],
+            question: "The ball is smacked. What do you do?",
+            choices: ["Move right away: jab step and set up your defender so you're ready to come off 5's screen the second she arrives", "Stand still at the elbow and wait for 5 to get there"],
             correct: 0,
-            explain: "Cutting early just runs away from your own screen. Waiting for 5 to actually arrive is what makes the cut work.",
+            explain: "Standing still lets your defender relax and burns time off the five-second count. Keep your feet working so you can explode off the screen the moment 5 sets it, just don't leave before she gets there.",
           },
         ],
         players: [
@@ -377,7 +377,7 @@ const PLAYS = {
       },
       {
         id: "cutNear",
-        narration: "Phase 3 — Cut. 4 fakes one way, then cuts off 5's screen down to the block right in front of the inbounder — the first option. 5 holds the screen spot; she doesn't roll yet.",
+        narration: "Phase 3 — Cut. 4 fakes one way, then cuts hard off 5's screen down to the block right in front of the inbounder — the first option. 5 holds the screen just long enough for 4 to get past her.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
@@ -388,14 +388,14 @@ const PLAYS = {
       },
       {
         id: "rollFar",
-        narration: "Phase 4 — Roll. Only once 4 has cleared the screen and reached the near block does 5 continue on, straight down to the far block — the second option.",
+        narration: "Phase 4 — Roll. As soon as 4 is past her, 5 rolls hard and fast straight to the far block — the second option. No pause after the screen: every second counts against the five-second clock.",
         know: [
           {
             forLabel: "5",
             question: "When do you roll?",
-            choices: ["Wait until 4 has cleared the screen and reached the near block, then roll", "Roll at the exact same time 4 cuts"],
+            choices: ["The moment 4 comes off your screen, roll hard to the basket", "Hold the screen and wait to see if 4 gets the ball first"],
             correct: 0,
-            explain: "Rolling at the same moment 4 cuts bunches both of you in the same space. Waiting until she's clearly cleared gives the defense two separate problems instead of one.",
+            explain: "Holding the screen to watch wastes time 3 doesn't have, since she only gets five seconds. Let 4 come off you first so you aren't bunched up, then roll to the bucket right away. A quick roll is what makes you the open second option.",
           },
         ],
         players: [
@@ -513,7 +513,7 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat, defenders included.",
+        narration: "Phase 1 — Ball smack. 3 slaps it and the play is on. Nobody waits: the five-second count has started, so 5 and 4 move the instant they hear the smack.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -526,21 +526,21 @@ const PLAYS = {
       },
       {
         id: "screenContact",
-        narration: "Phase 2 — Screen. 5 travels all the way across and sets the screen right on 4's defender. 4 waits for the contact before she moves.",
+        narration: "Phase 2 — Screen. 5 sprints all the way across and sets the screen right on 4's defender. 4 keeps her feet moving, setting up her defender so she can cut the instant the contact lands.",
         know: [
           {
             forLabel: "5",
             question: "You arrive at the screen spot. What matters most?",
-            choices: ["Get there before 4 cuts, and set a solid, still screen right on her defender", "Get there whenever — speed doesn't matter"],
+            choices: ["Sprint there before 4 cuts, and set a solid, still screen right on her defender", "Get there whenever — speed doesn't matter"],
             correct: 0,
-            explain: "A screen only works if the screener is already set, still, and in the defender's path before the cut happens. Arriving late, or still moving, means no real pick.",
+            explain: "A screen only works if the screener is already set, still, and in the defender's path before the cut happens. Arriving late, or still moving, means no real pick. And 3 only has five seconds, so there's no time for a slow trip.",
           },
           {
             forLabel: "4",
             question: "The screen is about to land on your defender. What do you do?",
-            choices: ["Wait for the contact, then cut off it sharply to the near block", "Cut early, before the screen actually arrives"],
+            choices: ["Keep your feet moving to set up your defender, then cut hard off the screen the instant contact lands", "Stand still until 5 gets there, then decide what to do"],
             correct: 0,
-            explain: "Cutting before the screen lands just means your own defender slides with you. The whole point is letting the pick take her out of the play first.",
+            explain: "Standing still lets your defender get comfortable and wastes the five seconds 3 has. Stay active, but don't leave before the screen lands: the pick has to take her out of the play first.",
           },
         ],
         players: [
@@ -568,7 +568,7 @@ const PLAYS = {
       },
       {
         id: "rollComplete",
-        narration: "Phase 4 — Roll. 5 continues down to the far block. The defender who was on her is now committed to helping on 4, and 4's original defender is still recovering from the screen — nobody is left on 5 at all.",
+        narration: "Phase 4 — Roll. Right after the contact, 5 rolls hard to the far block, no pause. The defender who was on her is now committed to helping on 4, and 4's original defender is still recovering from the screen — nobody is left on 5 at all.",
         know: [
           {
             forLabel: "5",
@@ -661,7 +661,7 @@ const PLAYS = {
     phases: [
       {
         id: "start",
-        narration: "WIDE UP — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block, because her defender today is smaller. 4, 1, and 2 fill their normal spots.",
+        narration: "WIDE UP — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block, because her defender today is smaller. 4, 1, and 2 fill their normal spots. Everyone stands still: there's no ball smack on this play.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
@@ -672,14 +672,14 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. 5 establishes a strong, high position right away and presents a target.",
+        narration: "Phase 1 — Ref hands 3 the ball. Up to now 5 has stood still, so the defense has nothing to read. The instant the ref hands 3 the ball, and not before, 5 gets big: strong, high position, hands up, presenting a target.",
         know: [
           {
             forLabel: "5",
-            question: "Your defender is smaller than you. What do you do?",
-            choices: ["Get big, show your hands high, and protect the ball on the catch", "Drift out to the three-point line to avoid contact"],
+            question: "Your defender is smaller than you. When do you get big?",
+            choices: ["Stay still until the ref hands 3 the ball, then get big right away: hands high, protect the ball on the catch", "Get big early while everyone is lining up so 3 can see you"],
             correct: 0,
-            explain: "Recognize the size advantage: get big, present a high target, and finish without bringing the ball low where a smaller defender can still reach it.",
+            explain: "If you get big early, the defense sees what's coming and has time to adjust, like switching a bigger defender onto you. Stay still, then get big the moment the ref hands 3 the ball. Catch high and finish without bringing the ball low where a smaller defender can still reach it.",
           },
           {
             forLabel: "3",
@@ -740,7 +740,7 @@ const PLAYS = {
     phases: [
       {
         id: "start",
-        narration: "WIDE UNDER — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block. This time her defender settles in on the wrong side — away from the basket instead of between 5 and the rim.",
+        narration: "WIDE UNDER — starting alignment. 3 is the inbounder. 5 lines up right in front of her, near the ball-side block. This time her defender settles in on the wrong side — away from the basket instead of between 5 and the rim. Everyone stands still: there's no ball smack on this play.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
@@ -752,14 +752,14 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. 5 stays ready near the block as the defender settles in on the outside.",
+        narration: "Phase 1 — Ref hands 3 the ball. 5 stood still while her defender settled in on the outside. The instant the ref hands 3 the ball, and not before, 5 gets big, sealing that defender on the outside and showing a target.",
         know: [
           {
             forLabel: "5",
             question: "Your defender is on the outside, away from the basket. What should you do?",
-            choices: ["Stay ready to catch and finish quickly near the rim before the defense recovers", "Reset further away and restart your move"],
+            choices: ["Stay still until the ref hands 3 the ball, then get big, seal her on the outside, and be ready to catch and finish quickly", "Start posting up early so the defense sees you're open"],
             correct: 0,
-            explain: "The defender being on the wrong side only matters if you catch and finish quickly, before she can recover to the inside.",
+            explain: "Moving early tips off the defense and gives her time to fix her position. Stay still, then get big the instant the ref hands 3 the ball. The wrong-side defender only matters if you catch and finish before she can recover to the inside.",
           },
           {
             forLabel: "3",
@@ -833,7 +833,7 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat.",
+        narration: "Phase 1 — Ball smack. Same start as always: 3 slaps it and 5 and 4 move right away. Nobody waits, because there are only five seconds to get the ball in.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -844,14 +844,14 @@ const PLAYS = {
       },
       {
         id: "slipStart",
-        narration: "Phase 2 — 5 starts the same trip she always makes, heading toward 4 at the opposite elbow like she's about to set the screen. 4 holds her spot, same as always.",
+        narration: "Phase 2 — 5 starts the same quick trip she always makes, heading toward 4 at the opposite elbow like she's about to set the screen. 4 is already working her defender, same as always.",
         know: [
           {
             forLabel: "5",
             question: "You start toward 4 like a normal screen. What's different this time?",
             choices: ["At the middle of the lane, cut away toward the other block instead of finishing the trip to 4", "Keep going all the way to 4 and set the screen like usual"],
             correct: 0,
-            explain: "The slip only works if it looks identical to the real screen at first. The defense has to believe it's coming before 5 bails out of it.",
+            explain: "The slip only works if it looks identical to the real screen at first. The defense has to believe it's coming before 5 bails out of it. Do it at full speed: a slow slip gives the defense time to recover and eats into 3's five seconds.",
           },
         ],
         players: [
@@ -864,7 +864,7 @@ const PLAYS = {
       },
       {
         id: "slipCut",
-        narration: "Phase 3 — Slip. Instead of continuing on to set the screen, 5 cuts away at the middle of the lane and heads for the other block. 4 never had a real screen coming this time.",
+        narration: "Phase 3 — Slip. Instead of continuing on to set the screen, 5 cuts away fast at the middle of the lane and heads for the other block. 4 never had a real screen coming this time.",
         know: [
           {
             forLabel: "3",
@@ -938,7 +938,7 @@ const PLAYS = {
       },
       {
         id: "smack",
-        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat, defenders included.",
+        narration: "Phase 1 — Ball smack. Same start as always: 3 slaps it and 5 and 4 move right away. Nobody waits, because there are only five seconds to get the ball in.",
         players: [
           p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
           p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
@@ -951,7 +951,7 @@ const PLAYS = {
       },
       {
         id: "switchCheat",
-        narration: "Phase 2 — 5 starts the same trip toward 4 like a normal screen. Both defenders start cheating toward the middle early, already getting ready to switch before anything has actually happened.",
+        narration: "Phase 2 — 5 starts the same quick trip toward 4 like a normal screen. Both defenders start cheating toward the middle early, already getting ready to switch before anything has actually happened.",
         know: [
           {
             forLabel: "5",
@@ -973,7 +973,7 @@ const PLAYS = {
       },
       {
         id: "slipAway",
-        narration: "Phase 3 — Slip. 5 cuts away to the other block instead of finishing the screen. Both defenders are still out of position near the middle of the lane, sorting out a switch that never needed to happen.",
+        narration: "Phase 3 — Slip. 5 cuts away fast to the other block instead of finishing the screen. Both defenders are still out of position near the middle of the lane, sorting out a switch that never needed to happen.",
         know: [
           {
             forLabel: "3",
