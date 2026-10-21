@@ -1076,7 +1076,7 @@ function renderPhaseMove(container, phaseIdx, toPlayers, transform, done) {
     return;
   }
   const fromPlayers = xf(snapshotFor(phaseByIdx(phaseIdx - 1)));
-  tweenPhase(container, fromPlayers, xf(toPlayers), 2200 / speed, done);
+  tweenPhase(container, fromPlayers, xf(toPlayers), MOVE_MS / speed, done);
 }
 
 function withSelectedOpen(players, label) {
@@ -1190,10 +1190,13 @@ function resolveSequence(sequence) {
   return { stepIdx: sequence.length - 1, choice: last.choices.find(c => c.end) || last.choices[0] };
 }
 
+// Time to hold a phase after its move finishes. Reading time is counted from
+// when the text appears, so the move (MOVE_MS) already covers part of it.
+const MOVE_MS = 2200;
 function dwellFor(text, atDecision) {
   const words = (text || "").trim().split(/\s+/).filter(Boolean).length;
-  const base = atDecision ? 3400 : 1800;
-  return Math.max(base, words * 170 + 900);
+  const floor = atDecision ? 2500 : 1000;
+  return Math.max(floor, words * 150 - (atDecision ? 0 : MOVE_MS));
 }
 
 function shuffled(arr) {
@@ -1249,7 +1252,8 @@ function runWatch(phaseIdx) {
         narrationEl.innerHTML = phase.narration + `<br><br><b>${best.label}.</b> ${best.text}`;
       }
     }
-    playTimer = setTimeout(() => runWatch(phaseIdx + 1), dwellFor(phase.narration, atDecision) / speed);
+    const shown = atDecision ? document.getElementById("narration").textContent : phase.narration;
+    playTimer = setTimeout(() => runWatch(phaseIdx + 1), dwellFor(shown, atDecision) / speed);
   });
 
   document.getElementById("pauseBtn").onclick = () => {

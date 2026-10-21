@@ -118,10 +118,15 @@ nobody within reach of 5 once she bails and cuts to the far block alone.
   the Defense specifically because every quiz in the file originally had the
   correct answer hardcoded as the first button — fixed so a player can't just
   learn "always tap the top one."
-- Watch-mode auto-advance timing (`dwellFor()`) scales with each phase's
-  narration word count (170ms/word, same floor as before for short phases) —
-  added because longer narrations weren't leaving enough time to read before
-  auto-advancing.
+- Watch-mode auto-advance timing (`dwellFor()`) is 150ms per word of the text on
+  screen, counted from when the text appears, so the 2200ms move (`MOVE_MS`)
+  already covers part of it. At a decision phase it counts the revealed answer
+  text too. Tuned to "just enough to read," since Pause and Slow motion exist
+  for anyone who needs longer.
+- All nine games share the same one-screen layout: compact header and mode bar,
+  and the court capped at `min(30vh, 300px)` (`min(48vh, 560px)` at 540px+ wide).
+  The other eight get it from a "One-screen fit" CSS block at the end of their
+  `<style>`, and every game hides its footer while a court is showing.
 
 ## This session's fixes to the other 8 games
 

@@ -70,6 +70,31 @@
   footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
   .back-link { display: block; text-align: left; font-size: 11px; font-weight: 700; color: #fff; text-decoration: none; opacity: 0.85; margin-bottom: 4px; }
   .back-link:active { opacity: 1; }
+  /* One-screen fit, matching wide_base.html: compact header and controls, and the
+     court capped by height so the text and answers fit below it without scrolling. */
+  header { padding: 8px 16px 7px; }
+  header .team { font-size: 10px; margin: 0; }
+  header h1 { font-size: 17px; }
+  .modebar { padding: 7px 16px; }
+  .modebar button { padding: 7px 6px; font-size: 12px; }
+  main { padding: 10px 16px 10px; gap: 9px; }
+  .scenario-title { font-size: 15px; }
+  .scenario-text { font-size: 13px; line-height: 1.4; }
+  .court-card { padding: 8px; }
+  .court-card svg { width: auto; height: min(30vh, 300px); max-width: 100%; margin: 0 auto; }
+  .choices button { padding: 10px 14px; font-size: 14px; }
+  .feedback { padding: 11px 14px; font-size: 13.5px; line-height: 1.45; }
+  .next-btn { padding: 11px 14px; font-size: 14.5px; }
+  @media (min-width: 540px) {
+    main { justify-content: center; }
+    header h1 { font-size: 21px; }
+    .scenario-text { font-size: 15px; }
+    .court-card svg { height: min(48vh, 560px); }
+    .prompt { font-size: 17px; }
+    .choices button { font-size: 15.5px; padding: 13px 16px; }
+    .feedback { font-size: 15px; padding: 13px 16px; }
+    .next-btn { font-size: 16px; padding: 13px 18px; }
+  }
 </style>
 </head>
 <body>
@@ -87,7 +112,7 @@
 
   <main id="main"></main>
 
-  <footer>Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+  <footer id="pageFooter">Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
 </div>
 
 <script>
@@ -554,6 +579,10 @@ const tally = {
 };
 
 const main = document.getElementById("main");
+const pageFooter = document.getElementById("pageFooter");
+new MutationObserver(() => {
+  pageFooter.style.display = main.querySelector(".court-card") ? "none" : "";
+}).observe(main, { childList: true });
 const headerTitle = document.getElementById("headerTitle");
 const btnPractice = document.getElementById("btnPractice");
 const btnTimed = document.getElementById("btnTimed");
