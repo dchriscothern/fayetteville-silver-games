@@ -50,7 +50,7 @@
   .feedback.bad .tag { color: var(--bad); }
   .next-btn { padding: 11px 14px; border-radius: 12px; border: none; background: var(--purple); color: #fff; font-size: 14.5px; font-weight: 800; cursor: pointer; }
   .next-btn:active { background: var(--purple-dark); }
-  .instructions { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 16px; font-size: 14px; line-height: 1.55; }
+  .instructions { background: var(--surface); border: 1px solid #e2e0e6; border-radius: 14px; padding: 12px 16px; font-size: 14px; line-height: 1.5; }
   .instructions h2 { font-size: 16px; margin: 0 0 8px; }
   .instructions ul { margin: 6px 0 0; padding-left: 20px; }
   .instructions li { margin: 5px 0; }
@@ -66,13 +66,16 @@
   .stat-card .label { font-size: 11.5px; color: var(--ink-dim); font-weight: 700; margin-top: 2px; }
   .restart-row { display: flex; gap: 10px; margin-top: 6px; }
   .restart-row button { flex: 1; }
-  .ghost-btn { padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 800; font-size: 14.5px; cursor: pointer; }
+  .ghost-btn { padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--purple); background: #fff; color: var(--purple); font-weight: 800; font-size: 14.5px; cursor: pointer; }
   footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 10px 16px 20px; }
+  .back-link { display: block; text-align: left; font-size: 11px; font-weight: 700; color: #fff; text-decoration: none; opacity: 0.85; margin-bottom: 4px; }
+  .back-link:active { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <a href="index.html" target="_top" class="back-link">&larr; All Games</a>
     <p class="team">Fayetteville Girls Silver &middot; Age 11</p>
     <h1 id="headerTitle">WIDE</h1>
   </header>
