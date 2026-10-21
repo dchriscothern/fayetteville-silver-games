@@ -618,7 +618,7 @@ function renderSummary() {
   window.scrollTo(0, 0);
   headerTitle.textContent = "Results";
   try {
-    parent.postMessage({ source: "silver-games", type: "summary", gameId: "shooting_form", mode: mode, tally: Object.assign({}, tally) }, "*");
+    parent.postMessage({ source: "silver-games", type: "summary", gameId: "shooting_form", mode: mode, rounds: SCENARIOS.length, tally: Object.assign({}, tally) }, "*");
   } catch (e) {}
   const totalReads = tally.goodRead + tally.earlyPass + tally.forcedBad;
   main.innerHTML = `

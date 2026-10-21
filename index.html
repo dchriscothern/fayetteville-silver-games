@@ -262,7 +262,7 @@ window.addEventListener("message", async (ev) => {
       toast("Played offline, sign in and pick a player to save scores.");
       return;
     }
-    const scenarioCount = Object.keys(d.tally || {}).length ? Object.values(d.tally).reduce((a, b) => a + b, 0) : null;
+    const scenarioCount = typeof d.rounds === "number" ? d.rounds : null;
     const { error } = await supa.from("game_results").insert({
       player_id: activePlayerId,
       game_id: d.gameId,
