@@ -475,6 +475,167 @@ const PLAYS = {
     ],
   },
 
+  wideD: {
+    id: "wideD",
+    name: "WIDE vs Defense",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE vs Defense — same starting alignment as WIDE, but now with real defenders on the floor. 3 is the inbounder. 5 lines up near the ball-side block with a defender on her. 4 is at the opposite elbow with a defender on her too. 1 and 2 are in the corners, unguarded.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(150, 190, "defender", "X4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(245, 90, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat, defenders included.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(150, 190, "defender", "X4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(245, 90, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "screenContact",
+        narration: "Phase 2 — Screen. 5 travels all the way across and sets the screen right on 4's defender. 4 waits for the contact before she moves.",
+        know: [
+          {
+            forLabel: "5",
+            question: "You arrive at the screen spot. What matters most?",
+            choices: ["Get there before 4 cuts, and set a solid, still screen right on her defender", "Get there whenever — speed doesn't matter"],
+            correct: 0,
+            explain: "A screen only works if the screener is already set, still, and in the defender's path before the cut happens. Arriving late, or still moving, means no real pick.",
+          },
+          {
+            forLabel: "4",
+            question: "The screen is about to land on your defender. What do you do?",
+            choices: ["Wait for the contact, then cut off it sharply to the near block", "Cut early, before the screen actually arrives"],
+            correct: 0,
+            explain: "Cutting before the screen lands just means your own defender slides with you. The whole point is letting the pick take her out of the play first.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(145, 185, "defender", "X4"),
+          p(185, 195, "teammate", "5"),
+          p(245, 90, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "cutContact",
+        narration: "Phase 3 — Contact. 4 cuts hard off the screen down to the near block. Her defender is stuck on the pick. 5's defender starts sliding over to help, since she's already standing close to where 4 is headed.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(140, 180, "defender", "X4"),
+          p(185, 195, "teammate", "5"),
+          p(228, 68, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "rollComplete",
+        narration: "Phase 4 — Roll. 5 continues down to the far block. The defender who was on her is now committed to helping on 4, and 4's original defender is still recovering from the screen — nobody is left on 5 at all.",
+        know: [
+          {
+            forLabel: "5",
+            question: "You look up after your roll. Where is your defender?",
+            choices: ["Gone — she rotated over to help on 4, so you're the open one now", "Still attached to you the whole way"],
+            correct: 0,
+            explain: "When a screen forces a help rotation, the screener who rolls away from that help is usually the most open player on the floor. That's the payoff for setting a good screen.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(160, 140, "defender", "X4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(230, 60, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "decision",
+        narration: "Phase 5 — 3 reads the real defenders this time, not just a narrated read. 4's defender is still miles away recovering. 5's defender rotated onto 4 and is nowhere near 5.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "4", true),
+          p(160, 140, "defender", "X4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(230, 60, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          sequence: [
+            {
+              prompt: "First look: 4 is at the near block. Her own defender is still way out of the picture. Is she open?",
+              choices: [
+                {
+                  label: "Yes — pass to 4", target: "4", end: true,
+                  tag: "Good read — first option", cls: "good",
+                  text: "4's own defender never recovered from the screen — this is as open as the first option gets.",
+                  score: "goodRead",
+                },
+                { label: "Not open yet, keep reading", advance: true },
+              ],
+            },
+            {
+              prompt: "Second look: 5 rolled to the far block. Her defender rotated away to cover 4 instead. Is she open?",
+              choices: [
+                {
+                  label: "Yes — pass to 5", target: "5", end: true,
+                  tag: "Good read — often the best look", cls: "good",
+                  text: "5's defender fully committed to helping on 4, so 5 is the one left standing by herself after the roll.",
+                  score: "goodRead", correct: true,
+                },
+                { label: "Not open yet, keep reading", advance: true },
+              ],
+            },
+            {
+              prompt: "Neither is open and the count is climbing toward five seconds. What now?",
+              choices: [
+                {
+                  label: "Safety pass to 1 or 2", target: "1", end: true,
+                  tag: "Safe read", cls: "silver",
+                  text: "Getting it inbounds to a safety outlet beats a five-second count every time.",
+                  score: "acceptableRead",
+                },
+                {
+                  label: "Lob it up to 4 or 5 in the post", target: "5", end: true,
+                  tag: "Good read", cls: "good",
+                  text: "A high, soft lob still gives your post player a real chance to go up and get it, even late.",
+                  score: "goodRead",
+                },
+                {
+                  label: "Force a bounce pass right at a defender", target: "4", end: true,
+                  tag: "Avoid this", cls: "bad",
+                  text: "With real defenders in the picture now, a forced pass straight at one of them is an even easier steal. Take the lob or the safety outlet instead.",
+                  score: "forcedBad",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+
   up: {
     id: "up",
     name: "WIDE UP",
@@ -735,9 +896,122 @@ const PLAYS = {
       },
     ],
   },
+
+  slipD: {
+    id: "slipD",
+    name: "WIDE SLIP vs Defense",
+    phases: [
+      {
+        id: "start",
+        narration: "WIDE SLIP vs Defense — same starting alignment as WIDE SLIP, but now with real defenders on the floor. 3 is the inbounder. 5 lines up near the ball-side block with a defender on her. 4 is at the opposite elbow with a defender on her too. 1 and 2 are in the corners, unguarded.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(150, 190, "defender", "X4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(245, 90, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "smack",
+        narration: "Phase 1 — Ball smack. Same start as always — 3 slaps it, everyone holds for a beat, defenders included.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(150, 190, "defender", "X4"),
+          p(BLOCK_R.x, BLOCK_R.y, "teammate", "5"),
+          p(245, 90, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "switchCheat",
+        narration: "Phase 2 — 5 starts the same trip toward 4 like a normal screen. Both defenders start cheating toward the middle early, already getting ready to switch before anything has actually happened.",
+        know: [
+          {
+            forLabel: "5",
+            question: "Both defenders are already cheating toward a switch. What does that tell you?",
+            choices: ["They're ready to trade you for each other right where you are now — the perfect moment to slip away instead", "Nothing — keep heading to set the real screen no matter what they do"],
+            correct: 0,
+            explain: "If both defenders are already committing to a switch before the screen even lands, finishing that screen just walks you into a defender who's ready for you. Slipping away attacks the switch instead of feeding it.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(120, 135, "defender", "X4"),
+          p(144, 100, "teammate", "5"),
+          p(190, 110, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "slipAway",
+        narration: "Phase 3 — Slip. 5 cuts away to the other block instead of finishing the screen. Both defenders are still out of position near the middle of the lane, sorting out a switch that never needed to happen.",
+        know: [
+          {
+            forLabel: "3",
+            question: "Both defenders are caught out of position near the middle of the lane, and 5 just cut to the other block alone. What should you recognize?",
+            choices: ["The slip just created an immediate scoring opportunity for #5", "Nothing has changed, make the normal read"],
+            correct: 0,
+            explain: "Neither defender is anywhere near 5 after cheating the switch. That has to be recognized the instant it happens.",
+          },
+        ],
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(118, 133, "defender", "X4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(188, 108, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+      },
+      {
+        id: "decision",
+        narration: "Phase 4 — 3 recognizes the slip and reads the real defenders.",
+        players: [
+          p(INBOUNDER_SPOT.x, INBOUNDER_SPOT.y, "ball", "3"),
+          p(ELBOW_L.x, ELBOW_L.y, "teammate", "4"),
+          p(118, 133, "defender", "X4"),
+          p(BLOCK_L.x, BLOCK_L.y, "teammate", "5", true),
+          p(188, 108, "defender", "X5"),
+          p(CORNER_L.x, CORNER_L.y, "teammate", "1"),
+          p(CORNER_R.x, CORNER_R.y, "teammate", "2"),
+        ],
+        decision: {
+          prompt: "5 never finished the screen — she cut away while both defenders were still out of position near the middle of the lane. What should the inbounder recognize?",
+          choices: [
+            {
+              label: "The slip may create an immediate scoring opportunity for #5", target: "5",
+              tag: "Good read", cls: "good",
+              text: "Neither defender is anywhere near 5 after cheating the switch — reading that the instant it happens is the whole teaching point of WIDE SLIP.",
+              score: "goodRead", correct: true,
+            },
+            {
+              label: "Nothing has changed, proceed with the normal read", target: "4",
+              tag: "Missed the slip", cls: "silver",
+              text: "Something did change — both defenders committed to a switch that 5 never let happen. That's the opening.",
+              score: "acceptableRead",
+            },
+            {
+              label: "Pass to 4 regardless", target: "4",
+              tag: "Missed the slip", cls: "silver",
+              text: "4's defender is also out of position from cheating the switch, but 5 is the one standing completely alone. The faster read is recognizing the slip.",
+              score: "acceptableRead",
+            },
+          ],
+        },
+      },
+    ],
+  },
 };
 
-const PLAY_ORDER = ["base", "up", "under", "slip"];
+const PLAY_ORDER = ["base", "wideD", "up", "under", "slip", "slipD"];
 
 /* ---------------------------------------------------------------------
    SHARED HELPERS
@@ -832,7 +1106,7 @@ function renderPlayPicker() {
   main.innerHTML = `
     <div class="instructions">
       <h2>Which play?</h2>
-      <p>WIDE has four calls, all off the same starting look.</p>
+      <p>WIDE has four calls, all off the same starting look. Two also have a "vs Defense" version with real defenders on the floor.</p>
       <div class="player-select-row" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
         ${PLAY_ORDER.map(k => `<button class="ghost-btn" data-play="${k}" style="text-align:left;">${PLAYS[k].name}</button>`).join("")}
       </div>
