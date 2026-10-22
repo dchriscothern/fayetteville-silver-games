@@ -531,7 +531,7 @@ function renderStep() {
 
   let html = `
     <div class="progress">
-      <span>${sc.title}</span>
+      <span>${sc.title}${currentStep.decision > 1 ? ` &middot; decision ${currentStep.decision}` : ""}</span>
       ${mode === "timed" ? `<span class="timer" id="timerDisplay">0:15</span>` : ""}
     </div>
   `;
@@ -575,6 +575,7 @@ function handleChoice(choice) {
   clearTimer();
   if (choice.goto) {
     currentStep.stepKey = choice.goto;
+    currentStep.decision = (currentStep.decision || 1) + 1;
     renderStep();
   } else if (choice.result) {
     renderResult(choice.result);
@@ -603,7 +604,7 @@ function renderResultBlock(result) {
       <span class="tag">${result.tag}</span>
       <div>${result.text}</div>
     </div>
-    <button class="next-btn" id="continueBtn">Next &rarr;</button>
+    <button class="next-btn" id="continueBtn">${idx >= order.length - 1 ? "See my results" : "Next"} &rarr;</button>
   `;
 }
 
@@ -631,6 +632,7 @@ function startTimer(step) {
       const fallback = step.choices[0];
       if (fallback.goto) {
         currentStep.stepKey = fallback.goto;
+        currentStep.decision = (currentStep.decision || 1) + 1;
         renderStep();
       } else if (fallback.result) {
         const timedOutResult = Object.assign({}, fallback.result, {
@@ -669,7 +671,7 @@ function renderSummary() {
     </div>
   `;
   document.getElementById("replayBtn").onclick = () => startGame();
-  document.getElementById("menuBtn").onclick = () => renderIntro();
+  document.getElementById("menuBtn").onclick = () => startGame();
 }
 
 // boot

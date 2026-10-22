@@ -45,6 +45,24 @@ family with six variations and three ways to study each one.
   this same `<header>` opening and the `.back-link` CSS rule from any existing
   game file.
 
+## Court drawing (all games)
+
+- Court is a 300x400 viewBox: rim at (150,30), lane x 95–205 / y 10–175 (free-throw
+  line y=175), blocks about (85,75) and (215,75), wings about (55,180) and (245,180).
+  A token's head sits ~35 units above its y, so a defender straight in front of a
+  player needs ~60 units of vertical gap or she hides that player's head.
+- Opponents wear light jerseys (`light` in `JERSEY_COLORS`, dark outline and dark
+  label). Rotation Rescue is the exception: our team is the defense there (purple)
+  and the offense keeps its green/blue colors.
+- Players should be where the play actually puts them: cutters finish at the
+  blocks or rim, not trailing beside the ball. Coach Chris reviews spots by
+  screenshot; Advantage Hunter was repositioned to his marked-up images.
+- Multi-decision scenarios show "· decision N" next to the title, and the last
+  scenario's button reads "See my results", so a long final scenario doesn't look
+  like the game forgot to end. "Change Mode" on the results screen calls
+  `startGame()`; it used to call `renderIntro()`, which skipped straight back to
+  results and saved the same score again.
+
 ## WIDE (`wide_base.html`) — the play family
 
 Six plays, picked from a play-picker screen, each with three modes:
