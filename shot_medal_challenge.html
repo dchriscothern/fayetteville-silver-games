@@ -275,6 +275,7 @@ const SCENARIOS = [
     rate: {
       players: [
         { x: 150, y: 110, role: "ball", label: "1" },
+        { x: 245, y: 290, role: "defender", label: "X" },
       ],
       prompt: "How do we rate this shot?",
       choices: [
@@ -301,7 +302,8 @@ const SCENARIOS = [
   steps: {
     rate: {
       players: [
-        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 205, role: "ball", label: "1" },
+        { x: 60, y: 320, role: "defender", label: "X" },
       ],
       prompt: "How do we rate this shot?",
       choices: [
@@ -329,7 +331,7 @@ const SCENARIOS = [
     rate: {
       players: [
         { x: 150, y: 250, role: "ball", label: "1" },
-        { x: 150, y: 220, role: "defender", label: "X" },
+        { x: 150, y: 190, role: "defender", label: "X" },
       ],
       prompt: "How do we rate this shot?",
       choices: [
@@ -358,6 +360,7 @@ const SCENARIOS = [
       players: [
         { x: 150, y: 250, role: "ball", label: "1" },
         { x: 150, y: 100, role: "teammate", label: "2", open: true },
+        { x: 250, y: 330, role: "defender", label: "X" },
       ],
       prompt: "You're open, but so is 2. How do we rate your shot here?",
       choices: [
@@ -384,8 +387,8 @@ const SCENARIOS = [
   steps: {
     rate: {
       players: [
-        { x: 150, y: 120, role: "ball", label: "1" },
-        { x: 150, y: 95, role: "defender", label: "X" },
+        { x: 140, y: 130, role: "ball", label: "1" },
+        { x: 165, y: 80, role: "defender", label: "X" },
       ],
       prompt: "How do we rate this shot?",
       choices: [
@@ -407,15 +410,17 @@ const SCENARIOS = [
 {
   id: "m6",
   title: "Full Read: Rate It and Act",
-  setup: "You're 1, open just outside the lane. 2 is also open, but she's at the same distance, not more open than you.",
+  setup: "You're 1, open just outside the lane. 2 is also open, but she's farther out than you, not more open. Two defenders are back in the lane.",
   start: "rate",
   steps: {
     rate: {
       players: [
-        { x: 150, y: 250, role: "ball", label: "1" },
+        { x: 150, y: 205, role: "ball", label: "1" },
         { x: 230, y: 255, role: "teammate", label: "2" },
+        { x: 120, y: 85, role: "defender", label: "X" },
+        { x: 180, y: 125, role: "defender", label: "X" },
       ],
-      prompt: "Nobody is closer to the rim than the other. How do we rate your shot?",
+      prompt: "2 is open too, but she's farther from the rim than you. How do we rate your shot?",
       choices: [
         { label: "Silver medal, take your own open shot", result: {
           tag: "Silver shot", cls: "silver",
