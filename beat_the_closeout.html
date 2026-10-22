@@ -679,12 +679,12 @@ const SCENARIOS = [
   steps: {
     attack: {
       players: [
-        { x: 150, y: 160, role: "ball", label: "1" },
-        { x: 230, y: 230, role: "teammate", label: "2", open: true },
-        { x: 170, y: 120, role: "defender", label: "X" },
-        { x: 195, y: 190, role: "defender", label: "X" },
+        { x: 150, y: 165, role: "ball", label: "1" },
+        { x: 240, y: 55, role: "teammate", label: "2", open: true },
+        { x: 130, y: 110, role: "defender", label: "X" },
+        { x: 195, y: 108, role: "defender", label: "X" },
       ],
-      prompt: "2 is open in the lane, but a defender is sitting right in that passing lane. What do you do?",
+      prompt: "2 is open at the short corner, but a defender is sitting right in that passing lane. What do you do?",
       choices: [
         { label: "Fake a pass one way, then make the real pass", sub: "Fake a pass to make a pass", goto: "fake_works" },
         { label: "Throw the real pass straight through her", goto: "no_fake" },
@@ -692,21 +692,24 @@ const SCENARIOS = [
     },
     fake_works: {
       players: [
-        { x: 150, y: 160, role: "ball", label: "1" },
-        { x: 230, y: 230, role: "teammate", label: "2", open: true },
-        { x: 200, y: 170, role: "defender", label: "X" },
+        { x: 150, y: 165, role: "ball", label: "1" },
+        { x: 240, y: 55, role: "teammate", label: "2", open: true },
+        { x: 130, y: 110, role: "defender", label: "X" },
+        { x: 205, y: 175, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
-        text: "Fake a pass to make a pass. The fake moved the help defender just enough to open the real lane, and 2 finishes in the paint for a gold medal shot.",
+        text: "Fake a pass to make a pass. The fake pulled the help defender out of the lane, and 2 catches at the short corner and takes one step to the rim for a gold medal finish.",
         score: "goodRead", shot: "gold"
       },
     },
     no_fake: {
       players: [
-        { x: 150, y: 160, role: "ball", label: "1" },
-        { x: 195, y: 190, role: "defender", label: "X" },
+        { x: 150, y: 165, role: "ball", label: "1" },
+        { x: 240, y: 55, role: "teammate", label: "2" },
+        { x: 130, y: 110, role: "defender", label: "X" },
+        { x: 195, y: 108, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {

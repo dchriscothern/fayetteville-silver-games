@@ -269,41 +269,58 @@ const SCENARIOS = [
 {
   id: "d1",
   title: "Clear the Lane",
-  setup: "You're 2, off the ball. Your teammate 1 is about to drive from the wing, and you're standing right where she wants to go.",
+  setup: "You're 2, off the ball. Your teammate 1 has the ball on the wing and is about to drive baseline, and you're standing right where she wants to go.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 260, role: "teammate", label: "1" },
-        { x: 150, y: 150, role: "ball", label: "2" },
+        { x: 240, y: 200, role: "ball", label: "1" },
+        { x: 210, y: 150, role: "defender", label: "X" },
+        { x: 215, y: 80, role: "teammate", label: "2" },
       ],
-      prompt: "1 is about to drive baseline. What should you do?",
+      prompt: "1 is about to drive baseline and you're in her way. What should you do?",
       choices: [
-        { label: "Move to open space, clear the lane", goto: "move" },
+        { label: "Clear out and leave the lane", sub: "Give her room to drive", goto: "move" },
+        { label: "Set a screen on her defender", sub: "Free her up, then roll", goto: "screen" },
         { label: "Stay right where you are", goto: "stay" },
       ],
     },
     move: {
       players: [
-        { x: 150, y: 110, role: "teammate", label: "1" },
-        { x: 230, y: 170, role: "ball", label: "2", open: true },
+        { x: 205, y: 75, role: "ball", label: "1" },
+        { x: 230, y: 140, role: "defender", label: "X" },
+        { x: 65, y: 170, role: "teammate", label: "2", open: true },
       ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
-        text: "Moving to open space clears the driving lane and gives her a passing target if help shows up. That's good spacing.",
+        text: "Clearing out leaves her the whole lane to drive, and you're open on the other side if help shows up. That's good spacing.",
+        score: "goodRead"
+      },
+    },
+    screen: {
+      players: [
+        { x: 190, y: 85, role: "ball", label: "1" },
+        { x: 225, y: 175, role: "defender", label: "X" },
+        { x: 250, y: 150, role: "teammate", label: "2", open: true },
+      ],
+      prompt: null,
+      result: {
+        tag: "Good read", cls: "good",
+        text: "A screen on her defender works too. 1 drives right off it, and you're ready to roll to the rim if your defender helps.",
         score: "goodRead"
       },
     },
     stay: {
       players: [
-        { x: 150, y: 190, role: "teammate", label: "1" },
-        { x: 150, y: 150, role: "ball", label: "2" },
+        { x: 240, y: 165, role: "ball", label: "1" },
+        { x: 215, y: 125, role: "defender", label: "X" },
+        { x: 215, y: 70, role: "teammate", label: "2" },
       ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
-        text: "Standing in the exact spot she's driving to clogs the lane for both of you. Clear out and give her the room.",
+        text: "Standing in the exact spot she's driving to clogs the lane for both of you. Clear out or set her a screen, but don't stand there.",
         score: "earlyPass"
       },
     },
@@ -313,44 +330,44 @@ const SCENARIOS = [
 {
   id: "d2",
   title: "Show Your Hands",
-  setup: "You're 2. Your teammate is being guarded closely and needs somewhere to pass.",
+  setup: "You're 2 on the wing. Your defender is between you and the ball and all over you, so 1 has nowhere to pass.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 260, role: "teammate", label: "1" },
-        { x: 150, y: 190, role: "defender", label: "X" },
-        { x: 60, y: 300, role: "ball", label: "2" },
+        { x: 150, y: 240, role: "ball", label: "1" },
+        { x: 210, y: 205, role: "defender", label: "X" },
+        { x: 245, y: 190, role: "teammate", label: "2" },
       ],
-      prompt: "1 is covered tightly and has nowhere obvious to go. What's your job?",
+      prompt: "Your defender is right between you and the ball, all over you. What's your job?",
       choices: [
-        { label: "Relocate to open space and show your hands", goto: "relocate" },
+        { label: "Get open: step in hard, pop back out, show your hands", goto: "relocate" },
         { label: "Stay exactly where you are and wait", goto: "wait" },
       ],
     },
     relocate: {
       players: [
-        { x: 150, y: 260, role: "ball", label: "1" },
-        { x: 190, y: 220, role: "teammate", label: "2", open: true },
-        { x: 150, y: 190, role: "defender", label: "X" },
+        { x: 150, y: 240, role: "teammate", label: "1" },
+        { x: 215, y: 175, role: "defender", label: "X" },
+        { x: 250, y: 250, role: "ball", label: "2", open: true },
       ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
-        text: "Moving to open space and showing your hands gives your teammate a real option. Spacing helps her get out of pressure.",
+        text: "She was all over you, so you moved: step in hard, pop back out to open space, and show your hands. Now 1 has a safe pass.",
         score: "goodRead"
       },
     },
     wait: {
       players: [
-        { x: 150, y: 260, role: "teammate", label: "1" },
-        { x: 150, y: 190, role: "defender", label: "X" },
-        { x: 60, y: 300, role: "ball", label: "2" },
+        { x: 150, y: 240, role: "ball", label: "1" },
+        { x: 210, y: 205, role: "defender", label: "X" },
+        { x: 245, y: 190, role: "teammate", label: "2" },
       ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
-        text: "If you don't move, you're not giving her anywhere to go. Relocate to open space so she has an outlet.",
+        text: "If you stand still while she's all over you, 1 has nowhere to pass. Move to get open, then show your hands.",
         score: "earlyPass"
       },
     },
@@ -508,8 +525,8 @@ const SCENARIOS = [
   steps: {
     clear: {
       players: [
-        { x: 150, y: 260, role: "teammate", label: "1" },
-        { x: 150, y: 200, role: "ball", label: "2" },
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 150, y: 200, role: "teammate", label: "2" },
         { x: 170, y: 160, role: "defender", label: "X" },
       ],
       prompt: "You're standing in your teammate's driving lane. What's your first job?",
@@ -520,8 +537,8 @@ const SCENARIOS = [
     },
     skip: {
       players: [
-        { x: 150, y: 260, role: "teammate", label: "1" },
-        { x: 150, y: 200, role: "ball", label: "2" },
+        { x: 150, y: 260, role: "ball", label: "1" },
+        { x: 150, y: 200, role: "teammate", label: "2" },
       ],
       prompt: null,
       result: {
