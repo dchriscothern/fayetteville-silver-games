@@ -7,15 +7,27 @@ architecture or the WIDE play family changes, the same way you'd update a README
 
 ## What this is
 
-A set of 9 standalone browser games for an 11-year-old girls basketball team, played
-through a hub page (`index.html`). Eight are decision-training scenario games
-(Advantage Hunter, Rotation Rescue, Beat the Closeout, Last 90 Seconds, Spacing
-Detective, Post Player Power, Shot Medal Challenge, Shooting Form). The ninth,
+A set of 10 standalone browser games for an 11-year-old girls basketball team, played
+through a hub page (`index.html`) that groups them under **Defense** and **Offense**
+headings (`SECTIONS` and each game's `section` in `GAMES`). Nine are
+decision-training scenario games (Defense: Rotation Rescue, Defend Without Fouling,
+Spacing Detective; Offense: Advantage Hunter, Beat the Closeout, Last 90 Seconds,
+Post Player Power, Shot Medal Challenge, Shooting Form). The tenth,
 `wide_base.html`, is a different kind of thing: a full baseline-out-of-bounds play
 family with six variations and three ways to study each one.
 
 ## Architecture (read this before editing any game file)
 
+- Coach Chris's defensive rules (Rotation Rescue): at this age we **go under** ball
+  screens; call "Screen coming left/right!" when your girl goes to set one; on their
+  best player, hand in her face, face-guard, no help off her; "tag" = jump in front
+  of a cutter. Green (great shooter, never leave open) / blue (can't shoot, can
+  sag) are taught only as advanced ideas; coaches say when we face a green.
+- `defend_no_foul.html` was cloned from Rotation Rescue. Its "three ways" are move
+  your feet, reach for the stars (verticality), take a charge. "Move your feet" was
+  our assumption for the third way; confirm with Coach Chris. It has a `VIDEOS`
+  map at the top of its script: paste a YouTube link per scenario id and a
+  "Watch it on video" button appears under that answer.
 - Each game is **one self-contained `.html` file** — inline `<style>` and
   `<script>`, no external JS. Every file is ~200–245KB because the same large
   base64-encoded face images (`FACES`, in `assets/faces_b64.json` conceptually,

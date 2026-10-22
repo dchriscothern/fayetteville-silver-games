@@ -268,45 +268,45 @@ const SCENARIOS = [
 
 {
   id: "p1",
-  title: "Get the Seal",
-  setup: "You're 5, posting up. Your teammate has the ball on the wing and your defender is still on the low side.",
+  title: "Get Big, Get the Seal",
+  setup: "You're 5, posting up on the right block. 1 has the ball on the wing and your defender is on your low side, toward the baseline.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 115, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
-      prompt: "How do you help the passer get you the ball?",
+      prompt: "How do you help 1 get you the ball?",
       choices: [
-        { label: "Get a legal seal and show a target hand", goto: "sealed" },
+        { label: "Get big and seal her off, then put your hand where you want the pass", sub: "Up or down, away from her", goto: "sealed" },
         { label: "Stand still with your hands down", goto: "no_seal" },
       ],
     },
     sealed: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5", open: true },
-        { x: 150, y: 120, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5", open: true },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Good read", cls: "good",
-        text: "Use your feet and body position to legally hold the defender behind you, then show a clear target hand so the passer knows exactly where to throw it.",
+        text: "Get big: wide feet, arms out, and use your body to hold her on your back. That seal opens the passing lane. Once it's open, put your hand up or down right where you want the pass, away from her.",
         score: "goodRead"
       },
     },
     no_seal: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 135, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
-        text: "Without a seal and a target, your defender can slide in front and take away the easy entry. Get position first, then show your hand.",
+        text: "Standing still let your defender slide right in front of you and take the passing lane. Get big and seal her first, then show your hand where you want it.",
         score: "earlyPass"
       },
     },
@@ -316,42 +316,44 @@ const SCENARIOS = [
 {
   id: "p2",
   title: "Show the Target",
-  setup: "You're 5, sealed on your low side. The passer can see your high hand.",
+  setup: "You're 5, sealed on the right block. Your defender is behind you on the low side.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
-      prompt: "Your defender is sealed low. Where should you target the pass?",
+      prompt: "You've got a good passing lane. Where do you put your hand?",
       choices: [
-        { label: "Show your high hand, away from the defender", goto: "high_target" },
-        { label: "Show your hand on the same side as the defender", goto: "bad_target" },
+        { label: "Up or down where you want it, away from your defender", goto: "high_target" },
+        { label: "On the same side as your defender", goto: "bad_target" },
       ],
     },
     high_target: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
+        { x: 245, y: 195, role: "teammate", label: "1" },
+        { x: 195, y: 90, role: "ball", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Gold medal shot", cls: "gold",
-        text: "Show the target away from the defender based on your seal, high or low. The pass comes in clean and you catch it in the lane, gold medal shot.",
+        text: "Your hand tells the passer exactly where to throw it, away from your defender. The pass comes in clean and you catch it on the block, gold medal shot.",
         score: "goodRead", shot: "gold"
       },
     },
     bad_target: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
-        text: "Targeting the side the defender is already on invites a steal. Show your hand away from her, not toward her.",
+        text: "Putting your hand on her side invites a steal. Show it away from her, up or down, wherever the lane is open.",
         score: "earlyPass"
       },
     },
@@ -361,13 +363,13 @@ const SCENARIOS = [
 {
   id: "p3",
   title: "Catch and Pivot",
-  setup: "You're 5. You caught the ball in the post with your back partly to the rim. You have room to turn.",
+  setup: "You're 5. You caught the ball on the left block with your back to the rim. You have room to turn.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 120, role: "defender", label: "X" },
+        { x: 105, y: 95, role: "ball", label: "5" },
+        { x: 125, y: 50, role: "defender", label: "X" },
       ],
       prompt: "You've caught it strong. What's your next step?",
       choices: [
@@ -377,8 +379,8 @@ const SCENARIOS = [
     },
     pivoted: {
       players: [
-        { x: 150, y: 80, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
+        { x: 105, y: 90, role: "ball", label: "5" },
+        { x: 135, y: 50, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -389,8 +391,8 @@ const SCENARIOS = [
     },
     travel: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 120, role: "defender", label: "X" },
+        { x: 105, y: 95, role: "ball", label: "5" },
+        { x: 125, y: 50, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -404,16 +406,110 @@ const SCENARIOS = [
 
 {
   id: "p4",
-  title: "Finish in the Lane",
-  setup: "You're 5. You pivoted and turned to face the rim. Nobody has stopped you.",
+  title: "Keep It High",
+  setup: "You're 5. You caught the ball up high, right next to the rim. A guard is close by.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 80, role: "ball", label: "5" },
+        { x: 180, y: 70, role: "ball", label: "5" },
+        { x: 210, y: 35, role: "defender", label: "X" },
+        { x: 130, y: 115, role: "defender", label: "X" },
+      ],
+      prompt: "You've got it up high, close to the rim. What do you do?",
+      choices: [
+        { label: "Keep it up high and shoot from there", goto: "keep_high" },
+        { label: "Bring it down to gather, then go back up", goto: "bring_down" },
+      ],
+    },
+    keep_high: {
+      players: [
+        { x: 175, y: 60, role: "ball", label: "5" },
+        { x: 210, y: 35, role: "defender", label: "X" },
+        { x: 130, y: 115, role: "defender", label: "X" },
+      ],
+      prompt: null,
+      result: {
+        tag: "Gold medal shot", cls: "gold",
+        text: "That's it. You're already up high and right at the rim, so keep it there and shoot. The guards can't reach it up there.",
+        score: "goodRead", shot: "gold"
+      },
+    },
+    bring_down: {
+      players: [
+        { x: 180, y: 75, role: "ball", label: "5" },
+        { x: 210, y: 35, role: "defender", label: "X" },
         { x: 150, y: 110, role: "defender", label: "X" },
       ],
-      prompt: "You're facing the rim in the lane with a clean look. What do you do?",
+      prompt: null,
+      result: {
+        tag: "Bad shot", cls: "bad",
+        text: "Bringing it down low gives the guards a chance to slap it away. If you catch it high near the rim, keep it high and shoot from there.",
+        score: "forcedBad", shot: "bad"
+      },
+    },
+  },
+},
+
+{
+  id: "p5",
+  title: "Three Seconds",
+  setup: "You're 5. You've been standing in the middle of the lane, waiting to post up.",
+  start: "attack",
+  steps: {
+    attack: {
+      players: [
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 150, y: 100, role: "teammate", label: "5" },
+        { x: 170, y: 145, role: "defender", label: "X" },
+      ],
+      prompt: "How long can you stay in the lane before you have to get out?",
+      choices: [
+        { label: "3 seconds, then step out and come back in", goto: "out" },
+        { label: "As long as I want, I don't have the ball", goto: "stay" },
+      ],
+    },
+    out: {
+      players: [
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 220, y: 90, role: "teammate", label: "5", open: true },
+        { x: 185, y: 135, role: "defender", label: "X" },
+      ],
+      prompt: null,
+      result: {
+        tag: "Good read", cls: "good",
+        text: "Three seconds. If a ref calls 3 seconds in the lane, it's a turnover. Many refs will warn you first by saying \"get out of the lane.\" If you keep moving and cross the lane, they usually won't call it, and you can post up on the block right outside the lane as long as you want.",
+        score: "goodRead"
+      },
+    },
+    stay: {
+      players: [
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 150, y: 100, role: "teammate", label: "5" },
+        { x: 170, y: 145, role: "defender", label: "X" },
+      ],
+      prompt: null,
+      result: {
+        tag: "Read", cls: "silver",
+        text: "You only get 3 seconds in the lane, with or without the ball. If the ref calls it, it's a turnover. Step out to the block right outside the lane, then come back in.",
+        score: "earlyPass"
+      },
+    },
+  },
+},
+
+{
+  id: "p6",
+  title: "Finish on the Block",
+  setup: "You're 5. You pivoted on the right block and turned to face the rim. Nobody has stopped you.",
+  start: "attack",
+  steps: {
+    attack: {
+      players: [
+        { x: 195, y: 90, role: "ball", label: "5" },
+        { x: 230, y: 135, role: "defender", label: "X" },
+      ],
+      prompt: "You're facing the rim on the block with a clean look. What do you do?",
       choices: [
         { label: "Take the shot, you're in the lane", goto: "shoot" },
         { label: "Dribble back out instead", goto: "back_out" },
@@ -421,8 +517,8 @@ const SCENARIOS = [
     },
     shoot: {
       players: [
-        { x: 150, y: 75, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
+        { x: 185, y: 75, role: "ball", label: "5" },
+        { x: 230, y: 135, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -433,8 +529,8 @@ const SCENARIOS = [
     },
     back_out: {
       players: [
-        { x: 150, y: 140, role: "ball", label: "5" },
-        { x: 150, y: 150, role: "defender", label: "X" },
+        { x: 210, y: 175, role: "ball", label: "5" },
+        { x: 225, y: 120, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -447,17 +543,17 @@ const SCENARIOS = [
 },
 
 {
-  id: "p5",
+  id: "p7",
   title: "Double-Team Read",
-  setup: "You're 5. You caught it in the post and pivoted, but a second defender rotates in to help.",
+  setup: "You're 5. You caught it on the left block and pivoted, but a second defender rotates in to help.",
   start: "attack",
   steps: {
     attack: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 120, role: "defender", label: "X" },
-        { x: 190, y: 140, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1", open: true },
+        { x: 105, y: 95, role: "ball", label: "5" },
+        { x: 125, y: 50, role: "defender", label: "X" },
+        { x: 150, y: 130, role: "defender", label: "X" },
+        { x: 55, y: 200, role: "teammate", label: "1", open: true },
       ],
       prompt: "A second defender has arrived to help. 1 is wide open on the wing. What now?",
       choices: [
@@ -467,8 +563,10 @@ const SCENARIOS = [
     },
     kick_out: {
       players: [
-        { x: 230, y: 230, role: "ball", label: "1" },
-        { x: 150, y: 90, role: "teammate", label: "5" },
+        { x: 55, y: 200, role: "ball", label: "1" },
+        { x: 105, y: 95, role: "teammate", label: "5" },
+        { x: 125, y: 50, role: "defender", label: "X" },
+        { x: 150, y: 130, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -479,9 +577,9 @@ const SCENARIOS = [
     },
     force: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 120, role: "defender", label: "X" },
-        { x: 190, y: 140, role: "defender", label: "X" },
+        { x: 105, y: 95, role: "ball", label: "5" },
+        { x: 125, y: 50, role: "defender", label: "X" },
+        { x: 150, y: 130, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -494,40 +592,41 @@ const SCENARIOS = [
 },
 
 {
-  id: "p6",
+  id: "p8",
   title: "Full Post Sequence",
-  setup: "You're 5. Start to finish: seal, target, catch, pivot, then react to whatever the defense gives you.",
+  setup: "You're 5 on the right block. Start to finish: get big, seal, target, catch, pivot, then react to whatever the defense gives you.",
   start: "seal",
   steps: {
     seal: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 110, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
-      prompt: "Your teammate has the ball on the wing. What's your first job?",
+      prompt: "1 has the ball on the wing. What's your first job?",
       choices: [
-        { label: "Seal your defender and show a target", goto: "caught" },
+        { label: "Get big, seal your defender, and show your hand", goto: "caught" },
         { label: "Wait for the ball to find you", goto: "no_seal" },
       ],
     },
     no_seal: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 105, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1" },
+        { x: 245, y: 195, role: "ball", label: "1" },
+        { x: 195, y: 90, role: "teammate", label: "5" },
+        { x: 220, y: 135, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
         tag: "Read", cls: "silver",
-        text: "The post entry doesn't happen without a seal and a target first. Get position, then catch.",
+        text: "The post entry doesn't happen without a seal and a target first. Get big, get position, then catch.",
         score: "earlyPass"
       },
     },
     caught: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 115, role: "defender", label: "X" },
+        { x: 245, y: 195, role: "teammate", label: "1" },
+        { x: 195, y: 90, role: "ball", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
       ],
       prompt: "Good entry. Now what?",
       choices: [
@@ -537,8 +636,9 @@ const SCENARIOS = [
     },
     dribble_away: {
       players: [
-        { x: 150, y: 110, role: "ball", label: "5" },
-        { x: 150, y: 115, role: "defender", label: "X" },
+        { x: 245, y: 195, role: "teammate", label: "1" },
+        { x: 190, y: 130, role: "ball", label: "5" },
+        { x: 215, y: 80, role: "defender", label: "X" },
       ],
       prompt: null,
       result: {
@@ -549,16 +649,16 @@ const SCENARIOS = [
     },
     pivoted: {
       players: [
-        { x: 150, y: 90, role: "ball", label: "5" },
-        { x: 150, y: 115, role: "defender", label: "X" },
-        { x: 185, y: 140, role: "defender", label: "X" },
-        { x: 230, y: 230, role: "teammate", label: "1", open: true },
+        { x: 245, y: 195, role: "teammate", label: "1", open: true },
+        { x: 195, y: 90, role: "ball", label: "5" },
+        { x: 220, y: 50, role: "defender", label: "X" },
+        { x: 150, y: 125, role: "defender", label: "X" },
       ],
       prompt: "You turn and see a second defender has rotated to help. 1 is open on the wing. What now?",
       choices: [
         { label: "Kick it out to 1", result: {
           tag: "Silver shot", cls: "silver",
-          text: "Full sequence: seal, target, catch, pivot, and now the right read when help arrives. She's open, that's the pass.",
+          text: "Full sequence: get big, seal, target, catch, pivot, and now the right read when help arrives. She's open, that's the pass.",
           score: "goodRead", shot: "silver"
         }},
         { label: "Shoot it through both defenders", result: {
@@ -627,11 +727,13 @@ function renderIntro() {
   main.innerHTML = `
     <div class="instructions">
       <h2>How to play</h2>
-      <p>Six post-up situations. Footwork and position come first, the shot comes last.</p>
+      <p>${SCENARIOS.length} post-up situations. Footwork and position come first, the shot comes last.</p>
       <ul>
         <li>Purple with a number is our team. X is a defender.</li>
-        <li>Seal your defender and show a target hand, high or low, away from her.</li>
+        <li>Get big and seal your defender to open a passing lane. Then put your hand up or down where you want the pass, away from her.</li>
         <li>Catch strong, establish a legal pivot foot, then turn to the rim.</li>
+        <li>Catch it high near the rim? Keep it high and shoot. Guards slap it away if you bring it down.</li>
+        <li>Only 3 seconds in the lane. Post on the block as long as you want.</li>
         <li>If help arrives, someone else is open, same rule as everywhere else.</li>
       </ul>
       <div class="chip-row">

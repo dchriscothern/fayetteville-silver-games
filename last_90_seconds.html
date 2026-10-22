@@ -521,10 +521,10 @@ const SCENARIOS = [
     attack: {
       players: [
         { x: 150, y: 270, role: "ball", label: "1" },
-        { x: 60, y: 260, role: "teammate", label: "2" },
+        { x: 60, y: 120, role: "teammate", label: "2" },
         { x: 240, y: 260, role: "teammate", label: "3" },
-        { x: 140, y: 180, role: "defender", label: "X" },
-        { x: 200, y: 150, role: "defender", label: "X" },
+        { x: 150, y: 210, role: "defender", label: "X" },
+        { x: 200, y: 130, role: "defender", label: "X" },
       ],
       clock: "0:10",
       prompt: "You attack and a defender finally stops you. 2 looks open. What now?",
@@ -539,10 +539,10 @@ const SCENARIOS = [
     },
     closed_out: {
       players: [
-        { x: 60, y: 260, role: "ball", label: "2" },
+        { x: 60, y: 120, role: "ball", label: "2" },
         { x: 150, y: 270, role: "teammate", label: "1" },
         { x: 240, y: 260, role: "teammate", label: "3", open: true },
-        { x: 70, y: 200, role: "defender", label: "X" },
+        { x: 85, y: 75, role: "defender", label: "X" },
       ],
       clock: "0:06",
       prompt: "Good pass, but a defender flies out and closes 2 down fast. 3 is wide open on the far side. What should 2 do?",
