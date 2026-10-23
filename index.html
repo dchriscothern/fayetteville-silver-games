@@ -123,7 +123,7 @@
           <div id="progressStats"></div>
         </div>
         <div class="card" id="progressNoPlayers" style="display:none;">
-          <p>No player is linked to this email yet. Ask your coach to link your account to your daughter's player code.</p>
+          <p>You're signed in! Your coach will connect your account to your daughter's player code. Check back later; you don't need to send another request.</p>
         </div>
       </div>
       <div class="card safety">
@@ -173,12 +173,20 @@
             <button class="ghost-btn" id="coachAddPlayer">Create code</button>
           </div>
           <p class="muted" id="coachAddPlayerStatus" role="status" style="margin-top:6px;"></p>
-          <label for="coachParentEmail" style="display:block;font-size:13px;font-weight:700;margin-top:14px;">Link a parent who opted in</label>
+          <div style="margin-top:14px;padding:12px;border-radius:10px;background:#f1ebf6;">
+            <div class="row">
+              <strong style="font-size:14px;">Pending Parents</strong>
+              <button class="ghost-btn" id="coachRefreshPending" type="button">Refresh</button>
+            </div>
+            <p class="muted" style="margin-top:4px;">Parents who have completed their optional email sign-in and aren't linked to a player yet. Select an email to fill the link form below.</p>
+            <div id="coachPendingList" style="margin-top:8px;" aria-live="polite">Loading when you sign in as coach...</div>
+          </div>
+          <label for="coachParentEmail" style="display:block;font-size:13px;font-weight:700;margin-top:14px;">Parent email</label>
           <input class="field" id="coachParentEmail" type="email" placeholder="Parent's signed-in email" autocomplete="off" style="margin-top:6px;">
           <label for="coachLinkPlayerPick" style="display:block;font-size:13px;font-weight:700;">Assign to player code</label>
           <select id="coachLinkPlayerPick" class="field"><option value="">Select player</option></select>
           <button class="big-btn" id="coachLinkParent">Link Parent</button>
-          <p class="muted" id="coachLinkStatus" role="status" style="margin-top:8px;">Ask the parent to sign in under My Progress first, then link their email here.</p>
+          <p class="muted" id="coachLinkStatus" role="status" style="margin-top:8px;">Select an email from Pending Parents, select the correct player code, and click Link Parent.</p>
         </div>
         <div class="card">
           <h2>Feedback for this player</h2>
@@ -388,6 +396,7 @@ async function refreshAuthUI() {
     $("coachNotAdmin").style.display = "none";
     $("coachSignedIn").style.display = "";
     await loadAllPlayersForCoach();
+    await loadPendingParents();
   } else {
     $("coachSignedOut").style.display = "none";
     $("coachNotAdmin").style.display = "";
@@ -511,6 +520,45 @@ async function loadAllPlayersForCoach() {
   if (allPlayers.length) renderCoachStats();
 }
 
+/* Coach-only list of parents who voluntarily signed in but are not yet linked.
+   A server-side admin check protects auth.users email addresses. */
+async function loadPendingParents() {
+  const target = $("coachPendingList");
+  if (!isAdmin) { target.textContent = ""; return; }
+  target.textContent = "Loading...";
+  const { data, error } = await supa.rpc("coach_pending_parents");
+  if (error) {
+    target.textContent = "Pending list unavailable. Run the one-time pending-parents SQL migration in Supabase.";
+    console.error(error);
+    return;
+  }
+  target.innerHTML = "";
+  if (!data || !data.length) {
+    target.textContent = "No parents waiting to be linked.";
+    return;
+  }
+  data.forEach(parent => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.style.cssText = "border-top:1px solid #dcd2e5;padding:8px 0;";
+    const email = document.createElement("span");
+    email.style.cssText = "font-size:12.5px;overflow-wrap:anywhere;flex:1;min-width:120px;";
+    email.textContent = parent.parent_email;
+    const select = document.createElement("button");
+    select.className = "ghost-btn";
+    select.type = "button";
+    select.textContent = "Select";
+    select.onclick = () => {
+      $("coachParentEmail").value = parent.parent_email;
+      $("coachLinkPlayerPick").focus();
+      $("coachLinkStatus").textContent = "Choose the correct player code, then click Link Parent.";
+    };
+    row.append(email, select);
+    target.appendChild(row);
+  });
+}
+$("coachRefreshPending").onclick = loadPendingParents;
+
 /* Admin-only player setup. Supabase RLS protects players; the link RPC
    checks admin status again on the server and never creates parent users. */
 $("coachAddPlayer").onclick = async () => {
@@ -559,6 +607,7 @@ $("coachLinkParent").onclick = async () => {
       ? "Already linked. The parent can refresh My Progress."
       : "Linked " + email + " to " + code + ". They can refresh My Progress.";
     $("coachParentEmail").value = "";
+    await loadPendingParents();
   } finally {
     $("coachLinkParent").disabled = false;
   }
