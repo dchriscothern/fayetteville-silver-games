@@ -165,6 +165,22 @@
           <div id="coachStats"></div>
         </div>
         <div class="card">
+          <h2>Manage players &amp; parent access</h2>
+          <p class="muted">Parents choose whether to sign in under My Progress. Nothing here signs them up or sends an invitation. Assign each girl's player code yourself; codes are not assigned by sign-up order.</p>
+          <label for="coachNewCode" style="display:block;font-size:13px;font-weight:700;margin-top:12px;">Add a player code (only if needed)</label>
+          <div class="row" style="margin-top:6px;">
+            <input class="field" id="coachNewCode" type="text" maxlength="24" placeholder="SILVER-008" autocomplete="off" style="flex:1;margin:0;min-width:130px;">
+            <button class="ghost-btn" id="coachAddPlayer">Create code</button>
+          </div>
+          <p class="muted" id="coachAddPlayerStatus" role="status" style="margin-top:6px;"></p>
+          <label for="coachParentEmail" style="display:block;font-size:13px;font-weight:700;margin-top:14px;">Link a parent who opted in</label>
+          <input class="field" id="coachParentEmail" type="email" placeholder="Parent's signed-in email" autocomplete="off" style="margin-top:6px;">
+          <label for="coachLinkPlayerPick" style="display:block;font-size:13px;font-weight:700;">Assign to player code</label>
+          <select id="coachLinkPlayerPick" class="field"><option value="">Select player</option></select>
+          <button class="big-btn" id="coachLinkParent">Link Parent</button>
+          <p class="muted" id="coachLinkStatus" role="status" style="margin-top:8px;">Ask the parent to sign in under My Progress first, then link their email here.</p>
+        </div>
+        <div class="card">
           <h2>Feedback for this player</h2>
           <p class="muted">Only visible to her parent once you publish it. Leave blank and nothing shows.</p>
           <textarea class="field" id="coachFeedbackInput" placeholder="Example: Great paint touches tonight, keep working on meeting the pass in triple threat."></textarea>
@@ -482,8 +498,71 @@ async function loadAllPlayersForCoach() {
     pick.appendChild(opt);
   });
   pick.onchange = () => renderCoachStats();
+  const linkPick = $("coachLinkPlayerPick");
+  const previouslySelected = linkPick.value;
+  linkPick.innerHTML = '<option value="">Select player</option>';
+  allPlayers.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.player_code;
+    opt.textContent = p.player_code;
+    linkPick.appendChild(opt);
+  });
+  if (allPlayers.some(p => p.player_code === previouslySelected)) linkPick.value = previouslySelected;
   if (allPlayers.length) renderCoachStats();
 }
+
+/* Admin-only player setup. Supabase RLS protects players; the link RPC
+   checks admin status again on the server and never creates parent users. */
+$("coachAddPlayer").onclick = async () => {
+  const code = $("coachNewCode").value.trim().toUpperCase();
+  const status = $("coachAddPlayerStatus");
+  if (!/^SILVER-[0-9]{2,3}$/.test(code)) {
+    status.textContent = "Use a code such as SILVER-008 (two or three digits).";
+    return;
+  }
+  if (!isAdmin) { status.textContent = "Coach access required."; return; }
+  $("coachAddPlayer").disabled = true;
+  try {
+    const { error } = await supa.from("players").insert({ player_code: code });
+    if (error) { status.textContent = "Could not create code: " + error.message; return; }
+    status.textContent = code + " created. Now choose it below to link the parent's email.";
+    $("coachNewCode").value = "";
+    await loadAllPlayersForCoach();
+    $("coachLinkPlayerPick").value = code;
+  } finally {
+    $("coachAddPlayer").disabled = false;
+  }
+};
+
+$("coachLinkParent").onclick = async () => {
+  const email = $("coachParentEmail").value.trim().toLowerCase();
+  const code = $("coachLinkPlayerPick").value;
+  const status = $("coachLinkStatus");
+  if (!isAdmin) { status.textContent = "Coach access required."; return; }
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    status.textContent = "Enter the email the parent used to sign in.";
+    return;
+  }
+  if (!code) { status.textContent = "Select a player code first."; return; }
+  if (!confirm("Confirm that this parent opted in and should see " + code + "'s private results?")) return;
+  $("coachLinkParent").disabled = true;
+  status.textContent = "Linking...";
+  try {
+    const { data, error } = await supa.rpc("coach_link_parent", { p_email: email, p_player_code: code });
+    if (error) {
+      status.textContent = error.message.includes("Could not find the function")
+        ? "One-time Supabase setup needed: run the coach_link_parent SQL migration."
+        : "Could not link: " + error.message;
+      return;
+    }
+    status.textContent = data === "already_linked"
+      ? "Already linked. The parent can refresh My Progress."
+      : "Linked " + email + " to " + code + ". They can refresh My Progress.";
+    $("coachParentEmail").value = "";
+  } finally {
+    $("coachLinkParent").disabled = false;
+  }
+};
 
 async function renderCoachStats() {
   const playerId = $("coachPlayerPick").value;
