@@ -539,7 +539,7 @@ $("coachLinkParent").onclick = async () => {
   const code = $("coachLinkPlayerPick").value;
   const status = $("coachLinkStatus");
   if (!isAdmin) { status.textContent = "Coach access required."; return; }
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     status.textContent = "Enter the email the parent used to sign in.";
     return;
   }
