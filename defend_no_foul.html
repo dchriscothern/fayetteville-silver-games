@@ -282,6 +282,8 @@
   <main id="main"></main>
 
   <footer id="pageFooter">Offline practice game &middot; no login, no internet needed &middot; built for team teaching language, not official rules.</footer>
+  <p id="signOutRow" style="display:none; text-align:center; margin:0; padding:4px 16px 16px; font-size:13px;"><a href="index.html?signout=1" target="_top" style="color:#5b2a86; font-weight:700;">Sign out</a></p>
+  <script>try { if (Object.keys(localStorage).some(k => /^sb-.*-auth-token$/.test(k))) document.getElementById("signOutRow").style.display = ""; } catch (e) {}</script>
 </div>
 
 <script>
