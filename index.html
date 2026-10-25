@@ -88,7 +88,8 @@
     <section class="section active" id="section-games">
       <div class="card">
         <h2>Ten decision-training games</h2>
-        <p>No login needed to play. Sign in under My Progress if you want scores saved and to see coach feedback.</p>
+        <p>Everything here is voluntary. The girls can play every game without an account. To save results and see private coaching feedback, a parent can optionally sign in under <strong>My Progress</strong>.</p>
+        <p class="muted" style="margin-top:8px;"><strong>Getting started:</strong> Choose a game and tap Play. For tracked results, have a parent sign in first, then play while signed in. Results save when a game is completed.</p>
       </div>
       <div id="gameGrid"></div>
       <div class="card">
@@ -102,7 +103,14 @@
     <section class="section" id="section-progress">
       <div id="progressSignedOut" class="card">
         <h2>Sign in to see your daughter's progress</h2>
-        <p>We'll email you a one-time sign-in link, no password to remember.</p>
+        <p>Optional for families who want to save game results and see private coaching feedback. We'll email you a one-time sign-in link—no password to remember.</p>
+        <ol style="margin:10px 0;padding-left:22px;line-height:1.7;">
+          <li>Enter your email and select <strong>Email me a sign-in link</strong>.</li>
+          <li>Open the <strong>newest</strong> email and click its link once. If you don't see it, check <strong>Spam / Junk</strong> and mark it as safe.</li>
+          <li>Return to <strong>My Progress</strong>. Coach Chris will privately connect your email to your daughter's player code; it may not show results immediately.</li>
+          <li>After your account is linked, play while signed in. Each completed game's results will be saved to that player's progress page.</li>
+        </ol>
+        <p class="muted">No account is required to play. Parents can opt in whenever they choose. Please don't share the sign-in email link with anyone else.</p>
         <input class="field" type="email" id="progressEmail" placeholder="parent@email.com" style="margin-top:10px;">
         <button class="big-btn" id="progressSendLink">Email me a sign-in link</button>
         <p class="muted" id="progressAuthStatus" style="margin-top:8px;"></p>
