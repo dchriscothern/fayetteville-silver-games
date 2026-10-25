@@ -552,7 +552,7 @@ async function renderProgressStats() {
 
   const { data: results } = await supa
     .from("game_results")
-    .select("game_id, tally, completed_at")
+    .select("game_id, mode, tally, completed_at")
     .eq("player_id", activePlayerId)
     .order("completed_at", { ascending: false });
 
@@ -708,7 +708,7 @@ async function renderCoachStats() {
 
   const { data: results } = await supa
     .from("game_results")
-    .select("game_id, tally, completed_at")
+    .select("game_id, mode, tally, completed_at")
     .eq("player_id", playerId)
     .order("completed_at", { ascending: false });
 
