@@ -348,10 +348,14 @@ window.addEventListener("message", async (ev) => {
    sign-in, the UI just unlocks different things depending on role.
 --------------------------------------------------------------------- */
 async function sendMagicLink(email, statusEl) {
+  // Discard stale authentication errors before issuing a new sign-in link.
+  if (window.location.hash.includes("error=")) {
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
   statusEl.textContent = "Sending...";
   const { error } = await supa.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.href }
+    options: { emailRedirectTo: "https://dchriscothern.github.io/fayetteville-silver-games/" }
   });
   statusEl.textContent = error ? ("Error: " + error.message) : "Check your email for the sign-in link.";
 }
