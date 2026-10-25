@@ -174,6 +174,14 @@
             <button class="ghost-btn" id="coachAddPlayer">Create code</button>
           </div>
           <p class="muted" id="coachAddPlayerStatus" role="status" style="margin-top:6px;"></p>
+          <div style="margin-top:14px;padding:12px;border-radius:10px;background:#f7f3fa;">
+            <div class="row">
+              <strong style="font-size:14px;">Linked parent directory</strong>
+              <button class="ghost-btn" id="coachRefreshLinked" type="button">Refresh</button>
+            </div>
+            <p class="muted" style="margin-top:4px;">Coach-only list of which signed-in parent email can view each player code. A player may have more than one guardian.</p>
+            <div id="coachLinkedList" style="margin-top:8px;" aria-live="polite">Loading when you sign in as coach...</div>
+          </div>
           <div style="margin-top:14px;padding:12px;border-radius:10px;background:#f1ebf6;">
             <div class="row">
               <strong style="font-size:14px;">Pending Parents</strong>
@@ -319,8 +327,14 @@ function toast(msg) {
 
 window.addEventListener("message", async (ev) => {
   const d = ev.data;
+  // Ignore messages from other tabs/windows or other origins.
+  if (ev.origin !== window.location.origin || ev.source !== $("gameFrame").contentWindow) return;
   if (!d || d.source !== "silver-games") return;
   if (d.type === "summary") {
+    const currentGame = GAMES.find(g => new URL($("gameFrame").src).pathname.endsWith("/" + g.file));
+    if (!currentGame || d.gameId !== currentGame.id) return;
+    if (!d.tally || typeof d.tally !== "object" || Array.isArray(d.tally)) return;
+    if (Object.values(d.tally).some(v => !Number.isSafeInteger(v) || v < 0 || v > 1000)) return;
     if (!currentSession || !activePlayerId) {
       toast("Played offline, sign in and pick a player to save scores.");
       return;
@@ -405,6 +419,7 @@ async function refreshAuthUI() {
     $("coachSignedIn").style.display = "";
     await loadAllPlayersForCoach();
     await loadPendingParents();
+    await loadLinkedParents();
   } else {
     $("coachSignedOut").style.display = "none";
     $("coachNotAdmin").style.display = "";
@@ -490,12 +505,79 @@ function decisionMetrics(result) {
     detail: [shots, defensiveOutcome].filter(Boolean).join(" | "), note: total ? "" : "No scored decisions in this attempt." };
 }
 
+
+function makeCoachingFocus(results) {
+  const wrap = document.createElement("section");
+  wrap.style.cssText = "border:1px solid #e5dbee;border-radius:12px;padding:14px;margin:10px 0 18px";
+  const title = document.createElement("h3");
+  title.textContent = "Basketball IQ coaching snapshot";
+  title.style.cssText = "margin:0 0 6px";
+  wrap.appendChild(title);
+  const sessions = (results || []).map(r => ({ r, m: decisionMetrics(r) })).filter(x => x.m.graded);
+  const detail = document.createElement("p");
+  detail.className = "muted";
+  detail.textContent = sessions.length
+    ? sessions.length + " scored attempt" + (sessions.length === 1 ? "" : "s") + ". These are learning-game observations, not a standardized ability grade."
+    : "No scored decisions yet. Complete a decision game to begin a coaching assessment.";
+  wrap.appendChild(detail);
+  if (!sessions.length) return wrap;
+
+  const strongest = sessions.filter(x => x.m.total >= 3).sort((a, b) => b.m.percent - a.m.percent);
+  const gameName = id => GAME_TITLES[id] || id;
+  const latestByGame = [];
+  const seen = new Set();
+  sessions.forEach(x => { if (!seen.has(x.r.game_id)) { seen.add(x.r.game_id); latestByGame.push(x); } });
+  const good = latestByGame.filter(x => x.m.total >= 3).sort((a,b)=>b.m.percent-a.m.percent)[0];
+  if (good) {
+    const p = document.createElement("p");
+    const strong = document.createElement("strong"); strong.textContent = "Current strength: ";
+    p.append(strong, document.createTextNode(gameName(good.r.game_id) + " — " + good.m.correct + "/" + good.m.total + " effective decisions in the latest attempt."));
+    wrap.appendChild(p);
+  }
+  const needs = latestByGame.filter(x => x.m.total >= 3 && x.m.percent < 100).sort((a,b)=>a.m.percent-b.m.percent);
+  const weakest = needs[0];
+  if (weakest) {
+    const t = weakest.r.tally || {};
+    const game = weakest.r.game_id;
+    let cue = "Review the missed reads, then replay and compare the next attempt.";
+    if (game === "rotation_rescue") cue = "Identify the ball, help, and recovery responsibilities before the next rotation.";
+    else if (game === "defend_no_foul") cue = "Read the attack early, move your feet, and defend without reaching.";
+    else if (game === "wide_base") cue = String(weakest.r.mode).startsWith("know") ? "Review your starting spot, cut, and screening responsibility in WIDE." : "Read the defender before choosing the WIDE pass.";
+    else if ((Number(t.earlyPass)||0) >= (Number(t.forcedBad)||0)) cue = "Keep attacking until the defense actually stops you; then find the open pass.";
+    else if ((Number(t.forcedBad)||0) > 0) cue = "Recognize pressure sooner and move the ball instead of forcing a difficult decision.";
+    const p = document.createElement("p");
+    const strong = document.createElement("strong"); strong.textContent = "Next practice focus: ";
+    p.append(strong, document.createTextNode(gameName(game) + " — " + cue));
+    wrap.appendChild(p);
+  } else {
+    const p = document.createElement("p");
+    p.textContent = "Next step: Repeat a scored game to establish a trend before selecting a priority.";
+    wrap.appendChild(p);
+  }
+
+  const trends = latestByGame.filter(x=> sessions.filter(y=>y.r.game_id===x.r.game_id).length>=2);
+  if (trends.length) {
+    const trend = trends[0];
+    const past = sessions.filter(x=>x.r.game_id===trend.r.game_id);
+    const recent = past[0].m.percent;
+    const prior = past[1].m.percent;
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "Latest change in " + gameName(trend.r.game_id) + ": " +
+      (recent === prior ? "unchanged" : (recent > prior ? "+" : "") + (recent-prior) + " percentage points") +
+      " compared with the previous scored attempt. Practice and timed modes may differ.";
+    wrap.appendChild(p);
+  }
+  return wrap;
+}
+
 function makeDecisionReport(results) {
   const wrap = document.createElement("div");
   const intro = document.createElement("p");
   intro.className = "muted";
   intro.textContent = "Decision accuracy reflects choices in these learning games—not shooting percentage or a standardized basketball IQ grade. The latest scored attempt and recent progress appear below.";
   wrap.appendChild(intro);
+  wrap.appendChild(makeCoachingFocus(results));
   const grouped = {};
   (results || []).forEach(r => (grouped[r.game_id] ||= []).push(r));
   const table = document.createElement("table");
@@ -646,6 +728,45 @@ async function loadPendingParents() {
 }
 $("coachRefreshPending").onclick = loadPendingParents;
 
+async function loadLinkedParents() {
+  const target = $("coachLinkedList");
+  if (!isAdmin) { target.textContent = ""; return; }
+  target.textContent = "Loading...";
+  const { data, error } = await supa.rpc("coach_linked_parents");
+  if (error) {
+    console.error("Linked parent directory:", error);
+    target.textContent = "Linked directory unavailable. Please refresh or contact the coach site administrator.";
+    return;
+  }
+  target.replaceChildren();
+  if (!data || !data.length) {
+    target.textContent = "No parent accounts linked yet.";
+    return;
+  }
+  const table = document.createElement("table");
+  const head = document.createElement("thead");
+  const heading = document.createElement("tr");
+  ["Player code", "Parent email"].forEach(label => {
+    const th = document.createElement("th"); th.textContent = label; heading.appendChild(th);
+  });
+  head.appendChild(heading);
+  table.appendChild(head);
+  const body = document.createElement("tbody");
+  data.forEach(item => {
+    const row = document.createElement("tr");
+    [item.player_code, item.parent_email].forEach(value => {
+      const cell = document.createElement("td");
+      cell.textContent = value || "";
+      cell.style.overflowWrap = "anywhere";
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
+  table.appendChild(body);
+  target.appendChild(table);
+}
+$("coachRefreshLinked").onclick = loadLinkedParents;
+
 /* Admin-only player setup. Supabase RLS protects players; the link RPC
    checks admin status again on the server and never creates parent users. */
 $("coachAddPlayer").onclick = async () => {
@@ -695,6 +816,7 @@ $("coachLinkParent").onclick = async () => {
       : "Linked " + email + " to " + code + ". They can refresh My Progress.";
     $("coachParentEmail").value = "";
     await loadPendingParents();
+    await loadLinkedParents();
   } finally {
     $("coachLinkParent").disabled = false;
   }
