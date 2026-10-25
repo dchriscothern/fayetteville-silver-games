@@ -481,11 +481,9 @@ async function renderProgressStats() {
     byGame[r.game_id].plays += 1;
   });
 
-  let html = "";
-  if (feedback && feedback.length) {
-    html += `<div class="feedback-note"><strong>Coach's note:</strong><br>${feedback[0].body}</div>`;
-  }
-  html += "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
+  // Construct the fixed statistics markup separately from coach-entered text.
+  // Never interpolate feedback into innerHTML.
+  let html = "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
   const gameIds = Object.keys(GAME_TITLES);
   gameIds.forEach(id => {
     const plays = byGame[id] ? byGame[id].plays : 0;
@@ -496,6 +494,17 @@ async function renderProgressStats() {
     html += "<p class='muted' style='margin-top:8px;'>No saved games yet, play one from the Games tab while signed in.</p>";
   }
   target.innerHTML = html;
+  if (feedback && feedback.length) {
+    const note = document.createElement("div");
+    note.className = "feedback-note";
+    const heading = document.createElement("strong");
+    heading.textContent = "Coach's note:";
+    const message = document.createElement("div");
+    message.style.whiteSpace = "pre-wrap";
+    message.textContent = feedback[0].body || "";
+    note.append(heading, message);
+    target.prepend(note);
+  }
 }
 
 /* ---------------------------------------------------------------------
