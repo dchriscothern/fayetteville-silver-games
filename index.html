@@ -96,7 +96,7 @@
         <p>This is a work in progress, and we'll keep adding to it. It isn't the only way to play or coach the game. It's how we're teaching it at this age, so the girls hear the same words here that they hear at practice.</p>
         <p style="margin-top:8px;">I've been fortunate to learn from many great coaches along the way, including Fayetteville girls' and boys' coaches, former college and professional coaches, and time spent around Coach Muss's team during his first year at Arkansas. I'm grateful for what they've shared.</p>
       </div>
-      <p id="gamesSignOut" style="display:none; text-align:center; margin:0; font-size:13px;"><a href="#" id="gamesSignOutLink" style="color:var(--purple); font-weight:700;">Sign out</a></p>
+      <p style="text-align:center; margin:0; font-size:13px;" class="muted"><span id="gamesAuthLabel">Not signed in. Sign in under My Progress to save scores.</span><span id="gamesSignOut" style="display:none;"> &middot; <a href="#" id="gamesSignOutLink" style="color:var(--purple); font-weight:700;">Sign out</a></span></p>
     </section>
 
     <section class="section" id="section-progress">
@@ -381,6 +381,7 @@ supa.auth.onAuthStateChange((_event, session) => {
 
 async function refreshAuthUI() {
   $("gamesSignOut").style.display = currentSession ? "" : "none";
+  $("gamesAuthLabel").textContent = currentSession ? "Signed in as " + currentSession.user.email : "Not signed in. Sign in under My Progress to save scores.";
   if (!currentSession) {
     isAdmin = false; myPlayers = []; activePlayerId = null; allPlayers = [];
     $("progressSignedOut").style.display = "";
