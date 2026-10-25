@@ -156,6 +156,14 @@
       <div id="coachSignedIn" style="display:none;">
         <div class="card">
           <div class="row">
+            <h2 style="margin:0;">Team development overview</h2>
+            <button class="ghost-btn" id="coachRefreshTeam" type="button">Refresh</button>
+          </div>
+          <p class="muted">Coach only. Each player's latest scored attempt per game contributes once, so repeat players do not dominate the team average. These are in-game decisions, not a standardized skill assessment.</p>
+          <div id="coachTeamOverview" aria-live="polite">Loading team performance...</div>
+        </div>
+        <div class="card">
+          <div class="row">
             <h2 style="margin:0;">Coach Dashboard</h2>
             <button class="ghost-btn" id="coachSignOut">Sign out</button>
           </div>
@@ -420,6 +428,7 @@ async function refreshAuthUI() {
     await loadAllPlayersForCoach();
     await loadPendingParents();
     await loadLinkedParents();
+    await loadTeamOverview();
   } else {
     $("coachSignedOut").style.display = "none";
     $("coachNotAdmin").style.display = "";
@@ -766,6 +775,150 @@ async function loadLinkedParents() {
   target.appendChild(table);
 }
 $("coachRefreshLinked").onclick = loadLinkedParents;
+
+function teamLine(label, value, detail) {
+  const line = document.createElement("div");
+  line.style.cssText = "padding:10px 12px;border-radius:10px;background:#f5f1f8;flex:1;min-width:125px";
+  const big = document.createElement("div"); big.style.cssText = "font-size:21px;font-weight:800"; big.textContent = value;
+  const name = document.createElement("strong"); name.style.fontSize = "12px"; name.textContent = label;
+  line.append(big,name);
+  if(detail){const p=document.createElement("div");p.className="muted";p.textContent=detail;line.appendChild(p);}
+  return line;
+}
+
+function makeTeamOverview(results, playerCount) {
+  const container=document.createElement("div");
+  const grouped=new Map();
+  (results||[]).forEach(result=>{
+    if(!GAME_TITLES[result.game_id])return;
+    let byPlayer=grouped.get(result.game_id);
+    if(!byPlayer){byPlayer=new Map();grouped.set(result.game_id,byPlayer);}
+    let attempts=byPlayer.get(result.player_id);
+    if(!attempts){attempts=[];byPlayer.set(result.player_id,attempts);}
+    attempts.push(result);
+  });
+  const attempts=(results||[]).length;
+  const gradedGamePlayers=[];
+  for(const [gameId,players] of grouped){
+    for(const [playerId,history] of players){
+      const scored=history.map(r=>({r,m:decisionMetrics(r)})).filter(x=>x.m.graded);
+      if(scored.length)gradedGamePlayers.push({gameId,playerId,current:scored[0],previous:scored[1]||null});
+    }
+  }
+  const uniquePlayers=new Set((results||[]).map(x=>x.player_id));
+  const weighted=(array)=> {
+    const total=array.reduce((sum,x)=>sum+x.current.m.total,0);
+    const good=array.reduce((sum,x)=>sum+x.current.m.correct,0);
+    return total?Math.round(good/total*100):null;
+  };
+  const summary=document.createElement("div");
+  summary.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0";
+  const overall=weighted(gradedGamePlayers);
+  [
+    ["Players with results",uniquePlayers.size+" / "+playerCount,"Remaining players have no saved games"],
+    ["Saved attempts",String(attempts),"Includes unscored WIDE watch sessions"],
+    ["Latest decisions",overall===null?"—":overall+"%","Weighted across latest scored attempts, once per player per game"]
+  ].forEach(item=>summary.appendChild(teamLine(...item)));
+  container.appendChild(summary);
+
+  const heading=document.createElement("h3");heading.textContent="Decision skills by game";container.appendChild(heading);
+  const p=document.createElement("p");p.className="muted";
+  p.textContent="Team score combines the latest attempt from each player in that game. Only recorded, scored decisions are included.";
+  container.appendChild(p);
+  const table=document.createElement("table");
+  const head=document.createElement("tr");
+  ["Skill / game","Players scored","Team accuracy","Common errors"].forEach(label=>{
+    const th=document.createElement("th");th.textContent=label;head.appendChild(th);
+  });
+  const thead=document.createElement("thead");thead.appendChild(head);table.appendChild(thead);
+  const body=document.createElement("tbody");
+  const priorities=[];
+  GAMES.forEach(game=>{
+    const group=gradedGamePlayers.filter(x=>x.gameId===game.id);
+    const right=group.reduce((sum,x)=>sum+x.current.m.correct,0);
+    const total=group.reduce((sum,x)=>sum+x.current.m.total,0);
+    const percent=total?Math.round(100*right/total):null;
+    const negatives={};
+    group.forEach(x=>x.current.m.counts.filter(c=>!c.good).forEach(c=>{negatives[c.label]=(negatives[c.label]||0)+c.value;}));
+    const major=Object.entries(negatives).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0).slice(0,2);
+    const tr=document.createElement("tr");
+    const fields=[
+      game.title,
+      group.length?group.length+" ("+total+" decisions)":"—",
+      percent===null?"Not scored":percent+"% ("+right+"/"+total+")",
+      major.length?major.map(x=>x[0]+": "+x[1]).join("; "):group.length?"No errors recorded":"—"
+    ];
+    fields.forEach(value=>{const td=document.createElement("td");td.textContent=value;tr.appendChild(td);});
+    body.appendChild(tr);
+    if(total)priorities.push({game,percent,total,group,major});
+  });
+  table.appendChild(body);container.appendChild(table);
+  const focus=document.createElement("div");
+  focus.style.cssText="padding:12px;border-left:4px solid #5b2a86;background:#f5f1f8;margin:14px 0;border-radius:6px";
+  const focusHeading=document.createElement("strong");focusHeading.textContent="Practice-planning signal";
+  focus.appendChild(focusHeading);
+  const focusText=document.createElement("p");
+  const candidates=priorities.filter(x=>x.total>=6).sort((a,b)=>a.percent-b.percent);
+  if(candidates.length) {
+    const x=candidates[0];
+    focusText.textContent=x.game.title+" ("+x.percent+"% across "+x.group.length+" player"+(x.group.length===1?"":"s")+
+      "). "+(x.major.length?"Most frequent error: "+x.major[0][0]+". ":"")+
+      "Consider a short teaching block and retest after practice. Interpret cautiously with a small sample.";
+  } else focusText.textContent="Not enough scored team data yet for a practice priority. After several players finish games, this section will flag the lowest-scoring skill with at least six recorded decisions.";
+  focus.appendChild(focusText);container.appendChild(focus);
+  const heading2=document.createElement("h3");heading2.textContent="Player development at a glance";container.appendChild(heading2);
+  const small=document.createElement("p");small.className="muted";
+  small.textContent="Coach-only player codes. Change compares the two latest scored attempts in the same game; practice and timed modes may not be directly comparable.";
+  container.appendChild(small);
+  const playerTable=document.createElement("table");
+  const th=document.createElement("tr");
+  ["Player","Scored games","Latest scores","Repeat-attempt changes"].forEach(v=>{
+    const cell=document.createElement("th");cell.textContent=v;th.appendChild(cell);
+  });
+  const h=document.createElement("thead");h.appendChild(th);playerTable.appendChild(h);
+  const rows=document.createElement("tbody");
+  allPlayers.forEach(player=>{
+    const latest=gradedGamePlayers.filter(x=>x.playerId===player.id);
+    const changes=latest.filter(x=>x.previous).map(x=>GAME_TITLES[x.gameId]+": "+
+      (x.current.m.percent-x.previous.m.percent>0?"+":"")+
+      (x.current.m.percent-x.previous.m.percent)+" pp");
+    const tr=document.createElement("tr");
+    [
+      player.player_code,
+      String(latest.length),
+      latest.length?latest.map(x=>GAME_TITLES[x.gameId]+": "+x.current.m.percent+"%").join(" · "):"No scores yet",
+      changes.length?changes.join(" · "):"Needs repeat attempts"
+    ].forEach(v=>{const cell=document.createElement("td");cell.textContent=v;tr.appendChild(cell);});
+    rows.appendChild(tr);
+  });
+  playerTable.appendChild(rows);container.appendChild(playerTable);
+  const note=document.createElement("p");note.className="muted";
+  note.textContent="Use alongside what you observe at practice. These scores are self-directed game outcomes; no rankings or grades are sent to other families.";
+  container.appendChild(note);
+  return container;
+}
+
+async function loadTeamOverview() {
+  const target=$("coachTeamOverview");
+  if(!isAdmin || !currentSession){target.textContent="";return;}
+  target.textContent="Loading team performance...";
+  const limit=500;
+  let page=0;
+  let combined=[];
+  while(page<20){
+    const {data,error}=await supa.from("game_results")
+      .select("player_id,game_id,mode,tally,completed_at")
+      .order("completed_at",{ascending:false})
+      .range(page*limit,(page+1)*limit-1);
+    if(error){console.error("Team overview:",error);target.textContent="Team report unavailable. Please refresh.";return;}
+    combined.push(...(data||[]));
+    if(!data||data.length<limit)break;
+    page++;
+  }
+  if(page===20){target.textContent="Report limit reached. Contact site administrator to enable additional result pages.";return;}
+  target.replaceChildren(makeTeamOverview(combined,allPlayers.length));
+}
+$("coachRefreshTeam").onclick=loadTeamOverview;
 
 /* Admin-only player setup. Supabase RLS protects players; the link RPC
    checks admin status again on the server and never creates parent users. */
