@@ -458,6 +458,94 @@ async function loadMyPlayers() {
   renderProgressStats();
 }
 
+
+/* DECISION REPORTS — based on the tallies each game actually records.
+   These are game-defined decision scores, not standardized ability grades. */
+function decisionMetrics(result) {
+  const t = result.tally || {};
+  const number = k => Math.max(0, Number(t[k]) || 0);
+  const wide = result.game_id === "wide_base";
+  const defense = result.game_id === "rotation_rescue" || result.game_id === "defend_no_foul";
+  const mode = String(result.mode || "practice").split(":")[0];
+  if (wide && mode === "watch") return { graded: false, mode: "Watch / demonstration", note: "Watch mode is practice, not a scored assessment." };
+  const buckets = defense
+    ? [{ key: "correctCall", label: "Correct calls", good: true }, { key: "wrongCall", label: "Incorrect calls" }]
+    : wide && mode === "know"
+      ? [{ key: "positionCorrect", label: "Correct positions", good: true }, { key: "positionMissed", label: "Missed positions" }]
+      : wide
+        ? [{ key: "goodRead", label: "Strong reads", good: true }, { key: "acceptableRead", label: "Acceptable reads", good: true }, { key: "forcedBad", label: "Forced decisions" }]
+        : [{ key: "goodRead", label: "Good reads", good: true }, { key: "earlyPass", label: "Early passes" }, { key: "forcedBad", label: "Forced decisions" }];
+  const counts = buckets.map(b => ({...b, value: number(b.key)}));
+  const total = counts.reduce((sum, b) => sum + b.value, 0);
+  const correct = counts.filter(b => b.good).reduce((sum, b) => sum + b.value, 0);
+  const shotTotal = number("gold") + number("silver") + number("bad");
+  const shots = shotTotal ? "Shot selection: " + number("gold") + " gold · " + number("silver") + " silver · " + number("bad") + " bad" : "";
+  const defensiveOutcome = defense
+    ? (result.game_id === "rotation_rescue"
+        ? "Possessions: " + number("stop") + " stops · " + number("openShot") + " open shots allowed · " + number("easyBucket") + " easy buckets allowed"
+        : "Outcomes: " + number("stop") + " stops · " + number("foul") + " fouls · " + number("easyBucket") + " easy buckets allowed")
+    : "";
+  return { graded: total > 0, total, correct, percent: total ? Math.round(100 * correct / total) : null,
+    counts, mode: wide ? (mode === "know" ? "Know your job" : "Read the defense") : mode === "timed" ? "Timed" : "Practice",
+    detail: [shots, defensiveOutcome].filter(Boolean).join(" | "), note: total ? "" : "No scored decisions in this attempt." };
+}
+
+function makeDecisionReport(results) {
+  const wrap = document.createElement("div");
+  const intro = document.createElement("p");
+  intro.className = "muted";
+  intro.textContent = "Decision accuracy reflects choices in these learning games—not shooting percentage or a standardized basketball IQ grade. The latest scored attempt and recent progress appear below.";
+  wrap.appendChild(intro);
+  const grouped = {};
+  (results || []).forEach(r => (grouped[r.game_id] ||= []).push(r));
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  ["Game", "Latest decision accuracy", "Recent performance", "Played"].forEach(label => {
+    const th = document.createElement("th"); th.textContent = label; headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow); table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  GAMES.forEach(game => {
+    const entries = grouped[game.id] || [];
+    const scored = entries.map(r => ({r, m:decisionMetrics(r)})).filter(x => x.m.graded);
+    const latest = scored[0];
+    const row = document.createElement("tr");
+    function cell(txt) { const td = document.createElement("td"); td.textContent = txt; row.appendChild(td); return td; }
+    cell(game.title);
+    const gradeCell = cell(latest ? latest.m.percent + "% (" + latest.m.correct + "/" + latest.m.total + ")" : entries.length ? "Not scored" : "—");
+    if(latest) { const desc=document.createElement("div"); desc.className="muted"; desc.textContent=latest.m.mode; gradeCell.appendChild(desc); }
+    const recent = scored.slice(0,5).reverse().map(x => x.m.percent + "%");
+    cell(recent.length ? recent.join(" → ") + (scored.length > 1 ? " (oldest → newest)" : "") : "—");
+    cell(String(entries.length));
+    tbody.appendChild(row);
+    if (entries.length) {
+      const detailRow = document.createElement("tr");
+      const td = document.createElement("td"); td.colSpan = 4;
+      const details = document.createElement("details");
+      const summary = document.createElement("summary"); summary.textContent = "View " + game.title + " attempt details"; details.appendChild(summary);
+      entries.slice(0,8).forEach(r => {
+        const m = decisionMetrics(r);
+        const line = document.createElement("div");
+        line.style.cssText = "padding:10px 0;border-bottom:1px solid #e7e1ee";
+        const date = new Date(r.completed_at);
+        const title = document.createElement("strong");
+        title.textContent = (Number.isNaN(date.getTime()) ? "Saved attempt" : date.toLocaleDateString()) + " · " + m.mode + " · " + (m.graded ? m.percent + "% (" + m.correct + "/" + m.total + ")" : "Unscored");
+        line.appendChild(title);
+        const desc = document.createElement("div"); desc.className = "muted";
+        desc.textContent = (m.counts ? m.counts.map(c => c.label + ": " + c.value).join(" · ") : m.note) + (m.detail ? " | " + m.detail : "");
+        line.appendChild(desc); details.appendChild(line);
+      });
+      td.appendChild(details); detailRow.appendChild(td); tbody.appendChild(detailRow);
+    }
+  });
+  table.appendChild(tbody); wrap.appendChild(table);
+  if (!results || !results.length) {
+    const p=document.createElement("p"); p.className="muted"; p.textContent="No results saved yet. Complete a game while signed in to see decision accuracy."; wrap.appendChild(p);
+  }
+  return wrap;
+}
+
 async function renderProgressStats() {
   const target = $("progressStats");
   target.innerHTML = "<p class='muted'>Loading...</p>";
@@ -476,25 +564,7 @@ async function renderProgressStats() {
     .order("updated_at", { ascending: false })
     .limit(1);
 
-  const byGame = {};
-  (results || []).forEach(r => {
-    byGame[r.game_id] = byGame[r.game_id] || { plays: 0 };
-    byGame[r.game_id].plays += 1;
-  });
-
-  // Construct the fixed statistics markup separately from coach-entered text.
-  // Never interpolate feedback into innerHTML.
-  let html = "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
-  const gameIds = Object.keys(GAME_TITLES);
-  gameIds.forEach(id => {
-    const plays = byGame[id] ? byGame[id].plays : 0;
-    html += `<tr><td>${GAME_TITLES[id]}</td><td>${plays}</td></tr>`;
-  });
-  html += "</tbody></table>";
-  if (!results || !results.length) {
-    html += "<p class='muted' style='margin-top:8px;'>No saved games yet, play one from the Games tab while signed in.</p>";
-  }
-  target.innerHTML = html;
+  target.replaceChildren(makeDecisionReport(results));
   if (feedback && feedback.length) {
     const note = document.createElement("div");
     note.className = "feedback-note";
@@ -642,19 +712,7 @@ async function renderCoachStats() {
     .eq("player_id", playerId)
     .order("completed_at", { ascending: false });
 
-  const byGame = {};
-  (results || []).forEach(r => {
-    byGame[r.game_id] = byGame[r.game_id] || { plays: 0 };
-    byGame[r.game_id].plays += 1;
-  });
-
-  let html = "<table><thead><tr><th>Game</th><th>Times played</th></tr></thead><tbody>";
-  Object.keys(GAME_TITLES).forEach(id => {
-    const plays = byGame[id] ? byGame[id].plays : 0;
-    html += `<tr><td>${GAME_TITLES[id]}</td><td>${plays}</td></tr>`;
-  });
-  html += "</tbody></table>";
-  target.innerHTML = html;
+  target.replaceChildren(makeDecisionReport(results));
 
   const { data: fb } = await supa
     .from("coach_feedback")
